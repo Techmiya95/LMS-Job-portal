@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - User Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Include Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container--default .select2-selection--multiple {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            min-height: 48px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #3b82f6;
+            border: 1px solid #3b82f6;
+            border-radius: 9999px;
+            color: white;
+            padding: 0 8px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 4px;
+        }
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 fixed inset-y-0 z-50 bg-gradient-to-b from-blue-600 to-indigo-800 text-white shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out">
+            <div class="p-6">
+                <!-- Logo & Brand -->
+                <div class="flex items-center mb-8">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-blue-600 font-bold text-xl">HR</span>
+                    </div>
+                    <span class="text-xl font-semibold">TalentHub</span>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <nav class="mt-8">
+                    <div class="space-y-2">
+                        <a href="#" class="flex items-center px-4 py-3 rounded-lg bg-white/20 text-white">
+                            <i class="fas fa-users mr-3"></i>
+                            <span>User Management</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-white/80">
+                            <i class="fas fa-chart-line mr-3"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-white/80">
+                            <i class="fas fa-user-plus mr-3"></i>
+                            <span>Recruitment</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-white/80">
+                            <i class="fas fa-briefcase mr-3"></i>
+                            <span>Jobs</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-white/80">
+                            <i class="fas fa-calendar-alt mr-3"></i>
+                            <span>Calendar</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-white/80">
+                            <i class="fas fa-cog mr-3"></i>
+                            <span>Settings</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64">
+            <!-- Top Header -->
+            <header class="bg-white shadow-sm p-4 md:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-semibold text-gray-800">User Management</h1>
+                        <p class="text-gray-500 text-sm md:text-base">Manage and filter candidates</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800 text-sm md:text-base">HR Administrator</p>
+                            <p class="text-sm text-gray-500">HR ID: {{ hr_id }}</p>
+                        </div>
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="p-4 md:p-6">
+                <!-- Filters -->
+                <div class="bg-white rounded-xl shadow-sm mb-6">
+                    <div class="p-4 md:p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold flex items-center">
+                                <i class="fas fa-filter text-blue-600 mr-2"></i>
+                                Filters
+                            </h2>
+                            <span class="text-sm text-gray-500 hidden md:block">Find candidates that match your criteria</span>
+                        </div>
+                        
+                        <form id="filterForm" method="get">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label for="skills" class="block mb-2 text-sm font-medium text-gray-700">Skills</label>
+                                    <select id="skills" name="skills" multiple class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <!-- Skills will be loaded dynamically -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="graduation_year" class="block mb-2 text-sm font-medium text-gray-700">Graduation Year</label>
+                                    <select id="graduation_year" name="graduation_year" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">All Years</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="location" class="block mb-2 text-sm font-medium text-gray-700">Location</label>
+                                    <select id="location" name="location" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">All Locations</option>
+                                        <option value="new_york">New York</option>
+                                        <option value="san_francisco">San Francisco</option>
+                                        <option value="chicago">Chicago</option>
+                                        <option value="los_angeles">Los Angeles</option>
+                                        <option value="remote">Remote</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label for="graduation_percentage" class="block mb-2 text-sm font-medium text-gray-700">Min Graduation Percentage</label>
+                                    <input type="number" id="graduation_percentage" name="min_percentage" min="0" max="100" placeholder="Min Percentage" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="search" class="block mb-2 text-sm font-medium text-gray-700">Search</label>
+                                    <input type="text" id="search" name="search" placeholder="Search by name, email, etc." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3">
+                                <button type="button" onclick="resetFilters()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                                    Reset Filters
+                                </button>
+                                <button type="submit" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                                    <i class="fas fa-search mr-2"></i>Apply Filters
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- User List -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">User List <span id="userCount" class="text-gray-500">({{ users|length }} users)</span></h2>
+                        <div class="flex gap-2">
+                            <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Refresh List">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Export Data">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="userListContainer">
+                        {% if users %}
+                            {% for user in users %}
+                            <div class="user-card bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-gray-100"
+                                data-skills="{{ user.skills|join:' ' }}"
+                                data-graduation-year="{{ user.graduation_year }}"
+                                data-location="{{ user.location }}"
+                                data-graduation-percentage="{{ user.Graduation_Percentage }}">
+                                <div class="bg-blue-600 p-4">
+                                    <!-- Header can include profile preview or accent color -->
+                                </div>
+                                <div class="p-5">
+                                    <div class="mb-4">
+                                        <p class="text-sm text-gray-500 mb-1">ID: <span class="font-medium text-gray-700">{{ user.id }}</span></p>
+                                        <p class="font-semibold text-lg text-gray-800 mb-1">{{ user.username }}</p>
+                                        <p class="text-blue-600"><i class="fas fa-envelope mr-1"></i> {{ user.email }}</p>
+                                    </div>
+                                    
+                                    <div class="space-y-2 mb-4">
+                                        <p class="text-sm text-gray-500">
+                                            <span class="font-medium">Father's Name:</span> {{ user.father_name }}
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            <span class="font-medium">Graduation:</span> 
+                                            <span class="font-semibold {% if user.Graduation_Percentage >= 80 %}text-green-600{% elif user.Graduation_Percentage >= 60 %}text-blue-600{% else %}text-orange-500{% endif %}">
+                                                {{ user.Graduation_Percentage }}%
+                                            </span>
+                                        </p>
+                                        {% if user.skills %}
+                                        <div class="text-sm text-gray-500">
+                                            <span class="font-medium">Skills:</span>
+                                            <div class="flex flex-wrap gap-2 mt-1">
+                                                {% for skill in user.skills %}
+                                                <span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">{{ skill }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% if user.location %}
+                                        <p class="text-sm text-gray-500">
+                                            <span class="font-medium">Location:</span> 
+                                            <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>{{ user.location }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
+                                    <button onclick="viewUserDetails('{{ user.id }}')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-span-3 bg-white rounded-xl shadow-sm p-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                                        <i class="fas fa-search text-3xl text-blue-300"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-2">No users found</h3>
+                                    <p class="text-gray-500">Try adjusting your filter criteria</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div id="pagination" class="flex justify-center items-center gap-2 mt-8"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal for user details -->
+    <div id="userDetailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-3xl max-h-[90vh] overflow-y-auto relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div id="userDetailsContent" class="p-6">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Include jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Pagination variables
+        let currentPage = 1;
+        const usersPerPage = 12;
+        let filteredUsers = [];
+
+        // Initialize Select2 dropdowns
+        $(document).ready(function() {
+            // Skills dropdown
+            $('#skills').select2({
+                placeholder: "Search and select skills",
+                allowClear: true,
+                width: '100%',
+                minimumInputLength: 1,
+                ajax: {
+                    url: '/get_skills/',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { search: params.term };
+                    },
+                    processResults: function(data) {
+                        if (data.success) {
+                            return {
+                                results: data.skills.map(skill => ({
+                                    id: skill,
+                                    text: skill
+                                }))
+                            };
+                        }
+                        return { results: [] };
+                    },
+                    cache: true
+                },
+                templateResult: formatSkill,
+                templateSelection: formatSkillSelection
+            });
+
+            // Location dropdown
+            $('#location').select2({
+                placeholder: "Search and select location",
+                allowClear: true,
+                width: '100%',
+                minimumInputLength: 1,
+                ajax: {
+                    url: '/get_locations/',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { search: params.term };
+                    },
+                    processResults: function(data) {
+                        if (data.success) {
+                            return {
+                                results: data.locations.map(location => ({
+                                    id: location,
+                                    text: location
+                                }))
+                            };
+                        }
+                        return { results: [] };
+                    },
+                    cache: true
+                }
+            });
+
+            // Initialize pagination with all users
+            filteredUsers = Array.from(document.querySelectorAll('.user-card'));
+            updatePaginationControls();
+            displayUsers(currentPage);
+
+            // Keep dropdown open for multiple selections
+            $('#skills').on('select2:select', function() {
+                $(this).select2('open');
+            });
+        });
+
+        // Format skill display in dropdown
+        function formatSkill(skill) {
+            if (!skill.id) return skill.text;
+            return $('<span>').addClass('skill-item').text(skill.text);
+        }
+
+        // Format selected skill display
+        function formatSkillSelection(skill) {
+            if (!skill.id) return skill.text;
+            return $('<span>').addClass('selected-skill').text(skill.text);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const selectedSkills = $('#skills').val() || [];
+            const selectedLocation = $('#location').val();
+            const gradYear = document.getElementById('graduation_year').value;
+            const minPercentage = document.getElementById('graduation_percentage').value;
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            
+            const allUsers = Array.from(document.querySelectorAll('.user-card'));
+            filteredUsers = [];
+            
+            allUsers.forEach(card => {
+                const cardSkills = card.dataset.skills ? card.dataset.skills.toLowerCase().split(' ') : [];
+                const cardLocation = card.dataset.location ? card.dataset.location.toLowerCase() : '';
+                const cardGradYear = card.dataset.graduationYear;
+                const cardPercentage = parseFloat(card.dataset.graduationPercentage);
+                const cardContent = card.textContent.toLowerCase();
+                
+                let visible = true;
+                
+                // Skills filter
+                if (selectedSkills.length > 0) {
+                    visible = visible && selectedSkills.every(skill => 
+                        cardSkills.some(cardSkill => cardSkill.includes(skill.toLowerCase()))
+                    );
+                }
+                
+                // Location filter
+                if (selectedLocation) {
+                    visible = visible && (cardLocation === selectedLocation.toLowerCase());
+                }
+                
+                // Graduation year filter
+                if (gradYear && cardGradYear !== gradYear) {
+                    visible = false;
+                }
+                
+                // Graduation percentage filter
+                if (minPercentage && cardPercentage < parseFloat(minPercentage)) {
+                    visible = false;
+                }
+                
+                // Search term filter
+                if (searchTerm && !cardContent.includes(searchTerm)) {
+                    visible = false;
+                }
+                
+                if (visible) {
+                    filteredUsers.push(card);
+                }
+            });
+            
+            updateResultsCount(filteredUsers.length);
+            currentPage = 1; // Reset to first page when filters change
+            updatePaginationControls();
+            displayUsers(currentPage);
+        }
+
+        // Update results count display
+        function updateResultsCount(count) {
+            document.getElementById('userCount').textContent = `(${count} users)`;
+            const noResults = document.querySelector('.no-results');
+            if (noResults) {
+                noResults.style.display = count === 0 ? 'block' : 'none';
+            }
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            $('#skills').val(null).trigger('change');
+            $('#location').val(null).trigger('change');
+            document.getElementById('graduation_year').value = '';
+            document.getElementById('graduation_percentage').value = '';
+            document.getElementById('search').value = '';
+            
+            filteredUsers = Array.from(document.querySelectorAll('.user-card'));
+            updateResultsCount(filteredUsers.length);
+            currentPage = 1;
+            updatePaginationControls();
+            displayUsers(currentPage);
+        }
+
+        // Event listeners
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            applyFilters();
+        });
+
+        // User details modal functions
+        function viewUserDetails(userId) {
+            document.getElementById('userDetailsModal').classList.remove('hidden');
+            document.getElementById('userDetailsContent').innerHTML = `
+                <div class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">Loading User Details</h2>
+                    <p class="text-gray-500">Fetching details for user ID: ${userId}</p>
+                </div>
+            `;
+            
+            fetch(`/get_user_details/${userId}`)
+                .then(handleResponse)
+                .then(data => displayUserDetails(data))
+                .catch(handleError);
+        }
+
+        function handleResponse(response) {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        }
+
+        function handleError(error) {
+            console.error("Error:", error);
+            document.getElementById('userDetailsContent').innerHTML = `
+                <div class="text-center py-8">
+                    <div class="inline-block rounded-full h-16 w-16 bg-red-50 text-red-500 flex items-center justify-center mb-4">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">Error</h2>
+                    <p class="text-gray-500">${error.message}</p>
+                </div>
+            `;
+        }
+
+        function displayUserDetails(response) {
+            if (!response.success) {
+                document.getElementById('userDetailsContent').innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="inline-block rounded-full h-16 w-16 bg-red-50 text-red-500 flex items-center justify-center mb-4">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Error</h2>
+                        <p class="text-gray-500">${response.error || 'Failed to load user details'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const userData = response.data;
+            const profilePicHtml = userData.profile_picture 
+                ? `<img src="data:image/jpeg;base64,${userData.profile_picture}" class="w-32 h-32 rounded-full object-cover shadow">`
+                : `<div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-4xl font-bold shadow">
+                      ${userData.username?.charAt(0)?.toUpperCase() || 'U'}
+                   </div>`;
+
+            const downloadButton = userData.has_resume
+                ? `<a href="/download_resume/${userData.user_id}/" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition-colors inline-flex items-center" download="${userData.resume_filename || 'resume.pdf'}">
+                      <i class="fas fa-download mr-2"></i> Download Resume
+                   </a>`
+                : `<button class="bg-gray-300 text-gray-500 px-5 py-2 rounded-lg cursor-not-allowed inline-flex items-center" disabled>
+                      <i class="fas fa-download mr-2"></i> No Resume Available
+                   </button>`;
+
+            document.getElementById('userDetailsContent').innerHTML = `
+                <div class="flex flex-col items-center mb-8 border-b border-gray-200 pb-6">
+                    ${profilePicHtml}
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-4">${userData.username || 'N/A'}</h2>
+                    <p class="text-blue-600"><i class="fas fa-envelope mr-1"></i> ${userData.email || 'N/A'}</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 p-5 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-user-circle mr-2 text-blue-600"></i>
+                            Personal Information
+                        </h3>
+                        <div class="space-y-3">
+                            <p class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Father's Name:</span>
+                                <span class="font-medium text-gray-800">${userData.father_name || 'N/A'}</span>
+                            </p>
+                            <p class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Mobile:</span>
+                                <span class="font-medium text-gray-800">${userData.mobile || 'N/A'}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span class="text-gray-500">Location:</span>
+                                <span class="font-medium text-gray-800">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>
+                                    ${userData.location || 'N/A'}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-5 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-graduation-cap mr-2 text-blue-600"></i>
+                            Educational Information
+                        </h3>
+                        <div class="space-y-3">
+                            <p class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Branch:</span>
+                                <span class="font-medium text-gray-800">${userData.branch || 'N/A'}</span>
+                            </p>
+                            <p class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">UG College:</span>
+                                <span class="font-medium text-gray-800">${userData.ug_college || 'N/A'}</span>
+                            </p>
+                            <p class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Passout Year:</span>
+                                <span class="font-medium text-gray-800">${userData.Passout_Year || 'N/A'}</span>
+                            </p>
+                            <div class="pt-2">
+                                <p class="text-gray-500 mb-2">Academic Performance:</p>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div class="bg-blue-100 p-2 rounded text-center">
+                                        <span class="block text-xs text-gray-500">10th</span>
+                                        <span class="font-semibold text-blue-800">${userData["10th_Percentage"] || 'N/A'}%</span>
+                                    </div>
+                                    <div class="bg-blue-100 p-2 rounded text-center">
+                                        <span class="block text-xs text-gray-500">12th</span>
+                                        <span class="font-semibold text-blue-800">${userData["12th_Percentage"] || 'N/A'}%</span>
+                                    </div>
+                                    <div class="bg-blue-100 p-2 rounded text-center">
+                                        <span class="block text-xs text-gray-500">Graduation</span>
+                                        <span class="font-semibold text-blue-800">${userData.Graduation_Percentage || 'N/A'}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-5 rounded-xl">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-code mr-2 text-blue-600"></i>
+                        Skills
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        ${Array.isArray(userData.skills) && userData.skills.length > 0 
+                            ? userData.skills.map(skill => `<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">${skill}</span>`).join('') 
+                            : '<span class="text-gray-500">No skills listed</span>'}
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button onclick="closeModal()" class="bg-white hover:bg-gray-100 text-gray-800 border border-gray-300 px-5 py-2 rounded-lg transition-colors">
+                        Close
+                    </button>
+                    ${downloadButton}
+                </div>
+            `;
+        }
+
+        function closeModal() {
+            document.getElementById('userDetailsModal').classList.add('hidden');
+        }
+
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('userDetailsModal')) {
+                closeModal();
+            }
+        };
+
+        // Pagination functions
+        function displayUsers(page) {
+            const totalUsers = filteredUsers.length;
+            
+            // Hide all users first
+            const allUsers = document.querySelectorAll('.user-card');
+            allUsers.forEach(user => user.style.display = 'none');
+            
+            // Calculate start and end index for current page
+            const start = (page - 1) * usersPerPage;
+            const end = Math.min(start + usersPerPage, totalUsers);
+            
+            // Show only users for current page
+            for (let i = start; i < end; i++) {
+                if (filteredUsers[i]) {
+                    filteredUsers[i].style.display = 'block';
+                }
+            }
+        }
+
+        function updatePaginationControls() {
+            const container = document.getElementById('pagination');
+            container.innerHTML = '';
+            
+            const totalUsers = filteredUsers.length;
+            const totalPages = Math.ceil(totalUsers / usersPerPage);
+            
+            if (totalPages <= 1) return; // Don't show pagination if only one page
+            
+            // Previous button
+            const prevBtn = createPaginationButton('Previous', currentPage === 1);
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayUsers(currentPage);
+                    updatePaginationControls();
+                }
+            });
+            container.appendChild(prevBtn);
+            
+            // Page number buttons
+            const maxVisiblePages = 5; // Maximum number of page buttons to show
+            let startPage, endPage;
+            
+            if (totalPages <= maxVisiblePages) {
+                // Show all pages
+                startPage = 1;
+                endPage = totalPages;
+            } else {
+                // Calculate start and end pages
+                const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
+                const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
+                
+                if (currentPage <= maxPagesBeforeCurrent) {
+                    // Current page near the start
+                    startPage = 1;
+                    endPage = maxVisiblePages;
+                } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
+                    // Current page near the end
+                    startPage = totalPages - maxVisiblePages + 1;
+                    endPage = totalPages;
+                } else {
+                    // Current page somewhere in the middle
+                    startPage = currentPage - maxPagesBeforeCurrent;
+                    endPage = currentPage + maxPagesAfterCurrent;
+                }
+            }
+            
+            // Add first page and ellipsis if needed
+            if (startPage > 1) {
+                const firstBtn = createPaginationButton(1, false, 1 === currentPage);
+                firstBtn.addEventListener('click', () => {
+                    currentPage = 1;
+                    displayUsers(currentPage);
+                    updatePaginationControls();
+                });
+                container.appendChild(firstBtn);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'px-3 py-2';
+                    ellipsis.textContent = '...';
+                    container.appendChild(ellipsis);
+                }
+            }
+            
+            // Add page number buttons
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = createPaginationButton(i, false, i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    displayUsers(currentPage);
+                    updatePaginationControls();
+                });
+                container.appendChild(pageBtn);
+            }
+            
+            // Add last page and ellipsis if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'px-3 py-2';
+                    ellipsis.textContent = '...';
+                    container.appendChild(ellipsis);
+                }
+                
+                const lastBtn = createPaginationButton(totalPages, false, totalPages === currentPage);
+                lastBtn.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    displayUsers(currentPage);
+                    updatePaginationControls();
+                });
+                container.appendChild(lastBtn);
+            }
+            
+            // Next button
+            const nextBtn = createPaginationButton('Next', currentPage === totalPages);
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayUsers(currentPage);
+                    updatePaginationControls();
+                }
+            });
+            container.appendChild(nextBtn);
+        }
+
+        function createPaginationButton(text, disabled, isActive = false) {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.className = 'px-4 py-2 mx-1 rounded-lg transition-colors';
+            
+            if (isActive) {
+                btn.classList.add('bg-blue-600', 'text-white');
+            } else {
+                btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+            }
+            
+            if (disabled) {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            
+            return btn;
+        }
+    </script>
+</body>
+</html>

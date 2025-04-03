@@ -4,790 +4,1376 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job List</title>
-
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         /* General Theme */
         body {
             background-color: #f8f9fa;
             color: #333;
-            padding-bottom: 100px; /* Adjust this value based on the footer height */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
+        
+        .main-content {
+            flex: 1;
+        }
+        
         /* Navbar */
         .navbar {
             background-color: #007bff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0.8rem 0;
         }
-        .navbar-brand, .nav-link {
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
             color: white !important;
+            display: flex;
+            align-items: center;
         }
+        .navbar-brand:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .btn-outline-light {
+            border: 2px solid white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-light:hover {
+            background-color: white;
+            color: #007bff !important;
+        }
+        
+        /* Improved Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #f5f9ff 0%, #e0edff 100%);
+            padding: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .banner-title {
+            font-weight: 800;
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #2c3e50, #007bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .banner-subtitle {
+            font-size: 1.25rem;
+            color: #5d6d7e;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+        
+        .banner-btn {
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .banner-btn-primary {
+            background-color: #007bff;
+            border: none;
+            color: white;
+        }
+        
+        .banner-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+            background-color: #0069d9;
+        }
+        
+        .banner-btn-outline {
+            border: 2px solid #007bff;
+            color: #007bff;
+            background: transparent;
+        }
+        
+        .banner-btn-outline:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .banner-image-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .banner-image-container:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        .floating-badge {
+            position: absolute;
+            bottom: -20px;
+            left: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+        
+        .trust-badges {
+            margin-top: 2rem;
+        }
+        
+        .trust-item {
+            display: flex;
+            align-items: center;
+            margin-right: 1.5rem;
+        }
+        
+        .trust-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        
+        .trust-text small {
+            display: block;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .trust-text strong {
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        /* Decorative elements */
+        .banner-shape-1 {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 123, 255, 0.05);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .banner-shape-2 {
+            position: absolute;
+            bottom: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: rgba(0, 123, 255, 0.03);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        /* Job Cards */
+        .job-card {
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            background: white;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .job-card-header {
+            background: linear-gradient(135deg, #007bff, #00a8ff);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .job-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .job-company {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .job-type-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .job-card-body {
+            padding: 1.5rem;
+        }
+        
+        .job-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: #555;
+        }
+        
+        .job-detail-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            color: #007bff;
+        }
+        
+        .job-skills {
+            margin: 1.5rem 0;
+        }
+        
+        .skill-badge {
+            display: inline-block;
+            background: #e9f5ff;
+            color: #007bff;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .job-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .job-posted {
+            font-style: italic;
+        }
+        
+        .job-deadline {
+            background: #fff8e1;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            color: #ff8f00;
+            font-weight: 500;
+        }
+        
+        .apply-btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .applied-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        /* Search and Filters */
+        .search-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .filter-select {
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e9ecef;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 16px 12px;
+        }
+        
+        /* Autocomplete styles */
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 4px 4px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .autocomplete-suggestions div {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .autocomplete-suggestions div:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .autocomplete-suggestions .selected {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        /* Pagination */
+        .pagination-container {
+            margin-top: 2rem;
+        }
+        
+        .page-btn {
+            min-width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            border-radius: 8px !important;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 3rem 0;
+            margin-top: auto;
+            width: 100%;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.25rem;
+            margin-right: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            transform: translateY(-3px);
+        }
+        
         /* Profile Sidebar */
         .profile-sidebar {
             position: fixed;
             top: 0;
-            right: -350px;
-            width: 350px;
-            height: 100%;
-            background: white;
-            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background-color: #fff;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
             transition: right 0.3s ease-in-out;
-            padding: 20px;
+            z-index: 1100;
+            overflow-y: auto;
+        }
+
+        .profile-sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1050;
-            border-left: 4px solid #007bff;
-            text-align: center;
+            display: none;
         }
+
         .profile-header {
-            font-weight: bold;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+            background: linear-gradient(135deg, #007bff, #00a8ff);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
         }
-        .close-btn {
+
+        .close-sidebar {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            font-size: 20px;
-            color: #333;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
         }
-        /* Profile Picture */
-        .profile-pic-container {
-            position: relative;
-            width: 180px;
-            height: 200px;
-            margin: 0 auto;
+
+        .profile-content {
+            padding: 1.5rem;
         }
+
+        .profile-pic-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
         .profile-pic {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 4px solid #007bff;
             object-fit: cover;
+            border: 5px solid transparent;
+            position: relative;
         }
-        .edit-icon {
+
+        /* Circular Profile Completion Indicator */
+        .profile-pic-container::before {
+            content: '';
             position: absolute;
-            bottom: 5px;
-            right: 5px;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 5px solid #e9ecef;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .profile-pic-container::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 5px solid transparent;
+            border-top-color: #28a745;
+            border-right-color: #28a745;
+            border-radius: 50%;
+            transform: rotate(0deg);
+            transition: transform 0.5s ease;
+            z-index: 1;
+        }
+
+        .completion-percent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .edit-pic-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
             background: #007bff;
             color: white;
-            padding: 5px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 14px;
+            border: none;
+            z-index: 3;
         }
-        /* SVG Default Profile */
-        .default-profile {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
+
+        .profile-info-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
         }
-        .edit-profile-btn, .edit-password-btn {
-            margin-top: 15px;
-            width: 80%;
+
+        .profile-info-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.3rem;
         }
-        .edit-password-link {
-            color: blue;
-            cursor: pointer;
-        }
-        /* Profile Info */
-        .profile-info {
+
+        .profile-info-value {
             font-size: 1.1rem;
-            margin-top: 10px;
-            text-align: left;
         }
-        .profile-info strong {
-            color: #007bff;
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
         }
-        /* Job Table */
-        .table-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        .action-buttons .btn {
+            flex: 1;
         }
-        /* Job Cards */
-.job-card {
-    margin-bottom: 20px;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
 
-.job-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
+        /* Edit Profile Section */
+        .edit-profile-section {
+            display: none;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .form-group {
+            margin-bottom: 1rem;
+        }
 
-.card-body {
-    animation: fadeIn 1s ease-in-out;
-}/* Add styles for search bar and button spacing */
-.input-group .form-control {
-    width: 70%;
-}
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .banner-title {
+                font-size: 2.5rem;
+            }
+            
+            .banner-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .banner-image-container {
+                margin-top: 2rem;
+                transform: none;
+            }
+            
+            .trust-badges {
+                justify-content: center;
+            }
 
-.input-group .btn {
-    margin-left: 10px;
-}
-html, body {
-    height: 100%;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-}
+            .profile-sidebar {
+                width: 350px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .banner-title {
+                font-size: 2rem;
+            }
+            
+            .hero-banner {
+                padding: 3rem 0;
+            }
+            
+            .job-card-header {
+                padding: 1rem;
+            }
+            
+            .job-title {
+                font-size: 1.25rem;
+            }
+            
+            .job-company {
+                font-size: 1rem;
+            }
 
-.container {
-    flex: 1; /* Pushes footer to the bottom */
-}
+            .profile-sidebar {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .job-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .job-deadline {
+                margin-top: 0.5rem;
+            }
 
-footer {
-    margin-top: auto;
-}
-footer {
-    width: 100%;
-    left: 0;
-    bottom: 0;
-}
-footer {
-    width: 100vw; /* Ensures the footer spans the full viewport width */
-    position: relative; /* Or 'fixed' if you want it always at the bottom */
-    left: 0;
-    bottom: 0;
-    background-color: #343a40; /* Ensure it's styled properly */
-    color: white;
-    text-align: center;
-}
-#jobList {
-    min-height: 300px; /* Adjust as needed */
-}
-
-.banner {
-    background: linear-gradient(to right, #ffffff 50%, #f0f8ff 100%);
-    padding: 40px 0;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    border: 1px solid #e6e6e6;
-}
-
-.banner-title {
-    font-weight: 800;
-    color: #2c3e50;
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-}
-
-.banner-text {
-    color: #5d6d7e;
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-}
-
-.banner-btn {
-    background-color: #3498db;
-    border: none;
-    padding: 12px 30px;
-    font-weight: 600;
-    border-radius: 30px;
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-    transition: all 0.3s ease;
-}
-
-.banner-btn:hover {
-    background-color: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
-}
-
-.image-container {
-    position: relative;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.banner-image {
-    max-width: 100%;
-    border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    transition: transform 0.5s ease;
-}
-
-.banner-image:hover {
-    transform: scale(1.03);
-}
-
-.highlight {
-    color: #3498db;
-}
-
-.company-logos {
-    margin-top: 20px;
-    opacity: 0.7;
-}
-
-
-
-.profile-sidebar {
-    position: fixed;
-    top: 0;
-    right: -350px; /* Hide sidebar by default */
-    width: 350px;
-    height: 100vh;
-    background-color: #fff;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    transition: right 0.3s ease;
-    overflow-y: auto; /* Make it scrollable */
-    z-index: 1000;
-}
-
-.profile-content {
-    padding: 20px;
-}
-
-.profile-header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.profile-info {
-    margin-bottom: 20px;
-}
-
-.profile-info p {
-    margin: 10px 0;
-}
-
-.profile-pic-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.profile-pic {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.default-profile {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-}
-
-.progress {
-    height: 20px;
-    margin-bottom: 20px;
-}
-
-.progress-bar {
-    background-color: #28a745;
-}
-
-.edit-profile-btn, .edit-password-link {
-    display: block;
-    width: 100%;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.edit-password-link {
-    color: #007bff;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-{% comment %} new side bar {% endcomment %}
-/* Sidebar styling */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: -320px;
-    width: 320px;
-    height: 100%;
-    background-color: #f8f9fa;
-    transition: all 0.3s;
-    z-index: 1050;
-    overflow-y: auto;
-    box-shadow: 3px 0 10px rgba(0,0,0,0.1);
-    padding: 20px;
-}
-
-.sidebar.active {
-    left: 0;
-}
-
-.sidebar-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
-    z-index: 1040;
-    display: none;
-}
-
-.profile-image-container {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    margin: 0 auto 10px;
-}
-
-.profile-image {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #dee2e6;
-}
-
-/* Circular Profile Completion Indicator */
-.profile-completion {
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    width: calc(100% + 10px);
-    height: calc(100% + 10px);
-    border-radius: 50%;
-    border: 5px solid transparent;
-    transition: all 0.5s ease-in-out;
-}
-
-/* Profile Completion Animation */
-@keyframes progressRotate {
-    from { transform: rotate(-90deg); }
-    to { transform: rotate(calc(270deg * var(--progress))); }
-}
-
-
-
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 20px;
-}
-
-.field-row {
-    margin-bottom: 10px;
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 10px;
-}
-
-.field-label {
-    font-weight: bold;
-    color: #6c757d;
-}
-
-.field-value {
-    font-weight: normal;
-}
-
-.edit-form .form-control {
-    margin-bottom: 10px;
-}
-
-
+            .profile-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+        }
     </style>
 </head>
 <body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">Job Portal</a>
-        <div class="ml-auto">
-            {% if user.is_authenticated %}
-           <a href="{% url 'hr_panel' %}" style="color:white;px-2">HR</a>
-           <a href="{% url 'api_jobs' %}" style="color:white;px-2">Jobs</a>
-            <a href="#" id="profile-btn" class="btn btn-outline-light me-2 d-inline-flex align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
-                Profile
-              </a>
-                <form action="{% url 'logout' %}" method="POST" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Logout</button>
-                </form>
-            {% else %}
-            {% csrf_token %}
-                <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
-                <a href="{% url 'signup' %}" class="btn btn-light">Signup</a>
-            {% endif %}
-        </div>
-    </div>
-</nav>
-
-{% comment %} banner {% endcomment %}
-  <div class="container pt-3 pb-2">
-    <!-- Attractive Banner Container -->
-    <div class="banner">
-        <div class="container">
-            <div class="row align-items-center">
-                <!-- Left side: Text content -->
-                <div class="col-lg-6 col-md-12">
-                    <h1 class="banner-title">Find Your <span class="highlight">Dream Job</span> Today</h1>
-                    <p class="banner-text">Connect with top employers and discover opportunities that match your skills and career goals. Join thousands of successful job seekers!</p>
-                    <button class="btn banner-btn btn-primary btn-lg">Explore Opportunities</button>
-                    
-                    <div class="company-logos d-none d-lg-block">
-                        <small class="text-muted d-block mb-2">Trusted by leading companies</small>
-                        {% comment %} <img src="/api/placeholder/280/30" alt="Company logos" class="img-fluid"> {% endcomment %}
-                    </div>
-                </div>
+    <div class="main-content">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="bi bi-briefcase-fill logo-icon"></i>
+                    JobPortal
+                </a>
                 
-                <!-- Right side: Attractive image -->
-                <div class="col-lg-6 col-md-12">
-                    <div class="image-container">
-                        {% load static %}
-                        <img src="{% static 'images/Banner.jpg' %}" alt="Professional team in an office meeting" class="banner-image img-fluid" style="width: 100%; height: 300px; object-fit: cover;">
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<pre>{{ user }}</pre>
-
-
-<!-- Sidebar Backdrop -->
-<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-
-<!-- Profile Sidebar -->
-<div class="sidebar" id="profile-sidebar">
-    <div class="close-btn" id="close-sidebar">&times;</div>
-    
-    <!-- View Profile Section -->
-    <div id="view-profile">
-        <div class="profile-image-container">
-            <img id="profile-picture" src="/static/images/default-profile.png" class="img-fluid rounded-circle">
-            <div class="profile-completion" id="profile-completion"></div>
-        </div>
-        <!-- Profile Completion Text Below Image -->
-        <p id="profile-completion-text" class="text-center mt-2 fw-bold" style="font-size: 16px; color: #198754;">0%</p>
-        
-        
-        
-        
-        <h4 class="text-center mb-4" id="profile-name"></h4>
-        
-        <div class="field-row">
-            <span class="field-label">Email:</span>
-            <span class="field-value" id="email-value"></span>
-        </div>
-        
-        <div class="field-row">
-            <span class="field-label">Father's Name:</span>
-            <span class="field-value" id="father-name-value"></span>
-        </div>
-        
-        <div class="field-row">
-            <span class="field-label">UG College:</span>
-            <span class="field-value" id="ug-college-value"></span>
-        </div>
-        
-        <div class="field-row">
-            <span class="field-label">Branch:</span>
-            <span class="field-value" id="branch-value"></span>    
-        </div>
-        
-        <div class="field-row">
-            <span class="field-label">Passout Year:</span>
-            <span class="field-value" id="passout-year-value"></span>
-        </div>
-        
-        <div class="field-row">
-            <span class="field-label">Graduation Percentage:</span>
-            <span class="field-value" id="grad-percentage-value">}</span>
-        </div>
-        
-        <div class="field-row">
-            <span class="field-label">10th Percentage:</span>
-            <span class="field-value" id="tenth-percentage-value"></span>
-        </div>
-{% comment %}         
-        <div class="field-row">
-            <span class="field-label">12th Percentage:</span>
-            <span class="field-value" id="twelth-percentage-value"></span>
-        </div> {% endcomment %}
-
-        <button class="btn btn-primary w-100 mt-3" id="edit-profile-btn">Edit Profile</button>
-    </div>
-    
-    <!-- Edit Profile Section (Initially Hidden) -->
-    <div id="edit-profile" style="display: none;">
-        <h4 class="text-center mb-4">Edit Profile</h4>
-        
-        <form class="edit-form" id="profile-form">
-            <div class="mb-3">
-                <label for="profile-pic-input" class="form-label">Profile Picture</label>
-                <input type="file" class="form-control" id="profile-pic-input" name="profile_picture" accept="image/*">
-            </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            
-            <div class="mb-3">
-                <label for="name-input" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name-input" name="name" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="email-input" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email-input" name="email" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="father-name-input" class="form-label">Father's Name</label>
-                <input type="text" class="form-control" id="father-name-input" name="father_name" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="ug-college-input" class="form-label">UG College</label>
-                <input type="text" class="form-control" id="ug-college-input" name="ug_college" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="branch-input" class="form-label">Branch</label>
-                <input type="text" class="form-control" id="branch-input" name="branch" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="passout-year-input" class="form-label">Passout Year</label>
-                <input type="text" class="form-control" id="passout-year-input" name="passout_year" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="grad-percentage-input" class="form-label">Graduation Percentage</label>
-                <input type="text" class="form-control" id="grad-percentage-input" name="graduation_percentage" value="">
-            </div>
-            
-            <div class="mb-3">
-                <label for="tenth-percentage-input" class="form-label">10th Percentage</label>
-                <input type="text" class="form-control" id="tenth-percentage-input" name="tenth_percentage" value="">
-            </div>
-            
-            {% comment %} <div class="mb-3">
-                <label for="twelth-percentage-input" class="form-label">12th Percentage</label>
-                <input type="text" class="form-control" id="twelth-percentage-input" name="twelfth_percentage" value="">
-            </div> {% endcomment %}
-            
-             <div class="d-flex gap-2">
-                <button type="button" class="btn btn-secondary flex-grow-1" id="cancel-edit-btn">Cancel</button>
-                <button type="submit" class="btn btn-success flex-grow-1" id="save-profile-btn">Save</button>
-            </div>
-        </form>
-    </div>
-    
-    </div>
-</div>
-
-
-
-<!-- Job List Section -->
-<div class="container mt-4">
-    <div class="table-container">
-        <h2 class="text-center mb-4 text-primary fw-bold display-4">Available Jobs</h2>
-
-
-
-        <!-- Search Bar -->
-        <div class="input-group mb-3" style="max-width: 500px; margin: auto;">
-            <input type="text" id="jobSearch" class="form-control" placeholder="Search for jobs..." style="width: 70%;">
-            <button class="btn btn-primary" type="button" id="searchButton" style="margin-left: 10px;">Search</button>
-        </div>
-
-        <!-- Job Filters -->
-        <!-- Job Filters (Responsive) -->
-        <div class="container">
-            <div class="row g-2 justify-content-center align-items-center">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <select id="jobRole" class="form-select w-100">
-                        <option value="">Job Role</option>
-                        <option value="Frontend Developer">Frontend Developer</option>
-                        <option value="Data Analyst">Data Analyst</option>
-                        <option value="UI">UI</option>
-                        <option value="Backend Developer">Backend Developer</option>
-                    </select>
-                </div>
-        
-                <div class="col-12 col-sm-6 col-md-3">
-                    <select id="jobType" class="form-select w-100">
-                        <option value="">Job Type</option>
-                        <option value="Full Time">Full Time</option>
-                        <option value="Part Time">Part Time</option>
-                    </select>
-                </div>
-        
-                <div class="col-12 col-sm-6 col-md-3">
-                    <select id="jobLocation" class="form-select w-100">
-                        <option value="">Location</option>
-                        <option value="Bengaluru">Bengaluru</option>
-                        <option value="Pune">Pune</option>
-                        
-                    </select>
-                </div>
-        
-                <!-- Experience dropdown and Apply button in the same row for desktop -->
-                <div class="col-12 col-sm-6 col-md-3 d-flex flex-column flex-md-row align-items-md-center">
-                    <select id="jobExperience" class="form-select w-100 mb-2 mb-md-0 me-md-2">
-                        <option value="">Experience</option>
-                        <option value="0-1">0-1 Years</option>
-                        <option value="1-2">1-2 Years</option>
-                        <option value="0-5">0-5 Years</option>
-                    </select>
-                    <div class="d-flex flex-column flex-md-row gap-2">
-                        <button class="btn btn-sm btn-primary w-100 w-md-auto" id="filterButton">Apply</button>
-                        <button class="btn btn-sm btn-danger w-100 w-md-auto" id="removeFilterButton">Remove</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-       <!-- Job List Section -->
-<div class="row justify-content-center mb-4 mt-4" id="jobListContainer">
-    <div id="jobList" class="row">
-        {% for job in jobs %}
-            <div class="col-md-4 col-sm-6 mb-4 job-card" data-role="{{ job.Job }}" data-type="{{ job.Type }}" data-location="{{ job.Location }}" data-experience="{{ job.Experience }}">
-    
-            <div class="card shadow-lg h-90 border-0 rounded-4 hover:shadow-xl transition border-start border-primary border-4 mb-2 my-2">
-                <div class="card-body d-flex flex-column p-3">
-                    <h5 class="card-title fw-bold text-primary">{{ job.Job }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{{ job.Org }}</h6>
-                    <p class="card-text mb-3">
-                        <strong>📍 Location:</strong> {{job.Location}}<br>
-                        <strong>💰 Salary:</strong> ₹{{ job.Salary }} LPA<br>
-                        <strong>🔹 Experience:</strong> 0 - 5 Years
-                    </p>
-                    <div class="mb-3">
-                        <strong>🛠 Skills:</strong>
-                        {% for skill in job.Skills %}
-                            <span class="badge bg-secondary">{{ skill }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="mb-3">
-                        <strong>🏢 Type:</strong>
-                        <span class="badge bg-info">{{job.job_type}}</span>
-                    </div>
-                    <p class="text-muted text-truncate" style="max-height: 60px; overflow: hidden;">
-                        {{ job.FullDescription }}
-                    </p>
-                    <div class="mb-3">
-                        <strong> Deadline:</strong>
-                        <span class="badge bg-info">{{job.deadline}}</span>
-                    </div>
-                    <strong>🕒 Posted:</strong> {{ job.posted_date|timesince }} ago
-
-                    <div class="mt-auto">
-                        {% if job.Job in applied_jobs %}
-                            <button class="btn btn-success w-100 fw-bold" disabled>✔ Applied</button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <div class="ms-auto d-flex align-items-center">
+                        {% if user.is_authenticated %}
+                            <div class="d-flex flex-column flex-lg-row align-items-center">
+                                <a href="{% url 'hr_panel' %}" class="nav-link">HR Panel</a>
+                                <a href="{% url 'profile_page' %}" class="nav-link">My Profile</a>
+                                <a href="{% url 'api_jobs' %}" class="nav-link">Browse Jobs</a>
+                                
+                                <div class="d-flex ms-lg-3 mt-2 mt-lg-0">
+                                    <a href="#" id="profile-btn" class="btn btn-outline-light me-2 d-flex align-items-center">
+                                        <i class="bi bi-person-fill profile-icon me-1"></i>
+                                        Profile
+                                    </a>
+                                    <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Logout</button>
+                                    </form>
+                                </div>
+                            </div>
                         {% else %}
-                            <button class="btn btn-primary w-100 fw-bold apply-btn" data-job-id="{{ job.Job }}" data-hr-id="{{ job.hr_id }}">
-                                Apply Now
-                            </button>
+                            <div class="d-flex">
+                                <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
+                                <a href="{% url 'signup' %}" class="btn btn-light">Sign Up</a>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
+        </nav>
+      
+        <!-- Sidebar Backdrop -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+      
+        <!-- Profile Sidebar -->
+        <div class="profile-sidebar" id="profileSidebar">
+            <div class="profile-header">
+                <h4 class="text-center mb-0">My Profile</h4>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            {% load static %}
+            <div class="profile-content">
+                <!-- View Profile Section -->
+                <div id="viewProfile">
+                    <div class="profile-pic-container">
+                        <img id="profilePicture" src="{% static 'images/default-profile.png' %}" class="profile-pic">
+                        <div class="completion-percent" id="completionPercent">0%</div>
+                        <button class="edit-pic-btn" id="editPicBtn">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="profile-info">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">Name</div>
+                            <div class="profile-info-value" id="profileName">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">Email</div>
+                            <div class="profile-info-value" id="profileEmail">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">Father's Name</div>
+                            <div class="profile-info-value" id="profileFatherName">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">UG College</div>
+                            <div class="profile-info-value" id="profileUgCollege">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">Branch</div>
+                            <div class="profile-info-value" id="profileBranch">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">Passout Year</div>
+                            <div class="profile-info-value" id="profilePassoutYear">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">Graduation Percentage</div>
+                            <div class="profile-info-value" id="profileGradPercentage">Loading...</div>
+                        </div>
+                        
+                        <div class="profile-info-item">
+                            <div class="profile-info-label">10th Percentage</div>
+                            <div class="profile-info-value" id="profileTenthPercentage">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="editProfileBtn">
+                            <i class="bi bi-pencil-fill me-1"></i> Edit Profile
+                        </button>
+                        <button class="btn btn-outline-secondary" id="changePasswordBtn">
+                            <i class="bi bi-lock-fill me-1"></i> Change Password
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Edit Profile Section -->
+                <div id="editProfile" class="edit-profile-section">
+                    <h5 class="text-center mb-4">Edit Profile</h5>
+                    
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="editProfilePic" class="form-label">Profile Picture</label>
+                            <input type="file" class="form-control" id="editProfilePic" name="profile_pic">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName" name="name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editFatherName" class="form-label">Father's Name</label>
+                            <input type="text" class="form-control" id="editFatherName" name="father_name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editUgCollege" class="form-label">UG College</label>
+                            <input type="text" class="form-control" id="editUgCollege" name="ug_college">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editBranch" class="form-label">Branch</label>
+                            <input type="text" class="form-control" id="editBranch" name="branch">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editPassoutYear" class="form-label">Passout Year</label>
+                            <input type="text" class="form-control" id="editPassoutYear" name="passout_year">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editGradPercentage" class="form-label">Graduation Percentage</label>
+                            <input type="text" class="form-control" id="editGradPercentage" name="grad_percentage">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editTenthPercentage" class="form-label">10th Percentage</label>
+                            <input type="text" class="form-control" id="editTenthPercentage" name="tenth_percentage">
+                        </div>
+                        
+                        <div class="action-buttons mt-4">
+                            <button type="button" class="btn btn-secondary" id="cancelEditBtn">
+                                <i class="bi bi-x-circle-fill me-1"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save-fill me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-    </div>
-</div>
 
-<!-- Pagination Section -->
-<div class="pagination-container text-center mt-4">
-    <button class="btn btn-secondary me-2" id="prevPage">« Prev</button>
-    <span id="paginationNumbers"></span>
-    <button class="btn btn-secondary ms-2" id="nextPage">Next »</button>
-</div>
+        <!-- Banner -->
+        <section class="hero-banner">
+            <div class="banner-shape-1"></div>
+            <div class="banner-shape-2"></div>
+            
+            <div class="container">
+                <div class="row align-items-center">
+                    <!-- Text Content -->
+                    <div class="col-lg-6 col-md-12 order-lg-1 order-2 banner-content">
+                        <h1 class="banner-title">Find Your Dream <span class="text-primary">Tech Job</span></h1>
+                        <p class="banner-subtitle">
+                            Join thousands of professionals who found their perfect tech career match. 
+                            Get personalized job recommendations and connect with top employers.
+                        </p>
+                        
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <a href="#jobs" class="btn banner-btn banner-btn-primary">
+                                <i class="bi bi-search me-2"></i>Browse Jobs
+                            </a>
+                            <a href="#how-it-works" class="btn banner-btn banner-btn-outline">
+                                <i class="bi bi-play-circle me-2"></i>How It Works
+                            </a>
+                        </div>
+                        
+                        <!-- Trust Badges -->
+                        <div class="d-flex flex-wrap trust-badges">
+                            <div class="trust-item">
+                                <div class="trust-icon text-success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="trust-text">
+                                    <small>Verified Companies</small>
+                                    <strong>5,000+</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="trust-item">
+                                <div class="trust-icon text-info">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div class="trust-text">
+                                    <small>Active Candidates</small>
+                                    <strong>250,000+</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Content -->
+                    <div class="col-lg-6 col-md-12 order-lg-2 order-1">
+                        <div class="banner-image-container">
+                            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Happy professionals working" 
+                                 class="banner-image">
+                            
+                            <!-- Floating badge -->
+                            <div class="floating-badge">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="fs-3 fw-bold text-primary">4.9</div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex mb-1">
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        </div>
+                                        <small class="text-muted">TrustScore</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-</div>
-</div>
-
-<!-- Footer Section -->
-<footer class="bg-dark text-light py-4 mt-3 mb-0 w-100">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Company Info -->
-            <div class="col-md-4">
-                <h5>Job Portal</h5>
-                <p>Your trusted platform for finding and applying for the best job opportunities.</p>
+        <!-- Job List Section -->
+        <div class="container mt-5" id="jobs">
+            <div class="search-container">
+                <h2 class="text-center mb-4 text-primary fw-bold">Available Jobs</h2>
+                
+                <!-- Search Bar -->
+                <div class="row mb-4">
+                    <div class="col-md-8 mx-auto">
+                        <div class="input-group">
+                            <input type="text" id="jobSearch" class="form-control search-input" placeholder="Search for jobs...">
+                            <button class="btn btn-primary" type="button" id="searchButton">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Job Filters -->
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="autocomplete-container">
+                            <input type="text" id="jobRole" class="form-control search-input" 
+                                   placeholder="Search job roles..." autocomplete="off">
+                            <div id="jobRoleSuggestions" class="autocomplete-suggestions"></div>
+                        </div>
+                        <input type="hidden" id="selectedJobRole" value="">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <select id="jobType" class="form-select filter-select">
+                            <option value="">Job Type</option>
+                            <option value="Full-time">Full Time</option>
+                            <option value="Part-time">Part Time</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="autocomplete-container">
+                            <input type="text" id="jobLocation" class="form-control search-input" 
+                                   placeholder="Search locations..." autocomplete="off" data-field="location">
+                            <div id="jobLocationSuggestions" class="autocomplete-suggestions"></div>
+                        </div>
+                        <input type="hidden" id="selectedJobLocation" value="">
+                    </div>
+                    
+                    <div class="col-md-3 d-flex">
+                        <select id="jobExperience" class="form-select filter-select me-2">
+                            <option value="">Experience</option>
+                            <option value="0-1">0-1 Years</option>
+                            <option value="1-2">1-2 Years</option>
+                            <option value="0-5">0-5 Years</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary" id="filterButton">Apply</button>
+                    </div>
+                    
+                    <div class="col-12 text-center">
+                        <button class="btn btn-sm btn-outline-danger" id="removeFilterButton">
+                            <i class="bi bi-x-circle"></i> Clear Filters
+                        </button>
+                    </div>
+                </div>
             </div>
             
-            <!-- Quick Links -->
-            <div class="col-md-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-light text-decoration-none">Home</a></li>
-                    <li><a href="#" class="text-light text-decoration-none">Jobs</a></li>
-                    <li><a href="#" class="text-light text-decoration-none">About Us</a></li>
-                    <li><a href="#" class="text-light text-decoration-none">Contact</a></li>
-                </ul>
+            <!-- Job List -->
+            <div class="row" id="jobList">
+                {% for job in jobs %}
+                <div class="col-lg-4 col-md-6 mb-4 job-card" 
+                     data-role="{{ job.Job }}" 
+                     data-type="{{ job.job_type }}" 
+                     data-location="{{ job.Location }}" 
+                     data-experience="{{ job.experience }}">
+                    
+                    <div class="card h-100">
+                        <div class="job-card-header">
+                            <div class="job-type-badge">{{ job.job_type }}</div>
+                            <h3 class="job-title">{{ job.Job }}</h3>
+                            <p class="job-company">{{ job.Org }}</p>
+                        </div>
+                        
+                        <div class="job-card-body">
+                            <div class="job-detail">
+                                <span class="job-detail-icon"><i class="fas fa-map-marker-alt"></i></span>
+                                <span>{{ job.Location }}</span>
+                            </div>
+                            
+                            <div class="job-detail">
+                                <span class="job-detail-icon"><i class="fas fa-money-bill-wave"></i></span>
+                                <span>₹{{ job.Salary }} LPA</span>
+                            </div>
+                            
+                            <div class="job-detail">
+                                <span class="job-detail-icon"><i class="fas fa-briefcase"></i></span>
+                                <span>{{ job.experience }} Years Experience</span>
+                            </div>
+                            
+                            <div class="job-skills">
+                                {% for skill in job.Skills %}
+                                    <span class="skill-badge">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <p class="job-description">
+                                {{ job.FullDescription }}
+                            </p>
+                            
+                            <div class="job-meta">
+                                <span class="job-posted">
+                                    <i class="far fa-clock"></i> {{ job.posted_date|timesince }} ago
+                                </span>
+                                <span class="job-deadline">
+                                    <i class="far fa-calendar-alt"></i> {{ job.deadline }}
+                                </span>
+                            </div>
+                            
+                            <div class="mt-3">
+                                {% if job.jid in applied_jobs %}
+                                    <button class="btn apply-btn applied-btn" disabled>
+                                        <i class="fas fa-check-circle"></i> Applied
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-primary apply-btn" 
+                                            data-job-id="{{ job.jid }}" 
+                                            data-hr-id="{{ job.hr_id }}">
+                                        <i class="fas fa-paper-plane"></i> Apply Now
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
             
-            <!-- Contact Info -->
-            <div class="col-md-4">
-                <h5>Contact Us</h5>
-                <p>Email: support@jobportal.com</p>
-                <p>Phone: +91 12345 67890</p>
-                <div>
-                    <a href="#" class="text-light me-2"><i class="fab fa-facebook fa-lg"></i></a>
-                    <a href="#" class="text-light me-2"><i class="fab fa-twitter fa-lg"></i></a>
-                    <a href="#" class="text-light"><i class="fab fa-linkedin fa-lg"></i></a>
-         
-       </div>
+            <!-- No Jobs Found Message (Hidden by Default) -->
+            <div id="noJobsFound" class="text-center py-5" style="display: none;">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h3 class="text-muted">No Jobs Found</h3>
+                <p class="text-muted">Try adjusting your search filters</p>
+                <button class="btn btn-outline-primary" id="resetFiltersBtn">
+                    <i class="fas fa-sync-alt"></i> Reset Filters
+                </button>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination-container text-center mt-5">
+                <button class="btn btn-outline-primary me-2" id="prevPage">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span id="paginationNumbers"></span>
+                <button class="btn btn-outline-primary ms-2" id="nextPage">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
-        
-        <!-- Copyright -->
-        <div class="text-center mt-3">
-            <p class="mb-0">&copy; 2025 Job Portal. All rights reserved.</p>
-        </div>
     </div>
-</footer>
 
-<!-- FontAwesome for icons -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="bi bi-briefcase-fill me-2"></i> JobPortal</h5>
+                    <p class="mt-3">Your trusted platform for finding and applying for the best job opportunities in the tech industry.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links mt-3">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Jobs</a></li>
+                        <li><a href="#">Companies</a></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Resources</h5>
+                    <ul class="footer-links mt-3">
+                        <li><a href="#">Career Advice</a></li>
+                        <li><a href="#">Resume Tips</a></li>
+                        <li><a href="#">Interview Prep</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-4 mb-4">
+                    <h5>Contact Us</h5>
+                    <ul class="footer-links mt-3">
+                        <li><i class="fas fa-envelope me-2"></i> support@jobportal.com</li>
+                        <li><i class="fas fa-phone me-2"></i> +91 12345 67890</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 123 Tech Park, Bengaluru, India</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
+            
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 JobPortal. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-
-    
-    
-
-    $(document).ready(function(){
-        $("#removeFilterButton").on("click", function() {
-            location.reload(); // Refresh the page to remove filters
-        });
-        
-        // Search Filter
-        function filterJobs() {
-            var value = $("#jobSearch").val().toLowerCase();
-            $(".job-card").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    <script>
+        $(document).ready(function() {
+            // Profile Sidebar Toggle
+            const profileBtn = $('#profile-btn');
+            const sidebar = $('#profileSidebar');
+            const backdrop = $('#sidebarBackdrop');
+            const closeBtn = $('#closeSidebar');
+            
+            // Open sidebar
+            profileBtn.on('click', function(e) {
+                e.preventDefault();
+                sidebar.addClass('active');
+                backdrop.fadeIn();
+                fetchProfileData();
             });
-        }
-
-        $("#searchButton").on("click", function() {
-            filterJobs();
-        });$(document).ready(function() {
+            
+            // Close sidebar
+            closeBtn.on('click', closeSidebar);
+            backdrop.on('click', closeSidebar);
+            
+            function closeSidebar() {
+                sidebar.removeClass('active');
+                backdrop.fadeOut();
+            }
+            
+            // Edit Profile Toggle
+            const editProfileBtn = $('#editProfileBtn');
+            const cancelEditBtn = $('#cancelEditBtn');
+            const viewProfile = $('#viewProfile');
+            const editProfile = $('#editProfile');
+            
+            editProfileBtn.on('click', function() {
+                viewProfile.hide();
+                editProfile.show();
+            });
+            
+            cancelEditBtn.on('click', function() {
+                editProfile.hide();
+                viewProfile.show();
+            });
+            
+            // Fetch Profile Data
+            function fetchProfileData() {
+                $.ajax({
+                    url: '/get_user_profile/',
+                    method: 'GET',
+                    success: function(response) {
+                        console.log("Fetched Data:", response);
+                        if (response.success && response.data.length > 0) {
+                            const user = response.data[0];
+                            
+                            // Update view
+                            $('#profileName').text(user.user_name || 'Not provided');
+                            $('#profileEmail').text(user.email || 'Not provided');
+                            $('#profileFatherName').text(user.father_name || 'Not provided');
+                            $('#profileUgCollege').text(user.ug_college || 'Not provided');
+                            $('#profileBranch').text(user.branch || 'Not provided');
+                            $('#profilePassoutYear').text(user.Passout_Year || 'Not provided');
+                            $('#profileGradPercentage').text(user.Graduation_Percentage ? user.Graduation_Percentage.replace(/%+/g, '') + '%' : 'Not provided');
+                            $('#profileTenthPercentage').text(user.Percentage_10 ? user.Percentage_10.replace(/%+/g, '') + '%' : 'Not provided');
+                            
+                            // Update edit form
+                            $('#editName').val(user.user_name || '');
+                            $('#editEmail').val(user.email || '');
+                            $('#editFatherName').val(user.father_name || '');
+                            $('#editUgCollege').val(user.ug_college || '');
+                            $('#editBranch').val(user.branch || '');
+                            $('#editPassoutYear').val(user.Passout_Year || '');
+                            $('#editGradPercentage').val(user.Graduation_Percentage ? user.Graduation_Percentage.replace(/%+/g, '') : '');
+                            $('#editTenthPercentage').val(user.Percentage_10 ? user.Percentage_10.replace(/%+/g, '') : '');
+                            
+                            // Update profile picture if available
+                            if (user.profile_picture) {
+                                $('#profilePicture').attr('src', `data:image/jpeg;base64, ${user.profile_picture}`);
+                            }
+                            
+                            // Calculate and update profile completion
+                            updateProfileCompletion(user);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching profile data:', xhr.responseText);
+                        alert('Error loading profile data. Please try again.');
+                    }
+                });
+            }
+            
+            // Update Profile Completion with circular progress on profile image border
+            function updateProfileCompletion(user) {
+                const fields = [
+                    'user_name', 'email', 'father_name', 'ug_college',
+                    'branch', 'Passout_Year', 'Graduation_Percentage', 'Percentage_10'
+                ];
+                
+                let completedFields = 0;
+                
+                fields.forEach(field => {
+                    if (user[field] && user[field].toString().trim() !== '') {
+                        completedFields++;
+                    }
+                });
+                
+                // Add check for profile picture
+                if (user.profile_picture) {
+                    completedFields++;
+                }
+                
+                const totalFields = fields.length + 1; // +1 for profile picture
+                const completionPercentage = Math.round((completedFields / totalFields) * 100);
+                
+                $('#completionPercent').text(completionPercentage + '%');
+                
+                // Update circular progress on profile image border
+                const rotation = (completionPercentage / 100) * 360;
+                $('.profile-pic-container::after').css({
+                    'transform': `rotate(${rotation}deg)`,
+                    'border-top-color': completionPercentage >= 50 ? '#28a745' : '#dc3545',
+                    'border-right-color': completionPercentage >= 50 ? '#28a745' : '#dc3545'
+                });
+                
+                // Change text color based on completion
+                $('#completionPercent').css('color', completionPercentage >= 50 ? '#28a745' : '#dc3545');
+            }
+            
+            // Save Profile Changes
+            $('#profileForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                $.ajax({
+                    url: '/update_profile/',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert('Profile updated successfully!');
+                            fetchProfileData(); // Refresh data
+                            editProfile.hide();
+                            viewProfile.show();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error updating profile:', xhr.responseText);
+                        alert('Error updating profile. Please try again.');
+                    }
+                });
+            });
+            
+            // Job Role Autocomplete
+            const jobRoles = [{% for role in job_roles %}"{{ role }}",{% endfor %}];
+            
+            $("#jobRole").on("input", function() {
+                const input = $(this).val().toLowerCase();
+                const suggestions = $("#jobRoleSuggestions");
+                
+                if (input.length < 2) {
+                    suggestions.hide();
+                    return;
+                }
+                
+                const matches = jobRoles.filter(role => 
+                    role.toLowerCase().includes(input))
+                    .slice(0, 10); // Limit to 10 suggestions
+                
+                if (matches.length > 0) {
+                    suggestions.empty();
+                    matches.forEach(role => {
+                        suggestions.append(`<div data-value="${role}">${role}</div>`);
+                    });
+                    suggestions.show();
+                } else {
+                    suggestions.hide();
+                }
+            });
+            
+            // Handle suggestion selection
+            $(document).on("click", "#jobRoleSuggestions div", function() {
+                const selectedRole = $(this).data("value");
+                $("#jobRole").val(selectedRole);
+                
+                $("#selectedJobRole").val(selectedRole);
+                $("#jobRoleSuggestions").hide();
+            });
+            
+            // Close suggestions when clicking outside
+            $(document).on("click", function(e) {
+                if (!$(e.target).closest(".autocomplete-container").length) {
+                    $("#jobRoleSuggestions").hide();
+                }
+            });
+            
+            // Remove Filters
+            $("#removeFilterButton, #resetFiltersBtn").on("click", function() {
+                $("#jobRole").val("");
+                $("#selectedJobRole").val("");
+                $("#jobRoleSuggestions").hide();
+                location.reload();
+            });
+            
+            // Search Functionality
             $("#searchButton").on("click", function() {
                 var value = $("#jobSearch").val().toLowerCase();
                 var jobsFound = false;
@@ -798,390 +1384,279 @@ footer {
                     if (match) jobsFound = true;
                 });
         
-                // Show "Job Not Found" message dynamically if no jobs match
+                // Show/hide no jobs found message
                 if (!jobsFound) {
-                    $("#jobList").html('<div class="text-center text-danger fw-bold mt-3 h5"> No Jobs Found </div>');
+                    $("#jobList").hide();
+                    $("#noJobsFound").show();
+                } else {
+                    $("#jobList").show();
+                    $("#noJobsFound").hide();
                 }
             });
-        });
+            
+            // Filter Functionality
+            $("#filterButton").on("click", function() {
+                var selectedRole = $("#selectedJobRole").val(); // Use the hidden field value
+                var selectedType = $("#jobType").val();
+                console.log("Selected Type:", selectedType);
+                var selectedLocation = $("#jobLocation").val();
+                var selectedExperience = $("#jobExperience").val();
+                console.log("Selected Experience:", selectedExperience);
+                var jobsFound = false;
 
+                $(".job-card").each(function() {
+                    var jobRole = $(this).data("role");
+                    var jobType = $(this).data("type") || ""; // Default to empty string if not set
+                    console.log("Job Type:", jobType);
+                    var jobLocation = $(this).data("location");
+                    var jobExperience = $(this).data("experience") || "";
+                    console.log("Job Experience:", jobExperience);
 
-        $("#filterButton").on("click", function() {
-            var selectedRole = $("#jobRole").val();
-            var selectedType = $("#jobType").val();
-            var selectedLocation = $("#jobLocation").val();
-            var selectedExperience = $("#jobExperience").val();
-            var jobsFound = false;
+                    var showJob = true;
 
-            $(".job-card").each(function() {
-                var jobRole = $(this).data("role");
-                var jobType = $(this).data("type");
-                var jobLocation = $(this).data("location");
-                var jobExperience = $(this).data("experience") || ""; // Handle empty cases
-
-                var showJob = true;
-
-                if (selectedRole && jobRole !== selectedRole) {
-                    showJob = false;
-                }
-                if (selectedType && jobType !== selectedType) {
-                    showJob = false;
-                }
-                if (selectedLocation && jobLocation !== selectedLocation) {
-                    showJob = false;
-                }
-                if (selectedExperience) {
-                    let expRange = selectedExperience.split("-").map(Number);
-                    let jobExpRange = jobExperience.split("-").map(Number);
-
-                    if (!(jobExpRange[0] >= expRange[0] && jobExpRange[1] <= expRange[1])) {
+                    if (selectedRole && jobRole !== selectedRole) {
                         showJob = false;
                     }
+                    if (selectedType && jobType !== selectedType) {
+                        showJob = false;
+                    }
+                    if (selectedLocation && jobLocation !== selectedLocation) {
+                        showJob = false;
+                    }
+                    if (selectedExperience && jobExperience !== selectedExperience) {
+                       showJob = false;
+                    }
+
+                    $(this).toggle(showJob);
+                    if (showJob) jobsFound = true;
+                });
+
+                // Show/hide no jobs found message
+                if (!jobsFound) {
+                    $("#jobList").hide();
+                    $("#noJobsFound").show();
+                } else {
+                    $("#jobList").show();
+                    $("#noJobsFound").hide();
                 }
-
-                $(this).toggle(showJob);
-                if (showJob) jobsFound = true;
             });
-
-            // Show "No Jobs Found" message only if no jobs match
-            if (!jobsFound) {
-                $("#jobList").html('<div class="text-center text-danger fw-bold mt-3 h5"> No Jobs Found </div>');
-            }
-        });
-
-       
-        
-        
-        // Apply Button Functionality
-        $(document).ready(function() {
+             
+            // Apply Button Functionality
             $(".apply-btn").on("click", function() {
                 var button = $(this);
-                var jobId = button.data("job-id").trim();  // Trim spaces
-                var hrId = button.data("hr-id");  // Get HR ID from button attribute
+                var jobId = button.data("job-id").trim();
+                var hrId = button.data("hr-id");
                 
-                if (!jobId) {
-                    console.error("❌ Missing job ID");
-                    alert("Error: Missing job ID");
+                if (!jobId || !hrId) {
+                    alert("Error: Missing job information");
                     return;
                 }
-        
-                if (!hrId) {
-                    console.error("❌ Missing HR ID");
-                    alert("Error: Missing HR ID");
-                    return;
-                }
-        
-                console.log("✅ Applying for job:", jobId, "HR ID:", hrId); // Debugging log
-        
+            
                 $.ajax({
                     url: "{% url 'toggle_apply_job' %}",
                     method: "POST",
                     data: {
                         job_id: jobId,
-                        hr_id: hrId,  // Send HR ID
+                        hr_id: hrId,
                         csrfmiddlewaretoken: "{{ csrf_token }}"
                     },
                     success: function(response) {
                         if (response.status === "applied") {
-                            button.text("✔ Applied");
-                            button.removeClass("btn-primary").addClass("btn-success").prop("disabled", true);
+                            button.html('<i class="fas fa-check-circle"></i> Applied')
+                                  .removeClass("btn-primary")
+                                  .addClass("applied-btn")
+                                  .prop("disabled", true);
                         } else {
-                            button.text("Apply Now");
-                            button.removeClass("btn-success").addClass("btn-primary").prop("disabled", false);
+                            button.html('<i class="fas fa-paper-plane"></i> Apply Now')
+                                  .removeClass("applied-btn")
+                                  .addClass("btn-primary")
+                                  .prop("disabled", false);
                         }
                     },
                     error: function(xhr) {
-                        console.error("❌ Error applying for job:", xhr.responseText);
+                        console.error("Error applying for job:", xhr.responseText);
                         alert("Error applying for job. Please try again.");
                     }
                 });
             });
-        });});
-        
-    // Pagination
-    $(document).ready(function () {
-        var jobsPerPage = 3;
-        var currentPage = 1;
-        var jobCards = $(".job-card");
-        var totalPages = Math.ceil(jobCards.length / jobsPerPage);
+            
+            // Pagination
+            var jobsPerPage = 6;
+            var currentPage = 1;
+            var jobCards = $(".job-card");
+            var totalPages = Math.ceil(jobCards.length / jobsPerPage);
 
-        function showPage(page) {
-            jobCards.hide();
-            jobCards.slice((page - 1) * jobsPerPage, page * jobsPerPage).show();
-            $("#paginationNumbers").html(generatePaginationNumbers(page, totalPages));
-        }
-
-        function generatePaginationNumbers(current, total) {
-            var paginationHtml = '';
-            for (var i = 1; i <= total; i++) {
-                paginationHtml += `<button class="btn ${i === current ? 'btn-primary' : 'btn-outline-primary'} page-btn" data-page="${i}">${i}</button> `;
+            function showPage(page) {
+                jobCards.hide();
+                jobCards.slice((page - 1) * jobsPerPage, page * jobsPerPage).show();
+                
+                // Update pagination numbers
+                var paginationHtml = '';
+                var startPage = Math.max(1, page - 2);
+                var endPage = Math.min(totalPages, startPage + 4);
+                
+                if (page > 1) {
+                    paginationHtml += `<button class="btn btn-outline-secondary page-btn" data-page="${page-1}">${page-1}</button> `;
+                }
+                
+                paginationHtml += `<button class="btn btn-primary page-btn" data-page="${page}">${page}</button> `;
+                
+                if (page < totalPages) {
+                    paginationHtml += `<button class="btn btn-outline-secondary page-btn" data-page="${page+1}">${page+1}</button>`;
+                }
+                
+                $("#paginationNumbers").html(paginationHtml);
+                
+                // Enable/disable prev/next buttons
+                $("#prevPage").toggle(page > 1);
+                $("#nextPage").toggle(page < totalPages);
             }
-            return paginationHtml;
-        }
 
-        // Initial Page Load
-        showPage(currentPage);
-
-        // Pagination Click Event
-        $(document).on("click", ".page-btn", function () {
-            currentPage = parseInt($(this).data("page"));
+            // Initial Page Load
             showPage(currentPage);
-        });
 
-        // Previous and Next Button Events
-        $("#prevPage").on("click", function () {
-            if (currentPage > 1) {
-                currentPage--;
+            // Pagination Click Event
+            $(document).on("click", ".page-btn", function() {
+                currentPage = parseInt($(this).data("page"));
                 showPage(currentPage);
-            }
-        });
+                $("html, body").animate({ scrollTop: $("#jobs").offset().top - 20 }, 500);
+            });
 
-        $("#nextPage").on("click", function () {
-            if (currentPage < totalPages) {
-                currentPage++;
-                showPage(currentPage);
-            }
-        });
-    });
-
-   
-    document.addEventListener('DOMContentLoaded', function() {
-        const profileBtn = document.getElementById('profile-btn');
-        const sidebar = document.getElementById('profile-sidebar');
-        const backdrop = document.getElementById('sidebar-backdrop');
-        const closeBtn = document.getElementById('close-sidebar');
-        const editProfileBtn = document.getElementById('edit-profile-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const saveProfileBtn = document.getElementById('save-profile-btn');
-        const viewProfileSection = document.getElementById('view-profile');
-        const editProfileSection = document.getElementById('edit-profile');
-        const profileForm = document.getElementById('profile-form');
-        const profileCompletion = document.getElementById('profile-completion');
-        const profileImg = document.getElementById('profile-picture');
-    
-        {% comment %} function fetchUserData() {
-            fetch('/user_list/')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.user_data) {
-                        populateViewProfile(data.user_data);
-                    }
-                });
-        }
-     {% endcomment %}
-     
-        function populateViewProfile(userData) {
-            document.getElementById('profile-name').textContent = userData.user_name;
-            document.getElementById('email-value').textContent = userData.email;
-            document.getElementById('father-name-value').textContent = user.father_name;
-            document.getElementById('ug-college-value').textContent = userData.ug_college;
-            document.getElementById('branch-value').textContent = userData.branch;
-            document.getElementById('passout-year-value').textContent = userData.passout_year;
-            document.getElementById('grad-percentage-value').textContent = userData.grad_percentage + '';
-            document.getElementById('tenth-percentage-value').textContent = userData.tenth_percentage + '';
-            document.getElementById('twelth-percentage-value').textContent = userData.twelfth_percentage + '';
-    
-    
-            {% comment %} updateProfileCompletion(userData); {% endcomment %}
-        }
-        function fetchUserData() {
-            fetch('/get_user_profile/')
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Fetched Data:", data); // Debugging line
-                    if (data.success && data.data.length > 0) {
-                        const userData = data.data[0]; // Extract first element
-                        populateViewProfile(userData);
-                        populateEditForm(userData);
-                        updateProfileCompletion(userData);
-                    } else {
-                        console.error('Failed to fetch user data');
-                    }
-                })
-                .catch(error => console.error('Error fetching user data:', error));
-        }
-        // Open sidebar
-        profileBtn.addEventListener('click', function() {
-            sidebar.classList.add('active');
-            backdrop.style.display = 'block';
-            fetchUserData();
-        });
-    
-        // Close sidebar
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            backdrop.style.display = 'none';
-            viewProfileSection.style.display = 'block';
-            editProfileSection.style.display = 'none';
-        }
-    
-        closeBtn.addEventListener('click', closeSidebar);
-        backdrop.addEventListener('click', closeSidebar);
-    
-        // Switch to edit mode
-        editProfileBtn.addEventListener('click', function() {
-            viewProfileSection.style.display = 'none';
-            editProfileSection.style.display = 'block';
-            fetchUserData(); // Fetch and populate edit form
-        });
-    
-        // Cancel edit
-        cancelEditBtn.addEventListener('click', function() {
-            viewProfileSection.style.display = 'block';
-            editProfileSection.style.display = 'none';
-        });
-        document.getElementById('profile-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-        
-            let formData = new FormData();  // Create a FormData object
-        
-            document.querySelectorAll("#profile-form input").forEach(input => {
-                if (input.name && input.type !== "file") {
-                    formData.append(input.name, input.value.trim());  // Append text fields
+            // Previous and Next Button Events
+            $("#prevPage").on("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                    $("html, body").animate({ scrollTop: $("#jobs").offset().top - 20 }, 500);
                 }
             });
-        
-            // Append profile picture if selected
-            let profilePicInput = document.getElementById("profile-pic-input");
-            if (profilePicInput.files.length > 0) {
-                formData.append("profile_picture", profilePicInput.files[0]);
-            }
-        
-            console.log("Form data being sent:", formData); // Debugging
-        
-            fetch('/update_profile/', {
-                method: 'POST',
-                body: formData  // Send FormData (no JSON.stringify)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Server Response:", data); // Debugging
-                if (data.status === 'success') {
-                    alert("Profile updated successfully!");
-                    fetchUserData(); // Refresh profile data
-                    document.getElementById('edit-profile').style.display = 'none';
-                    document.getElementById('view-profile').style.display = 'block';
-                } else {
-                    alert("Error updating profile: " + data.message);
+
+            $("#nextPage").on("click", function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    showPage(currentPage);
+                    $("html, body").animate({ scrollTop: $("#jobs").offset().top - 20 }, 500);
                 }
-            })
-            .catch(error => console.error('Fetch Error:', error));
+            });
         });
-        
-
-        
-        
-   
-        
-        function populateViewProfile(userData) {
-            document.getElementById('profile-name').textContent = userData.user_name || 'N/A';
-            document.getElementById('email-value').textContent = userData.email || 'N/A';
-            document.getElementById('father-name-value').textContent = userData.father_name || 'N/A';
-            document.getElementById('ug-college-value').textContent = userData.ug_college || 'N/A';
-            document.getElementById('branch-value').textContent = userData.branch || 'N/A';
-            document.getElementById('passout-year-value').textContent = userData.Passout_Year || 'N/A';
-            document.getElementById('grad-percentage-value').textContent = userData.Graduation_Percentage ? userData.Graduation_Percentage.replace(/%+/g, '') : 'N/A';
-            document.getElementById('tenth-percentage-value').textContent = userData.Percentage_10 ? userData.Percentage_10.replace(/%+/g, '') : 'N/A';
-            console.log("Full Profile Picture Data:", userData.profile_picture);
-            profileImage = document.getElementById("profile-picture");
-            profileImage.src = `data:image/jpeg;base64, ${userData.profile_picture}`;
-
-            
-
-            {% comment %} document.getElementById('twelfth-percentage-value').textContent = userData.Percentage_12 ? userData.Percentage_12 + '' : 'N/A'; {% endcomment %}
-        }
-        
-        function populateEditForm(userData) {
-            try {
-                console.log("Populating form with:", userData);
-                document.getElementById('name-input').value = userData.user_name || '';
-                document.getElementById('email-input').value = userData.email || '';
-                document.getElementById('father-name-input').value = userData.father_name || '';
-                document.getElementById('ug-college-input').value = userData.ug_college || '';
-                document.getElementById('branch-input').value = userData.branch || '';
-                document.getElementById('passout-year-input').value = userData.Passout_Year || 'N/A';
-                document.getElementById('grad-percentage-input').value = userData.Graduation_Percentage ? userData.Graduation_Percentage.replace(/%+/g, '') : 'N/A';
-document.getElementById('tenth-percentage-input').value = userData.Percentage_10 ? userData.Percentage_10.replace(/%+/g, '') : 'N/A';
-
-            } catch (error) {
-                console.error("Error populating form:", error);
-            }
-        }
-        
-{% comment %}         {% endcomment %}
-    });
-   
 
 
 
-     function updateProfileCompletion(userData) {
-        let profileFields = [
-            "user_name", "email", "father_name", "ug_college",
-            "branch", "passout_year", "Graduation_Percentage",
-            "Percentage_10", "Percentage_12", "profile_picture"
-        ];
+        // Job Role and Location Autocomplete
+        const jobRoles = [{% for role in job_roles %}"{{ role }}",{% endfor %}];
+$("#jobRole, #jobLocation").on("input", function() {
+    const input = $(this).val().toLowerCase();
+    const field = $(this).data("field");
+    const suggestionsId = field === "job_role" ? "#jobRoleSuggestions" : "#jobLocationSuggestions";
+    const suggestions = $(suggestionsId);
     
-        // Count only fields that are actually displayed in the profile sidebar
-        let displayedFields = profileFields.filter(field => {
-            let element = document.getElementById(`${field.replace(/_/g, "-")}-value`);
-            return element !== null; // Ensure the field exists
-        });
-    
-        let totalFields = displayedFields.length; // Use only visible fields
-        let filledFields = 0;
-    
-        displayedFields.forEach(field => {
-            let value = userData[field];
-    
-            // Only count valid (non-"N/A", non-empty) fields
-            if (value && value.trim() !== "" && value !== "N/A") {
-                filledFields++;
-            }
-        });
-    
-        // Ensure completion is accurately calculated
-        let completionPercentage = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
-    
-        // Fix: If all displayed fields are filled, ensure it shows 100%
-        if (filledFields === totalFields) {
-            completionPercentage = 100;
-        }
-    
-       // Update circular progress bar
-let profileCompletion = document.getElementById("profile-completion");
-if (profileCompletion) {
-    let adjustedPercentage = completionPercentage >= 80 ? 100 : completionPercentage;
-    let rotationAngle = (adjustedPercentage / 100) * 360 - 90;
-
-    // Change color dynamically
-    let borderColor = adjustedPercentage >= 50 ? "#28a745" : "#dc3545"; // Green if >= 50%, Red otherwise
-    profileCompletion.style.borderTopColor = borderColor;
-    profileCompletion.style.borderLeftColor = adjustedPercentage >= 10 ? borderColor : "transparent";
-    
-    // Ensure full circle when >= 80%
-    if (adjustedPercentage >= 80) {
-        profileCompletion.style.borderRightColor = borderColor;
-        profileCompletion.style.borderBottomColor = borderColor;
+    if (input.length < 2) {
+        suggestions.hide();
+        return;
     }
     
-    profileCompletion.style.transform = `rotate(${rotationAngle}deg)`;
-}
+    // AJAX request for suggestions
+    $.ajax({
+        url: window.location.pathname,
+        method: "GET",
+        data: {
+            term: input,
+            field: field,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(matches) {
+            if (matches.length > 0) {
+                suggestions.empty();
+                matches.forEach(item => {
+                    suggestions.append(`<div data-value="${item}">${item}</div>`);
+                });
+                suggestions.show();
+            } else {
+                suggestions.hide();
+            }
+        }
+    });
+});
 
-// Update percentage text below profile picture
-let completionText = document.getElementById("profile-completion-text");
-if (completionText) {
-    if(completionPercentage == 80){
-        completionPercentage=100 ;}
-    completionText.textContent = `${completionPercentage}%`;
-    completionText.style.color = completionPercentage >= 50 ? "#28a745" : "#dc3545"; // Match color logic
-}
-     }
+// Handle suggestion selection
+$(document).on("click", "#jobRoleSuggestions div, #jobLocationSuggestions div", function() {
+    const selectedValue = $(this).data("value");
+    const container = $(this).parent();
     
-    // Call this function after fetching user data
-    fetchUserData();
-    
-    
-</script>
+    if (container.is("#jobRoleSuggestions")) {
+        $("#jobRole").val(selectedValue);
+        $("#selectedJobRole").val(selectedValue);
+    } else {
+        $("#jobLocation").val(selectedValue);
+        $("#selectedJobLocation").val(selectedValue);
+    }
+    container.hide();
+});
 
+// Close suggestions when clicking outside
+$(document).on("click", function(e) {
+    if (!$(e.target).closest(".autocomplete-container").length) {
+        $("#jobRoleSuggestions, #jobLocationSuggestions").hide();
+    }
+});
+
+// Remove Filters
+$("#removeFilterButton, #resetFiltersBtn").on("click", function() {
+    $("#jobRole").val("");
+    $("#selectedJobRole").val("");
+    $("#jobLocation").val("");
+    $("#selectedJobLocation").val("");
+    $("#jobRoleSuggestions, #jobLocationSuggestions").hide();
+    location.reload();
+});
+
+// Filter Functionality - Update to use selectedJobLocation
+$("#filterButton").on("click", function() {
+    var selectedRole = $("#selectedJobRole").val();
+    var selectedLocation = $("#selectedJobLocation").val();
+    var selectedType = $("#jobType").val();
+    var selectedExperience = $("#jobExperience").val();
+    var jobsFound = false;
+
+    $(".job-card").each(function() {
+        var jobRole = $(this).data("role");
+        var jobLocation = $(this).data("location");
+        var jobType = $(this).data("type");
+        var jobExperience = $(this).data("experience") || "";
+
+        var showJob = true;
+
+        if (selectedRole && jobRole !== selectedRole) {
+            showJob = false;
+        }
+        if (selectedLocation && jobLocation !== selectedLocation) {
+            showJob = false;
+        }
+        if (selectedType && jobType !== selectedType) {
+            showJob = false;
+        }
+        if (selectedExperience) {
+            let expRange = selectedExperience.split("-").map(Number);
+            let jobExpRange = jobExperience.split("-").map(Number);
+
+            if (!(jobExpRange[0] >= expRange[0] && jobExpRange[1] <= expRange[1])) {
+                showJob = false;
+            }
+        }
+
+        $(this).toggle(showJob);
+        if (showJob) jobsFound = true;
+    });
+
+    // Show/hide no jobs found message
+    if (!jobsFound) {
+        $("#jobList").hide();
+        $("#noJobsFound").show();
+    } else {
+        $("#jobList").show();
+        $("#noJobsFound").hide();
+    }
+});
+    </script>
 </body>
 </html>

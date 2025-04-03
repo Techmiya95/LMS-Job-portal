@@ -24,8 +24,39 @@ SECRET_KEY = 'django-insecure-*5c(cf6o3!p$eq0c^41%8-3!@6kdm7m8=_%_&im_*-lzm5+-g4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+# settings.py
+import os
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 ALLOWED_HOSTS = []
+
+import os
+
+def load_env_file(file_path):
+    """Read .env file and load variables into the environment safely."""
+    if os.path.exists(file_path):
+        with open(file_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):  # Skip empty lines and comments
+                    continue
+                if "=" in line:  # Ensure correct format
+                    key, value = line.split("=", 1)
+                    os.environ[key] = value
+
+# Find the absolute path of the .env file (located in the project's root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(BASE_DIR, ".env")
+
+# Load environment variables
+load_env_file(env_path)
+
+# ✅ Use correct variable names (matching `.env`)
+SERVICE_ID = os.getenv("SERVICE_ID")
+TEMPLATE_ID = os.getenv("TEMPLATE_ID")
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
+
 
 
 # Application definition
@@ -37,7 +68,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
+    'app'
+    
+  
 ]
 
 MIDDLEWARE = [
@@ -50,6 +83,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
      'django.middleware.csrf.CsrfViewMiddleware',
        'django.middleware.csrf.CsrfViewMiddleware',
+       
+    
 ]
 
 ROOT_URLCONF = 'job.urls'
@@ -69,7 +104,7 @@ TEMPLATES = [
         },
     },
 ]
-
+DEBUG = True
 WSGI_APPLICATION = 'job.wsgi.application'
 
 

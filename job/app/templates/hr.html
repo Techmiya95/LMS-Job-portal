@@ -8,60 +8,287 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        .job-card {
-            transition: transform 0.3s;
-            height: 100%;
+        /* Modern Card Styles */
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
         }
+        
+        /* Job Cards with Different Top Borders */
+        .job-card {
+            transition: all 0.3s ease;
+            height: 100%;
+            border-top: 4px solid;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Color rotation for job cards */
+        /* Color rotation for job cards */
+        .job-card.color-1 { border-top-color: #4e73df; }
+        .job-card.color-2 { border-top-color: #1cc88a; }
+        .job-card.color-3 { border-top-color: #36b9cc; }
+        .job-card.color-4 { border-top-color: #f6c23e; }
+        .job-card.color-5 { border-top-color: #e74a3b; }
+        .job-card.color-6 { border-top-color: #858796; }
+        .job-card.color-7 { border-top-color: #6f42c1; }
+        .job-card.color-8 { border-top-color: #fd7e14; }
+        .job-card.color-9 { border-top-color: #20c997; }
+        .job-card.color-10 { border-top-color: #d63384; }
+        
         .job-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
+        
+        .job-card .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 1rem 1.25rem;
+        }
+        
+        .job-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .job-card .card-footer {
+            background-color: rgba(0,0,0,0.03);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding: 1rem 1.25rem;
+        }
+        
         .skills-badge {
             margin-right: 5px;
             margin-bottom: 5px;
+            font-size: 0.75rem;
+            background-color: #f8f9fa;
+            color: #212529;
+            border: 1px solid #dee2e6;
         }
+        
         .applicant-card {
             transition: all 0.3s;
+            border-left: 4px solid #4e73df;
         }
+        
         .applicant-card:hover {
             transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .banner-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://cdnjs.cloudflare.com/ajax/libs/twilight/2.0.0/bg.png') repeat;
+            opacity: 0.1;
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('https://cdnjs.cloudflare.com/ajax/libs/twilight/2.0.0/img/wave.svg') repeat-x;
+            animation: wave 15s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% {
+                background-position-x: 0;
+            }
+            100% {
+                background-position-x: 1000px;
+            }
+        }
+        
+        .feature-icon {
+            height: 70px;
+            width: 70px;
+            padding: 15px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-icon:hover {
+            transform: translateY(-10px);
+        }
+        
+        .applicant-item {
+            display: none;
+        }
+        
+        /* Pagination Styles */
+        .pagination .page-item.active .page-link {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+        
+        .pagination .page-link {
+            color: #4e73df;
+        }
+        
+        /* Scroll to Applicants Animation */
+        @keyframes highlight {
+            0% { background-color: rgba(78, 115, 223, 0.1); }
+            100% { background-color: transparent; }
+        }
+        
+        .highlight-section {
+            animation: highlight 2s ease;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            padding: 5px 8px;
+        }
+        
+        /* Improved job type badge */
+        .job-type-badge {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            margin-left: 8px;
+        }
+        
+        /* Salary highlight */
+        .salary-highlight {
+            font-weight: 600;
+            color: #2e59d9;
+        }
+        
+        /* Deadline styling */
+        .deadline-text {
+            font-weight: 500;
+        }
+        
+        /* Company logo placeholder */
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #6c757d;
+            font-size: 1.5rem;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="#">HR Management Portal</a>
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-people-fill me-2"></i>HR Management Portal
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#jobs-section">Jobs</a>
+                        <a class="nav-link active" href="#jobs-section">
+                            <i class="bi bi-briefcase me-1"></i>Jobs
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#applicants-section">Applicants</a>
+                        <a class="nav-link active" href="#applicants-section">
+                            <i class="bi bi-people me-1"></i>Applicants
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'job_list' %}">Job_list</a>
+                        <a class="nav-link active" href="{% url 'job_list' %}">
+                            <i class="bi bi-list-ul me-1"></i>Job List
+                        </a>
                     </li>
-
+                    <li class="nav-item">
+                        {% if is_active %}
+                            <a class="nav-link active" href="{% url 'hr_userlist' %}">
+                                <i class="bi bi-person-lines-fill me-1"></i>User List
+                            </a>
+                        {% else %}
+                            <a class="nav-link disabled" href="#" aria-disabled="true">
+                                <i class="bi bi-person-lines-fill me-1"></i>User List
+                            </a>
+                        {% endif %}
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <span class="text-light me-3">Welcome, {{ request.session.hr_username }}</span>
-                    <a href="{% url 'loginhr' %}" class="btn btn-outline-light btn-sm">Logout</a>
+                    <div class="me-3 text-light">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span>{{ request.session.hr_username }}</span>
+                    </div>
+                    <a href="{% url 'loginhr' %}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>Logout
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- Full-width HR Banner -->
+    <section class="banner-section text-white py-5">
+        <div class="container-fluid px-4 px-md-5 py-5 position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <h1 class="display-4 fw-bold">Human Resources Portal</h1>
+                    <p class="lead my-4">Streamline workforce management, boost employee engagement, and optimize your recruitment process</p>
+                    
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
+                            <h4 class="mb-0"><i class="bi bi-people-fill me-2"></i> 245</h4>
+                            <small>Employees</small>
+                        </div>
+                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
+                            <h4 class="mb-0"><i class="bi bi-briefcase-fill me-2"></i> {{ hr_jobs|length }}</h4>
+                            <small>Open Positions</small>
+                        </div>
+                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
+                            <h4 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i> 86%</h4>
+                            <small>Retention Rate</small>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-light btn-lg mt-5 fw-bold">
+                        <i class="bi bi-speedometer2 me-2"></i>Enter Dashboard
+                    </button>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1570/1570887.png" alt="HR Management" class="img-fluid" style="max-height: 300px;">
+                </div>
+            </div>
+        </div>
+        <div class="wave"></div>
+    </section>
 
     <div class="container py-4">
         <!-- Alert Messages -->
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+                    <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
@@ -70,151 +297,396 @@
         <!-- Jobs Section -->
         <section id="jobs-section" class="mb-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Job Listings</h2>
+                <h2 class="fw-bold">
+                    <i class="bi bi-briefcase me-2"></i>Job Listings
+                </h2>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal">
                     <i class="bi bi-plus-circle me-2"></i>Create New Job
                 </button>
             </div>
 
             {% if hr_jobs %}
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="jobs-container">
                     {% for job in hr_jobs %}
-                        <div class="col">
-                            <div class="card job-card shadow-sm h-100">
+                        <div class="col job-item">
+                            <div class="card job-card shadow-sm h-100 color-{{ forloop.counter0|add:1 }}">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0">{{ job.Job }}</h5>
-                                    
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item edit-job" href="#" data-job-id="{{ job.id }}">Edit</a></li>
-                                            <li><a class="dropdown-item text-danger delete-job" href="#" data-job-id="{{ job.id }}">Delete</a></li>
+                                            <li><a class="dropdown-item edit-job" href="#" data-job-id="{{ job.id }}">
+                                                <i class="bi bi-pencil-square me-2"></i>Edit
+                                            </a></li>
+                                            <li><a class="dropdown-item text-danger delete-job" href="#" data-job-id="{{ job.job_id}}">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </a></li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text"><i class="bi bi-building me-2"></i>{{ job.Org }}</p>
-                                    <p class="card-text"><i class="bi bi-geo-alt me-2"></i>{{ job.Location }}</p>
-                                    <p class="card-text"><i class="bi bi-currency-dollar me-2"></i>{{ job.Salary }}</p>
-                                    <p class="card-text"><i class="bi bi-briefcase me-2"></i>{{ job.job_type }}</p>
-                                    <p class="card-text"><i class="bi bi-calendar me-2"></i>Posted: {{ job.posted_date|date:"M d, Y" }}</p>
-                                    <p class="card-text"><i class="bi bi-geo-alt me-2"></i>Deadline: {{ job.deadline}}</p>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="company-logo">
+                                            <i class="bi bi-building"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ job.Org }}</h6>
+                                            <small class="text-muted">{{ job.Location }}</small>
+                                            <span class="badge bg-primary job-type-badge">{{ job.job_type }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div>
+                                            <i class="bi bi-currency-dollar me-1"></i>
+                                            <span class="salary-highlight">{{ job.Salary }}</span>
+                                        </div>
+                                        <div>
+                                            <i class="bi bi-clock me-1"></i>
+                                            <span>{{ job.posted_date|date:"M d, Y" }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <i class="bi bi-calendar-x me-1"></i>
+                                        <span class="text-danger deadline-text">Deadline: {{ job.deadline }}</span>
+                                    </div>
                                     
                                     <h6 class="mt-3">Skills Required:</h6>
-                                    <div>
+                                    <div class="mb-3">
                                         {% for skill in job.Skills %}
-                                            <span class="badge bg-info text-dark skills-badge">{{ skill }}</span>
+                                            <span class="badge skills-badge">{{ skill }}</span>
                                         {% endfor %}
                                     </div>
                                     
-                                    <div class="mt-3">
+                                    <div class="mb-3">
                                         <h6>Description:</h6>
-                                        <p class="card-text">{{ job.FullDescription|truncatechars:150 }}</p>
+                                        <p class="card-text text-muted">{{ job.FullDescription|truncatechars:150 }}</p>
                                     </div>
                                 </div>
                                 <div class="card-footer bg-transparent">
-                                    <small class="text-muted">
-                                        <span class="badge bg-primary">{{ job.applicants_count|default:"0" }} Applicants</span>
-                                    </small>
+                                    <button class="btn btn-outline-primary w-100 view-applicants" 
+                                            data-job-id="{{ job.id }}">
+                                        <i class="bi bi-people me-2"></i>View Applicants
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="Job pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
             {% else %}
                 <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
                     You haven't created any jobs yet. Use the "Create New Job" button to add your first job listing.
                 </div>
             {% endif %}
         </section>
 
         <!-- Applicants Section -->
-        <section id="applicants-section">
-            <h2 class="mb-4">Job Applicants</h2>
-            
-            {% if job_applications %}
-                <div class="accordion" id="applicantsAccordion">
-                    {% regroup job_applications by job_title as job_apps_list %}
-                    
-                    {% for application in job_applications %}
-                    <div class="col">
-                        <div class="card applicant-card shadow-sm h-100">
-                            <div class="card-header bg-light">
-                                <h5 class="card-title mb-0">{{ application.user.username }}</h5>
+        <section id="applicants-section" class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">
+                    <i class="bi bi-people me-2"></i>Job Applicants
+                </h2>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-funnel me-1"></i>Filter by Job
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                        <li><a class="dropdown-item" href="#" data-job-id="all">
+                            <i class="bi bi-grid me-2"></i>All Jobs
+                        </a></li>
+                        {% for job in hr_jobs %}
+                        <li><a class="dropdown-item" href="#" data-job-id="{{ job.id }}">
+                            <i class="bi bi-briefcase me-2"></i>{{ job.Job }}
+                        </a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        
+            {% if applicants %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="applicants-container">
+                {% for applicant in applicants %}
+                <div class="col applicant-item" data-job-id="{{ applicant.applied_job_id }}">
+                    <div class="card applicant-card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                {% if applicant.profile_picture %}
+                                <img src="data:image/jpeg;base64,{{ applicant.profile_picture }}" 
+                                alt="Profile" 
+                                class="rounded-circle me-3" 
+                                style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-person text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h5 class="card-title mb-0">{{ applicant.username }}</h5>
+                                    <p class="text-muted mb-0">Applied for: {{ applicant.applied_job_title }}</p>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <p><i class="bi bi-envelope me-2"></i>{{ application.user.email }}</p>
-                                <p><i class="bi bi-person me-2"></i>Father: {{ application.user.father_name }}</p>
-                                <p><i class="bi bi-mortarboard me-2"></i>Branch: {{ application.user.branch }}</p>
-                                <p><i class="bi bi-calendar me-2"></i>Passout Year: {{ application.user.Passout_Year }}</p>
-                                
-                                <div class="mt-3">
-                                    <h6>Education:</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <tr>
-                                                <th>Graduation</th>
-                                                <td>{{ application.user.Graduation_Percentage }}%</td>
-                                            </tr>
-                                            <tr>
-                                                <th>12th</th>
-                                                <td>{{ application.user.Percentage_12 }}%</td>
-                                            </tr>
-                                            <tr>
-                                                <th>10th</th>
-                                                <td>{{ application.user.Percentage_10 }}%</td>
-                                            </tr>
-                                        </table>
+            
+                            <div class="mb-3">
+                                <i class="bi bi-envelope me-2"></i>
+                                <span>{{ applicant.email }}</span>
+                            </div>
+                            
+                            {% if applicant.mobile %}
+                            <div class="mb-3">
+                                <i class="bi bi-telephone me-2"></i>
+                                <span>{{ applicant.mobile }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <i class="bi bi-mortarboard me-2"></i>
+                                <span>{{ applicant.branch }} - {{ applicant.ug_college }}</span>
+                            </div>
+                            
+                            {% if applicant.skills %}
+                            <div class="mt-2">
+                                <h6 class="small fw-bold mb-2">Skills:</h6>
+                                {% for skill in applicant.skills %}
+                                <span class="badge bg-light text-dark skills-badge">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-sm btn-outline-primary view-applicant" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#viewApplicantModal" 
+                                        data-user-id="{{ applicant.applicant_id }}">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </button>
+                                <button class="btn btn-sm btn-outline-success contact-applicant" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#contactApplicantModal" 
+                                        data-email="{{ applicant.email }}" 
+                                        data-name="{{ applicant.username }}">
+                                    <i class="bi bi-envelope me-1"></i>Contact
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block">
+                                <i class="bi bi-clock me-1"></i>
+                                {% if applicant.applied_at != 'N/A' %}
+                                    Applied: {{ applicant.applied_at|date:"M d, Y" }}
+                                {% else %}
+                                    Date not available
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination for Applicants -->
+            <nav aria-label="Applicant pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                No applications received yet for your job postings.
+            </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <!-- View Applicant Modal -->
+    <div class="modal fade" id="viewApplicantModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Applicant Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4" id="applicant-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div id="applicant-details" style="display: none;">
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center">
+                                <div id="applicant-profile-pic" class="mb-3">
+                                    <!-- Profile picture will be inserted here -->
+                                </div>
+                                <h4 id="applicant-name" class="mb-1">
+                                    <i class="bi bi-person-fill me-2"></i>
+                                    <span id="applicant-name-text"></span>
+                                </h4>
+                                <p id="applicant-location" class="text-muted">
+                                    <i class="bi bi-geo-alt-fill me-2"></i>
+                                    <span id="applicant-location-text"></span>
+                                </p>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="bi bi-envelope-fill me-2"></i>Contact
+                                                </h6>
+                                                <p id="applicant-email" class="mb-1"></p>
+                                                <p id="applicant-mobile" class="mb-0"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="bi bi-mortarboard-fill me-2"></i>Education
+                                                </h6>
+                                                <p id="applicant-college" class="mb-1"></p>
+                                                <p id="applicant-branch" class="mb-0"></p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <p class="mt-3"><i class="bi bi-info-circle me-2"></i>Progress: {{ application.user.progress }}</p>
-                                <p><i class="bi bi-calendar-check me-2"></i>Applied on: {{ application.applied_date|date:"M d, Y" }}</p>
                             </div>
-                            <div class="card-footer bg-transparent d-flex justify-content-between">
-                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#contactApplicantModal" 
-                                        data-email="{{ application.user.email }}" data-name="{{ application.user.username }}">
-                                    Contact
-                                </button>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        Status
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="#" data-application-id="{{ application.application_id }}" data-status="shortlisted">Shortlist</a></li>
-                                        <li><a class="dropdown-item" href="#" data-application-id="{{ application.application_id }}" data-status="interviewed">Interviewed</a></li>
-                                        <li><a class="dropdown-item" href="#" data-application-id="{{ application.application_id }}" data-status="selected">Select</a></li>
-                                        <li><a class="dropdown-item" href="#" data-application-id="{{ application.application_id }}" data-status="rejected">Reject</a></li>
-                                    </ul>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Educational Background</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <h6>Graduation</h6>
+                                                <p id="applicant-graduation-percentage" class="mb-1"></p>
+                                                <p id="applicant-passout-year" class="mb-0"></p>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <h6>12th Standard</h6>
+                                                <p id="applicant-12th-percentage" class="mb-0"></p>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <h6>10th Standard</h6>
+                                                <p id="applicant-10th-percentage" class="mb-0"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Skills & Qualifications</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="applicant-skills" class="d-flex flex-wrap">
+                                            <!-- Skills will be inserted here -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
                 </div>
-            {% else %}
-                <div class="alert alert-info">
-                    There are no applications for your job postings yet.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Close
+                    </button>
+                    <button type="button" class="btn btn-primary contact-from-modal">
+                        <i class="bi bi-envelope me-1"></i>Contact Applicant
+                    </button>
                 </div>
-            {% endif %}
-        </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Applicant Modal -->
+    <div class="modal fade" id="contactApplicantModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Contact Applicant</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="contactForm" method="post" action="{% url 'contact_applicant' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="applicant_email" class="form-label">To</label>
+                            <input type="email" class="form-control" id="applicant_email" name="applicant_email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="email_subject" name="email_subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_message" class="form-label">Message</label>
+                            <textarea class="form-control" id="email_message" name="email_message" rows="6" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="sendEmail()">
+                            <i class="bi bi-send me-1"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Create Job Modal -->
     <div class="modal fade" id="createJobModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="jobModalTitle">Create New Job</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="jobForm" method="post" action="{% url 'create_job' %}">
                     {% csrf_token %}
                     <input type="hidden" name="hr_id" value="{{ request.session.hr_id }}">
-                   <input type="hidden" name="job_id" id="job_id" value="">
-
+                    <input type="hidden" name="job_id" id="job_id" value="">
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -246,7 +718,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="experience" class="form-label">Experience Required (years)</label>
-                                <input type="number" class="form-control" id="experience" name="experience" min="0" max="20" required>
+                                <input type="text" class="form-control" id="experience" name="experience" min="0" max="20" required>
                             </div>
                             <div class="col-12">
                                 <label for="skills" class="form-label">Skills Required (comma separated)</label>
@@ -267,38 +739,12 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Job</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Applicant Modal -->
-    <div class="modal fade" id="contactApplicantModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Contact Applicant</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="contactForm" method="post" action="{% url 'contact_applicant' %}">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <input type="hidden" id="applicant_email" name="applicant_email">
-                        <div class="mb-3">
-                            <label for="email_subject" class="form-label">Subject</label>
-                            <input type="text" class="form-control" id="email_subject" name="subject" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email_message" class="form-label">Message</label>
-                            <textarea class="form-control" id="email_message" name="message" rows="6" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Save Job
+                        </button>
                     </div>
                 </form>
             </div>
@@ -309,19 +755,23 @@
     <div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete this job posting? This action cannot be undone.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </button>
                     <form id="deleteJobForm" method="post" action="{% url 'delete_job' %}">
                         {% csrf_token %}
                         <input type="hidden" id="delete_job_id" name="job_id">
-                        <button type="submit" class="btn btn-danger">Delete Job</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Delete Job
+                        </button>
                     </form>
                 </div>
             </div>
@@ -329,121 +779,338 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
+        // Initialize EmailJS
+        (function(){
+            emailjs.init("GyvTODto1wNKmd3Nh"); // Replace with your actual Public Key
+        })();
+
         // Handle Edit Job
         document.querySelectorAll('.edit-job').forEach(button => {
             button.addEventListener('click', function() {
                 const jobId = this.getAttribute('data-job-id');
-                
-                // Fetch job details
-                fetch(`/get_job_details/${jobId}/`)
-                    .then(response => response.json())
-                    .then(job => {
-                        // Populate form fields
-                        document.getElementById('job_id').value = job.id;
-                        
-                        document.getElementById('title').value = job.Job;
-                        document.getElementById('company').value = job.Org;
-                        document.getElementById('location').value = job.Location;
-                        document.getElementById('salary').value = job.Salary;
-                        document.getElementById('job_type').value = job.job_type;
-                        document.getElementById('experience').value = job.experience;
-                        document.getElementById('skills').value = Array.isArray(job.Skills) ? job.Skills.join(', ') : job.Skills;
-                        document.getElementById('description').value = job.Fulldescription;
-                        document.getElementById('education').value = job.education;
-                        document.getElementById('deadline').value = job.deadline;
-                        
-                        // Change modal title
-                        document.getElementById('jobModalTitle').textContent = 'Edit Job';
-                        
-                        // Update form action
-                        document.getElementById('jobForm').action = "{% url 'update_job' %}";
-                        
-                        // Show modal
-                        new bootstrap.Modal(document.getElementById('createJobModal')).show();
-                    })
-                    .catch(error => console.error('Error:', error));
+                console.log('Job ID to edit:', jobId);
+
+                if (jobId) {
+                    // Fetch job details
+                    fetch(`/get_job_details/${jobId}/`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(job => {
+                            console.log('Job details:', job);
+                            console.log('Job ID to edit2:', job._id);
+
+                            // Populate form fields
+                            document.getElementById('job_id').value = job._id;
+                            document.getElementById('title').value = job.Job;
+                            document.getElementById('company').value = job.Org;
+                            document.getElementById('location').value = job.Location;
+                            document.getElementById('salary').value = job.Salary;
+                            document.getElementById('job_type').value = job.job_type;
+                            document.getElementById('experience').value = job.experience;
+                            document.getElementById('skills').value = Array.isArray(job.Skills) ? job.Skills.join(', ') : job.Skills;
+                            document.getElementById('description').value = job.Fulldescription;
+                            document.getElementById('education').value = job.education;
+                            document.getElementById('deadline').value = job.deadline;
+
+                            // Change modal title
+                            document.getElementById('jobModalTitle').textContent = 'Edit Job';
+
+                            // Update form action
+                            document.getElementById('jobForm').action = "{% url 'update_job' %}";
+
+                            // Show modal
+                            new bootstrap.Modal(document.getElementById('createJobModal')).show();
+                        })
+                        .catch(error => {
+                            console.error('Error fetching job details:', error);
+                        });
+                } else {
+                    console.error('Job ID is empty or undefined.');
+                }
             });
         });
 
-
-        
         // Handle Delete Job
         document.querySelectorAll('.delete-job').forEach(button => {
             button.addEventListener('click', function() {
                 const jobId = this.getAttribute('data-job-id');
-                console.log('Job ID to delete:', jobId); // Debugging line
+                console.log('Job ID to delete:', jobId);
                 document.getElementById('delete_job_id').value = jobId;
-                console.log('Form value set to:', document.getElementById('delete_job_id').value); // Debugging line
+                console.log('Form value set to:', document.getElementById('delete_job_id').value);
                 new bootstrap.Modal(document.getElementById('deleteJobModal')).show();
             });
         });
+
+        // Handle View Applicants button
+        document.querySelectorAll('.view-applicants').forEach(button => {
+            button.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-job-id');
+                
+                // Hide all applicants first
+                document.querySelectorAll('.applicant-item').forEach(applicant => {
+                    applicant.style.display = 'none';
+                });
+                
+                // Show only applicants for this job
+                document.querySelectorAll(`.applicant-item[data-job-id="${jobId}"]`).forEach(applicant => {
+                    applicant.style.display = 'block';
+                });
+                
+                // Scroll to applicants section with animation
+                const applicantsSection = document.getElementById('applicants-section');
+                applicantsSection.classList.add('highlight-section');
+                
+                setTimeout(() => {
+                    applicantsSection.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+                
+                // Remove highlight class after animation completes
+                setTimeout(() => {
+                    applicantsSection.classList.remove('highlight-section');
+                }, 2000);
+                
+                // Update filter dropdown to show current job
+                document.getElementById('filterDropdown').textContent = `Filtered: ${this.closest('.job-card').querySelector('.card-title').textContent}`;
+            });
+        });
+
+        // Handle applicant filtering
+        document.querySelectorAll('#filterDropdown .dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const jobId = this.getAttribute('data-job-id');
+                const applicantItems = document.querySelectorAll('.applicant-item');
+                
+                applicantItems.forEach(applicant => {
+                    if (jobId === 'all' || applicant.getAttribute('data-job-id') === jobId) {
+                        applicant.style.display = 'block';
+                    } else {
+                        applicant.style.display = 'none';
+                    }
+                });
+                
+                // Update dropdown button text
+                document.getElementById('filterDropdown').textContent = 
+                    jobId === 'all' ? 'Filter by Job' : `Filtered: ${this.textContent}`;
+                
+                // Scroll to applicants section
+                setTimeout(() => {
+                    document.getElementById('applicants-section').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            });
+        });
+
+        // Handle View Applicant Modal
+        document.querySelectorAll('.view-applicant').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                
+                // Show spinner, hide details
+                document.getElementById('applicant-spinner').style.display = 'block';
+                document.getElementById('applicant-details').style.display = 'none';
+                
+                // Fetch applicant details
+                fetch(`/get_applicant_details/${userId}/`)
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            const data = result.data;
+                            
+                            // Populate modal with applicant details
+                            document.getElementById('applicant-name-text').textContent = data.username;
+                            document.getElementById('applicant-location-text').textContent = data.location || 'Location not specified';
+                            document.getElementById('applicant-email').textContent = data.email;
+                            document.getElementById('applicant-mobile').textContent = data.mobile || 'Phone not provided';
+                            document.getElementById('applicant-college').textContent = data.ug_college;
+                            document.getElementById('applicant-branch').textContent = data.branch;
+                            document.getElementById('applicant-graduation-percentage').textContent = `${data.Graduation_Percentage}%`;
+                            document.getElementById('applicant-passout-year').textContent = `Year: ${data.Passout_Year}`;
+                            document.getElementById('applicant-12th-percentage').textContent = `${data['12th_Percentage']}%`;
+                            document.getElementById('applicant-10th-percentage').textContent = `${data['10th_Percentage']}%`;
+                            
+                            // Profile picture
+                            const profilePicContainer = document.getElementById('applicant-profile-pic');
+                            if (data.profile_picture) {
+                                profilePicContainer.innerHTML = `
+                                    <img src="data:image/jpeg;base64,${data.profile_picture}" 
+                                         alt="Profile" 
+                                         class="rounded-circle" 
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                `;
+                            } else {
+                                profilePicContainer.innerHTML = `
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" 
+                                         style="width: 120px; height: 120px;">
+                                        <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Skills
+                            const skillsContainer = document.getElementById('applicant-skills');
+                            if (data.skills && data.skills.length > 0) {
+                                skillsContainer.innerHTML = data.skills.map(skill => 
+                                    `<span class="badge bg-primary me-2 mb-2 p-2">${skill}</span>`
+                                ).join('');
+                            } else {
+                                skillsContainer.innerHTML = '<p class="text-muted">No skills listed</p>';
+                            }
+                            
+                            // Set email for contact button
+                            const contactBtn = document.querySelector('.contact-from-modal');
+                            contactBtn.setAttribute('data-email', data.email);
+                            contactBtn.setAttribute('data-name', data.username);
+                            
+                            // Hide spinner, show details
+                            document.getElementById('applicant-spinner').style.display = 'none';
+                            document.getElementById('applicant-details').style.display = 'block';
+                        } else {
+                            console.error("Error fetching applicant details:", result.error);
+                            alert("Failed to load applicant details.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("An error occurred while fetching applicant details.");
+                    });
+            });
+        });
+
+        // Connect Contact button in view modal to contact modal
+        document.querySelector('.contact-from-modal').addEventListener('click', function() {
+            const email = this.getAttribute('data-email');
+            const name = this.getAttribute('data-name');
+            
+            // Close view modal and open contact modal
+            bootstrap.Modal.getInstance(document.getElementById('viewApplicantModal')).hide();
+            
+            // Set values in contact modal
+            document.getElementById('applicant_email').value = email;
+            document.getElementById('email_subject').value = `Regarding Your Job Application`;
+            document.getElementById('email_message').value = `Dear ${name},\n\nThank you for your interest in the position. We've reviewed your application and would like to discuss next steps.\n\nBest regards,\n${document.querySelector('.text-light.me-3').textContent.replace('Welcome, ', '')}`;
+            
+            // Show contact modal
+            new bootstrap.Modal(document.getElementById('contactApplicantModal')).show();
+        });
+
         // Handle Contact Applicant Modal
         document.getElementById('contactApplicantModal').addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const email = button.getAttribute('data-email');
-            const name = button.getAttribute('data-name');
-            
-            document.getElementById('applicant_email').value = email;
-            document.getElementById('email_subject').value = `Regarding Your Job Application`;
-            document.getElementById('email_message').value = `Dear ${name},\n\nThank you for your interest in the position. We've reviewed your application and ...\n\nBest regards,\n${document.querySelector('.text-light.me-3').textContent.replace('Welcome, ', '')}`;
+            if (button) {
+                const email = button.getAttribute('data-email');
+                const name = button.getAttribute('data-name');
+                
+                document.getElementById('applicant_email').value = email;
+                document.getElementById('email_subject').value = `Regarding Your Job Application`;
+                document.getElementById('email_message').value = `Dear ${name},\n\nThank you for your interest in the position. We've reviewed your application and would like to discuss next steps.\n\nBest regards,\n${document.querySelector('.text-light.me-3').textContent.replace('Welcome, ', '')}`;
+            }
         });
-        function updateJob(jobId) {
-            fetch('/hr/update-job/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ job_id: jobId, title: "Updated Job Title" })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error("Error:", data.error);
-                } else {
-                    alert("Job updated successfully!");
-                    location.reload();
-                }
-            })
-            .catch(error => console.error('Error:', error));
+
+        // Email sending function
+        function sendEmail() {
+            var applicantEmail = document.getElementById('applicant_email').value.trim();
+            var subject = document.getElementById('email_subject').value.trim();
+            var message = document.getElementById('email_message').value.trim();
+        
+            if (!applicantEmail) {
+                alert("❌ Error: The recipient's email is empty!");
+                return;
+            }
+        
+            var params = {
+                email: applicantEmail,
+                title: subject,
+                message: message,
+                reply_to: applicantEmail,
+            };
+        
+            console.log("📧 Preparing email with params:", params);
+        
+            // Fetch API keys first, then send email
+            fetchApiKeys().then(({ serviceID, templateID }) => {
+                console.log("Fetched API keys:", serviceID, templateID);
+        
+                // Send email using EmailJS
+                emailjs.send(serviceID, templateID, params)
+                    .then(function (response) {
+                        console.log("✅ Email sent successfully!", response);
+                        alert("Email sent successfully!");
+                        bootstrap.Modal.getInstance(document.getElementById('contactApplicantModal')).hide();
+                    })
+                    .catch(function (error) {
+                        console.error("❌ Email sending failed:", error);
+                        alert("Failed to send email. Check console for details.");
+                    });
+        
+            }).catch(function (error) {
+                console.error("❌ Error fetching API keys:", error);
+                alert("Failed to fetch API keys. Cannot send email.");
+            });
+        }
+        
+        // Fetch API keys using JavaScript's Fetch API
+        function fetchApiKeys() {
+            return fetch("/get_api_keys_message/")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API keys fetched:", data.serviceID, data.templateID);
+                    return { serviceID: data.serviceID, templateID: data.templateID };
+                })
+                .catch(error => {
+                    console.error("❌ Error fetching API keys:", error);
+                    throw error;
+                });
         }
 
-
-        document.querySelectorAll('.edit-job').forEach(button => {
-            button.addEventListener('click', function() {
-                const jobId = this.getAttribute('data-job-id');
-                console.log('Job ID to edit:', jobId); // Debugging
+        // Initialize pagination for jobs (client-side)
+        function paginateItems(containerSelector, itemsPerPage) {
+            const container = document.querySelector(containerSelector);
+            if (!container) return;
+            
+            const items = container.children;
+            const totalItems = items.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Show first page by default
+            showPage(1);
+            
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                
+                for (let i = 0; i < totalItems; i++) {
+                    if (i >= start && i < end) {
+                        items[i].style.display = 'block';
+                    } else {
+                        items[i].style.display = 'none';
+                    }
+                }
+            }
+            
+            // Update pagination controls (you would implement this based on your UI)
+        }
         
-                // Set the form action to update_job
-                const form = document.getElementById('jobForm');
-                form.action = "{% url 'update_job' %}";
-        
-                // Set the job_id in the hidden input
-                document.getElementById('job_id').value = jobId;
-        
-                // Fetch job data and populate the form fields (if needed)
-                fetch(`/get_job_data/${jobId}/`)  // Add an endpoint to fetch job data
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('title').value = data.title;
-                        document.getElementById('company').value = data.company;
-                        document.getElementById('location').value = data.location;
-                        document.getElementById('salary').value = data.salary;
-                        document.getElementById('job_type').value = data.job_type;
-                        document.getElementById('experience').value = data.experience;
-                        document.getElementById('skills').value = data.Skills;
-                        document.getElementById('description').value = data.description;
-                        document.getElementById('education').value = data.education;
-                        document.getElementById('deadline').value = data.deadline;
-                    })
-                    .catch(error => console.error('Error fetching job data:', error));
-        
-                // Show the modal
-                new bootstrap.Modal(document.getElementById('createJobModal')).show();
+        // Initialize pagination when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            paginateItems('#jobs-container', 6); // 6 jobs per page
+            paginateItems('#applicants-container', 6); // 6 applicants per page
+            
+            // Show all applicants by default
+            document.querySelectorAll('.applicant-item').forEach(item => {
+                item.style.display = 'block';
             });
         });
-        
     </script>
 </body>
 </html>

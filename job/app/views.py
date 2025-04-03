@@ -39,6 +39,10 @@ auth_user_collection = db["auth_user"]
 social_auth_collection = db["social_auth_usersocialauth"]
 job_collection = db1["Joblist"]  # Renamed to avoid conflict
 job_applied_collection = db1["JobApplied"]  # Renamed to avoid conflict
+skills_collection = db["skills"]  # Renamed to avoid conflict
+location_collection=db["location"]
+jobrole_collection=db["jobrole"]
+
 def user_list(request):
     users = list(auth_user_collection.find({}))  # Fetch users
     social_auths = list(social_auth_collection.find({}))  # Fetch social auth users
@@ -49,46 +53,84 @@ def api_jobs(request):
     return render(request, 'Api_job.html')
 
 
-def job_list_view(request):  
-    jobs = list(job_collection.find({}).sort("posted_date", -1))  # Fetch jobs sorted by most recent
+@login_required
+def job_list_view(request):
+    # Handle AJAX requests for job role and location suggestions
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and 'term' in request.GET:
+        search_term = request.GET.get('term', '').lower()
+        field = request.GET.get('field', '')
+        
+        if field == 'job_role':
+            # Get job roles from the array field
+            roles_doc = jobrole_collection.find_one({}, {"job_roles": 1})
+            job_roles = roles_doc.get('job_roles', []) if roles_doc else []
+            suggestions = [role for role in job_roles if role and search_term in role.lower()][:10]
+            return JsonResponse(suggestions, safe=False)
+        elif field == 'location':
+            # Get locations from the array field
+            locs_doc = location_collection.find_one({}, {"locations": 1})
+            locations = locs_doc.get('locations', []) if locs_doc else []
+            suggestions = [loc for loc in locations if loc and search_term in loc.lower()][:10]
+            return JsonResponse(suggestions, safe=False)
 
-    user_id = request.user.id if request.user.is_authenticated else None
-    user_data = auth_user_collection.find_one({"id": request.user.id})
+    # Get current date in the same format as deadline (YYYY-MM-DD)
+    from datetime import datetime
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
+    # Fetch only jobs where deadline is greater than or equal to current date
+    jobs = list(job_collection.find({
+        "deadline": {"$gte": current_date}
+    }).sort("posted_date", -1))
     
-    father_name = user_data.get("father_name", "N/A")
-    progress = user_data.get("progress", "N/A")
-    branch = user_data.get("branch", "N/A")
-    Passout_Year = user_data.get("Passout_Year", "N/A")
-    Graduation_Percentage = user_data.get("Graduation_Percentage", "N/A")
-    Percentage_10 = user_data.get("10th_Percentage", "N/A")
-    Percentage_12 = user_data.get("12th_Percentage", "N/A")
-    deadline = user_data.get("deadline", "N/A")
+    for job in jobs:
+        job['jid'] = str(job['_id'])  # Ensure consistent string format
 
-    data = [{
-        "father_name": father_name, 
-        "progress": progress, 
-        "branch": branch, 
-        "Passout_Year": Passout_Year, 
-        "Graduation_Percentage": Graduation_Percentage, 
-        "Percentage_10": Percentage_10, 
-        "Percentage_12": Percentage_12,
-        "deadline": deadline,
-    }]
+    # Get user data
+    user_data = None
+    user_mongo_id = None
+    if request.user.is_authenticated:
+        user_data = auth_user_collection.find_one({"id": request.user.id})
+        if user_data:
+            user_mongo_id = str(user_data['_id'])
 
-    # Convert job['Skills'] from string to list
+    # Prepare user profile data
+    data = {
+        "father_name": user_data.get("father_name", "N/A") if user_data else "N/A",
+        "branch": user_data.get("branch", "N/A") if user_data else "N/A",
+        "Passout_Year": user_data.get("Passout_Year", "N/A") if user_data else "N/A",
+        "Graduation_Percentage": user_data.get("Graduation_Percentage", "N/A") if user_data else "N/A",
+        "Percentage_10": user_data.get("10th_Percentage", "N/A") if user_data else "N/A",
+    }
+
+    # Convert skills to list
     for job in jobs:
         if 'Skills' in job and isinstance(job['Skills'], str):
             job['Skills'] = [skill.strip() for skill in job['Skills'].split(',')]
 
-    # Check if the user has applied for each job
-    applied_jobs = set(application['job_id'] for application in job_applied_collection.find({"user_id": str(user_id)})) if user_id else set()
+    # Get applied jobs
+    applied_jobs = set()
+    if user_mongo_id:
+        applications = job_applied_collection.find({"user_id": user_mongo_id})
+        applied_jobs = {str(app['job_id']) for app in applications}
 
-    return render(request, 'job_list.html', {'jobs': jobs, 'applied_jobs': applied_jobs, "user": request.user, "data": data})
+    # Get job roles and locations from their respective collections
+    roles_doc = jobrole_collection.find_one({}, {"job_roles": 1})
+    job_roles = roles_doc.get('job_roles', []) if roles_doc else []
+    
+    locs_doc = location_collection.find_one({}, {"locations": 1})
+    locations = locs_doc.get('locations', []) if locs_doc else []
+
+    return render(request, 'job_list.html', {
+        'jobs': jobs,
+        'applied_jobs': applied_jobs,
+        'user': request.user,
+        'data': [data],
+        'job_roles': sorted(job_roles, key=lambda x: x.lower()),
+        'locations': sorted(locations, key=lambda x: x.lower()),
+    })
 
 
 
-
-# geg
 
 
 
@@ -225,44 +267,6 @@ def hr_login(request):
         return redirect('loginhr')
 
     return redirect('loginhr')  # Show login page if GET request
-# hr creating a job 
-# from django.views.decorators.csrf import csrf_exempt
-# @csrf_exempt
-# @login_required
-# def create_job(request):
-#     if request.method == "POST":
-#         try:
-#             data = json.loads(request.body)
-
-#             # Get HR ID from the logged-in user
-#             hr_id = request.user.id
-
-#             # Prepare job data
-#             job_data = {
-#                 "hr_id": hr_id,
-#                 "job_title": data.get("jobTitle"),
-#                 "company": data.get("company"),
-#                 "location": data.get("location").split(","),
-#                 "job_type": data.get("jobType"),
-#                 "salary_range": data.get("salary"),
-#                 "experience_range": data.get("experience"),
-#                 "skills": data.get("skills").split(","),
-#                 "description": data.get("description"),
-#                 "responsibilities": data.get("responsibilities", ""),
-#                 "qualifications": data.get("qualifications", ""),
-#                 "application_deadline": data.get("deadline"),
-#                 "status": data.get("status", "active"),
-#             }
-
-#             # Insert into MongoDB
-#             job_collection.insert_one(job_data)
-
-#             return JsonResponse({"message": "Job created successfully"}, status=201)
-        
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=400)
-    
-#     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 
@@ -271,9 +275,13 @@ def dashbord(request):
     print("hiii")
     # return render(request, 'job_list.html',{"user": request.user})
 
+from django.shortcuts import redirect
+
 def logout_view(request):
-    request.session.flush()
-    return redirect('job_list')
+    if request.user.is_authenticated:  # Optional check
+        request.session.flush()  # Clears all session data
+    return redirect('login')  # Redirects to login page
+
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -284,47 +292,46 @@ import datetime
 @csrf_exempt
 @login_required
 def toggle_apply_job(request):
-    print(f"Received request data: {request.POST}")  # Debugging log
-
-    if request.method == "POST":
-        job_id = request.POST.get("job_id")
-        hr_id = request.POST.get("hr_id")
-        user_id = request.user.id
-
-        if not job_id:
-            print("❌ Missing job_id")  # Debugging log
-            return JsonResponse({"error": "Missing job_id"}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+    
+    try:
+        job_id = request.POST.get("job_id", "").strip()
+        hr_id = request.POST.get("hr_id", "").strip()
         
-        if not hr_id:
-            print("❌ Missing hr_id")  # Debugging log
-            return JsonResponse({"error": "Missing hr_id"}, status=400)
-
-        job_applied_collection = db1["JobApplied"]
-        print(f"✅ Job ID: {job_id}, User ID: {user_id}, HR ID: {hr_id}")  # Debugging log
-
-        # Check if job is already applied by this user
-        existing_application = job_applied_collection.find_one({
-            "user_id": str(user_id),
+        # Get user's MongoDB _id
+        user = auth_user_collection.find_one({"id": request.user.id})
+        if not user:
+            return JsonResponse({"error": "User not found"}, status=400)
+        user_id = str(user["_id"])
+        
+        # Validate IDs
+        if not job_id or not hr_id:
+            return JsonResponse({"error": "Missing IDs"}, status=400)
+        
+        # Check existing application
+        existing = job_applied_collection.find_one({
+            "user_id": user_id,
             "job_id": job_id
         })
-
-        if existing_application:
-            print("🔹 Unapplying job...")
-            job_applied_collection.delete_one({"_id": existing_application["_id"]})
+        
+        if existing:
+            # Unapply
+            job_applied_collection.delete_one({"_id": existing["_id"]})
             return JsonResponse({"status": "unapplied"})
         else:
-            print("✅ Applying for job...")
+            # Apply
             job_applied_collection.insert_one({
-                "user_id": str(user_id),
+                "user_id": user_id,
                 "job_id": job_id,
-                "hr_id": hr_id,  # Storing HR ID
+                "hr_id": hr_id,
                 "applied_at": datetime.datetime.now()
             })
             return JsonResponse({"status": "applied"})
-
-    return JsonResponse({"error": "Invalid request"}, status=400)
-
-        
+            
+    except Exception as e:
+        print(f"Error in toggle_apply_job: {str(e)}")
+        return JsonResponse({"error": "Server error"}, status=500)
         # profile side bar logic
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -463,7 +470,305 @@ from pymongo import MongoClient
 #     from django.shortcuts import render
 # from django.contrib.auth.decorators import login_required
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from bson import ObjectId
+from datetime import datetime
 
+@csrf_exempt
+def get_experiences(request):
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        user_data = auth_user_collection.find_one({"username": user.username})
+        if not user_data:
+            return JsonResponse({"success": False, "error": "User not found"}, status=404)
+
+        experiences = user_data.get("experiences", [])
+        
+        # Convert ObjectId to string for JSON serialization
+        for exp in experiences:
+            if '_id' in exp:
+                exp['_id'] = str(exp['_id'])
+                
+        return JsonResponse({"success": True, "data": experiences})
+        
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+@csrf_exempt
+def add_experience(request):
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        data = json.loads(request.body)
+        
+        # Validate required fields
+        required_fields = ['company_name', 'job_title', 'start_date']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({"success": False, "error": f"Missing required field: {field}"}, status=400)
+
+        experience_data = {
+            "_id": ObjectId(),  # Generate new ObjectId
+            "company_name": data['company_name'],
+            "job_title": data['job_title'],
+            "start_date": data['start_date'],
+            "end_date": data.get('end_date'),
+            "currently_working": data.get('currently_working', False),
+            "description": data.get('description', '')
+        }
+
+        # Update MongoDB
+        result = auth_user_collection.update_one(
+            {"username": user.username},
+            {"$push": {"experiences": experience_data}}
+        )
+
+        if result.modified_count == 1:
+            return JsonResponse({"success": True, "experience_id": str(experience_data['_id'])})
+        else:
+            return JsonResponse({"success": False, "error": "Failed to add experience"}, status=500)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+@csrf_exempt
+def update_experience(request):
+    if request.method != 'PUT':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        data = json.loads(request.body)
+        
+        if not data.get('experience_id'):
+            return JsonResponse({"success": False, "error": "Missing experience_id"}, status=400)
+
+        # Validate required fields
+        required_fields = ['company_name', 'job_title', 'start_date']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({"success": False, "error": f"Missing required field: {field}"}, status=400)
+
+        update_data = {
+            "experiences.$.company_name": data['company_name'],
+            "experiences.$.job_title": data['job_title'],
+            "experiences.$.start_date": data['start_date'],
+            "experiences.$.end_date": data.get('end_date'),
+            "experiences.$.currently_working": data.get('currently_working', False),
+            "experiences.$.description": data.get('description', '')
+        }
+
+        # Update MongoDB
+        result = auth_user_collection.update_one(
+            {"username": user.username, "experiences._id": ObjectId(data['experience_id'])},
+            {"$set": update_data}
+        )
+
+        if result.modified_count == 1:
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Experience not found or not modified"}, status=404)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+@csrf_exempt
+def delete_experience(request):
+    if request.method != 'DELETE':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        data = json.loads(request.body)
+        
+        if not data.get('experience_id'):
+            return JsonResponse({"success": False, "error": "Missing experience_id"}, status=400)
+
+        # Update MongoDB
+        result = auth_user_collection.update_one(
+            {"username": user.username},
+            {"$pull": {"experiences": {"_id": ObjectId(data['experience_id'])}}}
+        )
+
+        if result.modified_count == 1:
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Experience not found or not deleted"}, status=404)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+    
+    from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from bson import ObjectId
+from datetime import datetime
+
+@csrf_exempt
+def get_projects(request):
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        user_data = auth_user_collection.find_one({"username": user.username})
+        if not user_data:
+            return JsonResponse({"success": False, "error": "User not found"}, status=404)
+
+        projects = user_data.get("projects", [])
+        
+        # Convert ObjectId to string for JSON serialization
+        for proj in projects:
+            if '_id' in proj:
+                proj['_id'] = str(proj['_id'])
+                
+        return JsonResponse({"success": True, "data": projects})
+        
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+@csrf_exempt
+def add_project(request):
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        data = json.loads(request.body)
+        
+        # Validate required fields
+        required_fields = ['title', 'start_date']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({"success": False, "error": f"Missing required field: {field}"}, status=400)
+
+        project_data = {
+            "_id": ObjectId(),  # Generate new ObjectId
+            "title": data['title'],
+            "start_date": data['start_date'],
+            "end_date": data.get('end_date'),
+            "currently_ongoing": data.get('currently_ongoing', False),
+            "description": data.get('description', ''),
+            "link": data.get('link', '')
+        }
+
+        # Update MongoDB
+        result = auth_user_collection.update_one(
+            {"username": user.username},
+            {"$push": {"projects": project_data}}
+        )
+
+        if result.modified_count == 1:
+            return JsonResponse({"success": True, "project_id": str(project_data['_id'])})
+        else:
+            return JsonResponse({"success": False, "error": "Failed to add project"}, status=500)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+@csrf_exempt
+def update_project(request):
+    if request.method != 'PUT':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        data = json.loads(request.body)
+        
+        if not data.get('project_id'):
+            return JsonResponse({"success": False, "error": "Missing project_id"}, status=400)
+
+        # Validate required fields
+        required_fields = ['title', 'start_date']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({"success": False, "error": f"Missing required field: {field}"}, status=400)
+
+        update_data = {
+            "projects.$.title": data['title'],
+            "projects.$.start_date": data['start_date'],
+            "projects.$.end_date": data.get('end_date'),
+            "projects.$.currently_ongoing": data.get('currently_ongoing', False),
+            "projects.$.description": data.get('description', ''),
+            "projects.$.link": data.get('link', '')
+        }
+
+        # Update MongoDB
+        result = auth_user_collection.update_one(
+            {"username": user.username, "projects._id": ObjectId(data['project_id'])},
+            {"$set": update_data}
+        )
+
+        if result.modified_count == 1:
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Project not found or not modified"}, status=404)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+@csrf_exempt
+def delete_project(request):
+    if request.method != 'DELETE':
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"success": False, "error": "User not authenticated"}, status=401)
+
+        data = json.loads(request.body)
+        
+        if not data.get('project_id'):
+            return JsonResponse({"success": False, "error": "Missing project_id"}, status=400)
+
+        # Update MongoDB
+        result = auth_user_collection.update_one(
+            {"username": user.username},
+            {"$pull": {"projects": {"_id": ObjectId(data['project_id'])}}}
+        )
+
+        if result.modified_count == 1:
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Project not found or not deleted"}, status=404)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 @csrf_exempt
 @require_POST
 def update_profile(request):
@@ -501,10 +806,17 @@ def update_profile(request):
             "tenth_school": "10th_school",  # Match the name attribute in the form
             "tenth_board": "10th_board",  # Match the name attribute in the form  
             "tenth_year": "10th_passout_year",  # Match the name attribute in the form
+            "tenth_percentage": "10th_Percentage",  # Match the name attribute in the form
             "twelfth_school": "12th_school",  # Match the name attribute in the form
             "twelfth_board": "12th_board",  # Match the name attribute in the form
             "twelfth_year": "12th_passout_year",  # Match the name attribute in
             "twelfth_percentage": "12th_Percentage",  # Match the name attribute in the form
+            "ug_college": "ug_college",  # Match the name attribute in the form
+            "branch": "branch",  # Match the name attribute in the form
+            "passout_year": "Passout_Year",  # Match the name attribute in the form
+            "graduation_percentage": "Graduation_Percentage",  # Match the name attribute in the form
+            
+            
             
         }
 
@@ -548,6 +860,132 @@ def profile_page(request):
     return render(request, 'profile.html')
 
 
+
+import os
+import json
+from datetime import datetime as dt  # Changed import to avoid conflict
+from django.http import JsonResponse, FileResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+# Path to store resumes
+RESUME_DIR = os.path.join(settings.MEDIA_ROOT, 'resumes')
+RESUME_INFO_FILE = os.path.join(RESUME_DIR, 'resume_info.json')
+
+def ensure_resume_dir():
+    """Ensure the resume directory exists"""
+    if not os.path.exists(RESUME_DIR):
+        os.makedirs(RESUME_DIR)
+
+def get_user_resume_filename(user_id):
+    """Get the filename for a user's resume"""
+    return f"resume_{user_id}.pdf"
+
+def save_resume_info(user_id, filename, file_size):
+    """Save resume metadata to a JSON file"""
+    ensure_resume_dir()
+    info = {}
+    
+    if os.path.exists(RESUME_INFO_FILE):
+        with open(RESUME_INFO_FILE, 'r') as f:
+            try:
+                info = json.load(f)
+            except json.JSONDecodeError:
+                info = {}
+    
+    info[str(user_id)] = {
+        'filename': filename,
+        'file_size': file_size,
+        'updated_at': dt.now().isoformat()  # Using dt instead of datetime
+    }
+    
+    with open(RESUME_INFO_FILE, 'w') as f:
+        json.dump(info, f, indent=4)
+
+def get_resume_info(user_id):
+    """Get resume metadata from JSON file"""
+    if not os.path.exists(RESUME_INFO_FILE):
+        return None
+    
+    with open(RESUME_INFO_FILE, 'r') as f:
+        try:
+            info = json.load(f)
+            return info.get(str(user_id))
+        except json.JSONDecodeError:
+            return None
+
+def delete_resume_file(user_id):
+    """Delete a user's resume file"""
+    filename = get_user_resume_filename(user_id)
+    filepath = os.path.join(RESUME_DIR, filename)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+
+@csrf_exempt
+def upload_resume(request):
+    if request.method == 'POST' and request.FILES.get('resume'):
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'message': 'Not authenticated'}, status=401)
+        
+        resume_file = request.FILES['resume']
+        user_id = request.user.id
+        
+        # Delete old resume if exists
+        delete_resume_file(user_id)
+        
+        # Save new resume
+        ensure_resume_dir()
+        filename = get_user_resume_filename(user_id)
+        filepath = os.path.join(RESUME_DIR, filename)
+        
+        with open(filepath, 'wb+') as destination:
+            for chunk in resume_file.chunks():
+                destination.write(chunk)
+        
+        # Save metadata
+        save_resume_info(user_id, resume_file.name, resume_file.size)
+        
+        return JsonResponse({
+            'success': True,
+            'resume': {
+                'filename': resume_file.name,
+                'updated_at': dt.now().isoformat()  # Using dt instead of datetime
+            }
+        })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def get_resume(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Not authenticated'}, status=401)
+    
+    resume_info = get_resume_info(request.user.id)
+    if resume_info:
+        return JsonResponse({
+            'success': True,
+            'resume': {
+                'filename': resume_info['filename'],
+                'updated_at': resume_info['updated_at']
+            }
+        })
+    return JsonResponse({'success': True, 'resume': None})
+
+def download_resume(request):
+    if not request.user.is_authenticated:
+        return HttpResponse('Not authenticated', status=401)
+    
+    resume_info = get_resume_info(request.user.id)
+    if not resume_info:
+        return HttpResponse('Resume not found', status=404)
+    
+    filename = get_user_resume_filename(request.user.id)
+    filepath = os.path.join(RESUME_DIR, filename)
+    
+    if os.path.exists(filepath):
+        response = FileResponse(open(filepath, 'rb'))
+        response['Content-Disposition'] = f'attachment; filename="{resume_info["filename"]}"'
+        return response
+    return HttpResponse('File not found', status=404)
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -595,130 +1033,7 @@ from bson import ObjectId
 #         project['_id'] = str(project['_id'])
 #     return JsonResponse({"success": True, "data": projects})
 
-import json
-from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
-@csrf_exempt
-def add_project(request):
-    if request.method == 'POST':
-        try:
-            # Parse the request body
-            data = json.loads(request.body)
-            print("Received data:", data)  # Debugging: Print received data
-
-            # Add the user_id to the data
-            data['user_id'] = request.user.id  # Ensure the user is authenticated
-
-            # Remove _id field if it exists and is empty
-            if '_id' in data and data['_id'] == '':
-                del data['_id']
-
-            # Insert the project into the database
-            result = Experience.insert_one(data)
-            print("Inserted project ID:", result.inserted_id)  # Debugging: Print inserted ID
-
-            return JsonResponse({"success": True, "inserted_id": str(result.inserted_id)})
-        except Exception as e:
-            print("Error:", str(e))  # Debugging: Print any errors
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Invalid request method"})
-@csrf_exempt
-def update_project(request):
-    try:
-        data = json.loads(request.body)
-        project_id = data.pop('_id', None)  # Ensure _id exists
-
-        if not project_id:
-            return JsonResponse({"success": False, "error": "Project ID is required"}, status=400)
-
-        Experience.update_one({"_id": ObjectId(project_id)}, {"$set": data})
-
-        return JsonResponse({"success": True})
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
-
-@csrf_exempt
-@login_required
-def delete_project(request):
-    try:
-        if request.method != 'DELETE':
-            return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
-
-        data = json.loads(request.body)  # ✅ Read JSON body instead of request.GET
-        project_id = request.GET.get('project_id')
-
-        if not project_id:
-            return JsonResponse({"success": False, "error": "Project ID is missing"}, status=400)
-
-        if not (isinstance(project_id, str) and len(project_id) == 24 and all(c in "0123456789abcdefABCDEF" for c in project_id)):
-            return JsonResponse({"success": False, "error": "Invalid ObjectId format"}, status=400)
-
-        result = Experience.delete_one({"_id": ObjectId(project_id)})
-        if result.deleted_count == 0:
-            return JsonResponse({"success": False, "error": "Project not found"}, status=404)
-
-        return JsonResponse({"success": True})
-
-    except json.JSONDecodeError:
-        return JsonResponse({"success": False, "error": "Invalid JSON format"}, status=400)
-
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
-
-
-@login_required
-@csrf_exempt
-def get_projects(request):
-    user_id = request.GET.get('user_id')
-
-    if not user_id:
-        return JsonResponse({"success": False, "error": "user_id is required"}, status=400)
-
-    # Ensure user_id is of correct type
-    if user_id.isdigit():
-        user_id = int(user_id)
-
-    print(f"Fetching projects for user_id: {user_id}")
-
-    try:
-        projects = list(Experience.find({"user_id": user_id}, {"_id": 0}))  # Exclude _id from response
-        print(f"Projects found: {projects}")
-
-        return JsonResponse({"success": True, "data": projects}, status=200)
-    
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
-   
-
-@csrf_exempt
-@login_required
-def get_project(request):
-    try:
-        project_id = request.GET.get('project_id')
-        print(project_id)
-
-        if not project_id or project_id == "undefined":
-            return JsonResponse({"success": False, "error": "Project ID is required and cannot be 'undefined'"}, status=400)
-
-        if not (isinstance(project_id, str) and len(project_id) == 24 and all(c in "0123456789abcdefABCDEF" for c in project_id)):
-            return JsonResponse({"success": False, "error": "Invalid ObjectId format"}, status=400)
-
-        project = Experience.find_one({"_id": ObjectId(project_id)})
-        if not project:
-            return JsonResponse({"success": False, "error": "Project not found"}, status=404)
-
-        project['_id'] = str(project['_id'])
-        return JsonResponse({"success": True, "data": project})
-    
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
-    
-    
-    
-    
-    # hr pannel
-    
     
     # views.py
 
@@ -845,12 +1160,16 @@ import datetime
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
+
 # update the job
 @login_required
 def update_job(request):
     if request.method == 'POST':
         hr_id = request.session.get('hr_id')
         job_id = request.POST.get('job_id')
+        print(hr_id)
+        print(job_id)
 
         if not hr_id:
             messages.error(request, "You need to be logged in as an HR to update jobs.")
@@ -884,7 +1203,8 @@ def update_job(request):
             'description': request.POST.get('description'),
             'education': request.POST.get('education'),
             'deadline': request.POST.get('deadline'),
-            'updated_at': datetime.datetime.now()
+            'updated_at': datetime.now()
+
         }
 
         job_collection.update_one({"_id": job_object_id}, {"$set": update_data})
@@ -959,23 +1279,29 @@ def delete_job(request):
     return redirect('hr_panel')
 # Get job details for editing
 @login_required
+@login_required
 def get_job_details(request, job_id):
     hr_id = request.session.get('hr_id')
     
     if not hr_id:
         return JsonResponse({"error": "Not authorized"}, status=401)
     
-    # Fetch job details
-    job = job_collection.find_one({"_id": ObjectId(job_id), "hr_id": hr_id})
-    
-    if not job:
-        return JsonResponse({"error": "Job not found or not authorized"}, status=404)
-    
-    # Convert ObjectId to string for JSON serialization
-    job['_id'] = str(job['_id'])
-    
-    return JsonResponse(job)
-
+    try:
+        # Fetch job details
+        job = job_collection.find_one({"_id": ObjectId(job_id), "hr_id": hr_id})
+        
+        if not job:
+            return JsonResponse({"error": "Job not found or not authorized"}, status=404)
+        
+        # Convert ObjectId to string for JSON serialization
+        job['_id'] = str(job['_id'])
+        
+        print(f"Job data: {job}")  # Debugging line
+        
+        return JsonResponse(job)
+    except Exception as e:
+        print(f"Error fetching job details: {e}")  # Debugging line
+        return JsonResponse({"error": "Invalid Job ID format or server error"}, status=500)
 # Update application status
 @login_required
 def update_application_status(request):
@@ -1009,40 +1335,7 @@ def update_application_status(request):
     
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-# Contact applicant
-@login_required
-def contact_applicant(request):
-    if request.method == 'POST':
-        hr_id = request.session.get('hr_id')
-        applicant_email = request.POST.get('applicant_email')
-        subject = request.POST.get('subject')
-        message = request.POST.get('message')
-        
-        if not hr_id:
-            messages.error(request, "You need to be logged in as an HR to contact applicants.")
-            return redirect('hr_login')
-        
-        # Get HR details for the "from" address
-        hr = hr_collection.find_one({"_id": ObjectId(hr_id)})
-        
-        if not hr:
-            messages.error(request, "HR information not found.")
-            return redirect('hr_dashboard')
-        
-        # Here you would integrate with your email sending functionality
-        # For example:
-        # send_email(
-        #     from_email=hr.get('email'),
-        #     to_email=applicant_email,
-        #     subject=subject,
-        #     message=message
-        # )
-        
-        # For now, we'll just show a success message
-        messages.success(request, f"Message sent to {applicant_email} successfully!")
-        return redirect('hr_dashboard')
-    
-    return redirect('hr_dashboard')
+
 
 # HR logout
 def hr_logout(request):
@@ -1055,75 +1348,511 @@ def hr_logout(request):
 
 
 
-
+# Hr panel
 from bson import ObjectId
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
+import re
+
+import re
 
 def hr_panel_view(request):
-    # Check if user is logged in as HR
     if not request.session.get('hr_id'):
         return redirect('loginhr')
 
     hr_id = request.session.get('hr_id')
-    print(f"HR ID: {hr_id}")
+    hr_user = hr_collection.find_one({"_id": ObjectId(hr_id)})
+    # print(f"HR ID: {hr_id}")
+    is_active = hr_user.get('is_active', False) if hr_user else False
+    print(is_active)
+    
     # Fetch jobs created by this HR
     hr_jobs = list(job_collection.find({"hr_id": hr_id}))
-
-    # Process Skills field and convert `_id` to string
+    # print(f"HR Jobs: {hr_jobs}")
+    
+    # Calculate applicants_count for each job dynamically
     for job in hr_jobs:
-        job['id'] = str(job['_id'])  # Convert ObjectId to string
+        job_id = job['_id']
+        # print(f"Job ID: {job_id}")
+        
+        # Convert job_id to string (if it's an ObjectId)
+        job_id_str = str(job_id)
+        job['job_id'] = job_id_str
+        job['id'] = job_id_str 
+        # print(f"Job ID (String): {job_id_str}")
+        
+        # Debugging: Print the query
+        # print(f"Querying for job_id: {ObjectId(job_id_str)}")
+        
+        # Count applications for this job dynamically
+        applicants_count = job_applied_collection.count_documents({"job_id": ObjectId(job_id_str)})
+        # print(f"Applicants Count for Job {job_id_str}: {applicants_count}")
+        
+        # Debugging: Print the applications found
+        applications = list(job_applied_collection.find({"job_id": ObjectId(job_id_str)}))
+        # print(f"Applications for Job {job_id_str}: {applications}")
+        
+        # Add applicants_count to the job
+        job['applicants_count'] = applicants_count
 
-        if 'Skills' in job and isinstance(job['Skills'], str):
-            job['Skills'] = [skill.strip() for skill in job['Skills'].split(',')]
+    # print(f"HR Jobs with Applicants Count: {hr_jobs}")
+    
+    # Preprocess skills to split and clean
+    for job in hr_jobs:
+        if 'Skills' in job:
+            # Split the skills string into a list
+            if isinstance(job['Skills'], str):
+                skills_list = job['Skills'].split(',')  # Split by comma
+                skills_list = [skill.strip() for skill in skills_list]  # Remove extra spaces
+                job['Skills'] = skills_list
+            
+            # Remove ALL whitespace from each skill
+            job['Skills'] = [re.sub(r'\s+', '', skill) for skill in job['Skills']]
+            # print(f"Processed Skills: {job['Skills']}")
+    
+    # Extract job titles (or another unique field) from hr_jobs
+    # job_titles = [job['Job'] for job in hr_jobs]
+    # # print(f"Job Titles: {job_titles}")
+    
+    
+    # # Fetch applications for these job titles
+    # applications = list(job_applied_collection.find({"job_id": {"$in": job_titles }}))
+    # print(f"Applications: {applications}")
+    job_ids = [str(job['_id']) for job in hr_jobs]  # Convert each _id to ObjectId
+    print(f"Job IDs: {job_ids}")
 
-        # Count applicants for each job
-        job['applicants_count'] = job_applied_collection.count_documents({"job_id": job['id']})
+# Fetch applications where job_id matches any job ObjectId
+    applications = list(job_applied_collection.find({"job_id": {"$in": job_ids}}))
+    # Process applicants
+    applicants = []
+    for application in applications:
+        user_id = application.get('user_id')
+        # print(f"Fetching user data for user_id: {user_id}")
+        
+        if user_id:
+            user_data = auth_user_collection.find_one({"_id": ObjectId(user_id)})
+            # print(f"User data: {user_data}")
+            
+            if user_data:
+                user_data['application_id'] = str(application['_id'])
+                user_data['applied_job_id'] = application['job_id']
+                user_data['applied_at'] = application.get('applied_at', 'N/A')
+                
+                # Find the job details for the applied job
+                job = next((j for j in hr_jobs if j['_id'] == ObjectId(application['job_id'])), None)
 
-    # Fetch applications for jobs posted by this HR
-    pipeline = [
-        {"$match": {"hr_id": hr_id}},  # Match jobs created by this HR
-        {"$lookup": {
-            "from": "job_applied",
-            "localField": "_id",
-            "foreignField": "job_id",
-            "as": "applications"
-        }},
-        {"$unwind": "$applications"},  # Unwind applications array
-        {"$lookup": {
-            "from": "auth_user",
-            "localField": "applications.user_id",
-            "foreignField": "id",
-            "as": "user"
-        }},
-        {"$unwind": "$user"},  # Unwind user array
-        {"$project": {
-            "job_title": "$title",
-            "application_id": {"$toString": "$applications._id"},  # Convert ObjectId to string
-            "user_id": "$applications.user_id",
-            "applied_date": "$applications.applied_date",
-            "status": "$applications.status",
-            "user": {
-                "username": "$user.username",
-                "email": "$user.email",
-                "father_name": "$user.father_name",
-                "progress": "$user.progress",
-                "branch": "$user.branch",
-                "Passout_Year": "$user.Passout_Year",
-                "Graduation_Percentage": "$user.Graduation_Percentage",
-                "Percentage_10": "$user.10th_Percentage",
-                "Percentage_12": "$user.12th_Percentage"
-            }
-        }}
-    ]
-
-    job_applications = list(job_collection.aggregate(pipeline))
-
-    # Debugging: Print the fetched data
-    print("Job Applications:", job_applications)
-
+# Assign job title or default to 'Unknown Job'
+                user_data['applied_job_title'] = job['Job'] if job else 'Unknown Job'
+                
+                # Rename _id to applicant_id
+                user_data['applicant_id'] = str(user_data['_id'])
+                
+                # Remove the _id field to avoid confusion
+                if '_id' in user_data:
+                    del user_data['_id']
+                
+                applicants.append(user_data)
+        else:
+            print(f"No user found for user_id: {user_id}")
+    
+    # print(f"Applicants: {applicants}")
+    
     context = {
         'hr_jobs': hr_jobs,
-        'job_applications': job_applications
+        'applicants': applicants,
+         'is_active': is_active 
     }
 
     return render(request, 'hr.html', context)
+# Add a view to get user details
+def get_applicant_details(request, user_id):
+    if not request.session.get('hr_id'):
+        return JsonResponse({"error": "Not authorized"}, status=403)
+    print(f"Fetching details for user_id  for view details: {user_id}")
+    
+    user_data = auth_user_collection.find_one({"_id": ObjectId(user_id)})
+    
+    if not user_data:
+        return JsonResponse({"error": "User not found"}, status=404)
+    
+    # Process user data for response
+    user_details = {
+        "user_id": user_id,
+        "username": user_data.get("username", "N/A"),
+        "email": user_data.get("email", "N/A"),
+        "father_name": user_data.get("father_name", "N/A"),
+        "mobile": user_data.get("mobile", "N/A"),
+        "location": user_data.get("location", "N/A"),
+        "branch": user_data.get("branch", "N/A"),
+        "ug_college": user_data.get("ug_college", "N/A"),
+        "Passout_Year": user_data.get("Passout_Year", "N/A"),
+        "Graduation_Percentage": user_data.get("Graduation_Percentage", "N/A"),
+        "10th_Percentage": user_data.get("10th_Percentage", "N/A"),
+        "12th_Percentage": user_data.get("12th_Percentage", "N/A"),
+        ""
+        "skills": user_data.get("skills", []),
+        "profile_picture": user_data.get("profile_picture", None)
+    }
+    # print(f"User details: {user_details}")
+    return JsonResponse({"success": True, "data": user_details})
+
+# hr user list
+def hr_userlist(request):
+    if not request.session.get('hr_id'):
+        return redirect('loginhr')
+    
+    # Get filter parameters from request
+    skills = request.GET.getlist('skills', [])
+    graduation_year = request.GET.get('graduation_year', '')
+    location = request.GET.get('location', '')
+    min_percentage = request.GET.get('min_percentage', '')
+    search = request.GET.get('search', '')
+    
+    query = {}
+    
+    # Handle skills filter - users must have ALL selected skills
+    if skills:
+        # Convert skills to regex patterns for case-insensitive matching
+        skills_regex = [{'$regex': f'^{re.escape(skill)}', '$options': 'i'} for skill in skills]
+        query['skills'] = {'$all': skills_regex}
+    
+    # Other filters remain the same
+    if graduation_year:
+        query['graduation_year'] = graduation_year
+    
+    if location:
+        query['location'] = {'$regex': location, '$options': 'i'}
+    
+    if min_percentage:
+        query['Graduation_Percentage'] = {'$gte': float(min_percentage)}
+    
+    if search:
+        query['$or'] = [
+            {'first_name': {'$regex': search, '$options': 'i'}},
+            {'last_name': {'$regex': search, '$options': 'i'}},
+            {'email': {'$regex': search, '$options': 'i'}},
+            {'username': {'$regex': search, '$options': 'i'}}
+        ]
+    
+    users = list(auth_user_collection.find(query))
+    hr_id = request.session.get('hr_id')
+    
+    return render(request, 'hr_userlist.html', {'users': users, 'hr_id': hr_id})
+
+def get_skills(request):
+    search_term = request.GET.get('search', '').strip()
+    
+    # Create a case-insensitive regex pattern if search term exists
+    query = {}
+    if search_term:
+        query['name'] = {'$regex': f'^{re.escape(search_term)}', '$options': 'i'}
+    
+    # Fetch skills with projection
+    skills = list(skills_collection.find(query, {'name': 1, '_id': 0}).limit(20))
+    
+    return JsonResponse({
+        'success': True,
+        'skills': [skill['name'] for skill in skills]
+    })
+
+# API endpoint to get detailed user information
+from bson import ObjectId
+from django.http import JsonResponse
+
+from bson import ObjectId
+from django.http import JsonResponse
+def get_user_details(request, user_id):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'error': 'Not authorized'}, status=401)
+    
+    try:
+        user_id = int(user_id)
+    except ValueError:
+        return JsonResponse({"error": "Invalid user ID format"}, status=400)
+    
+    user_data = auth_user_collection.find_one({"id": user_id})
+
+    if not user_data:
+        return JsonResponse({"error": "User not found"}, status=404)
+    
+    # Check if resume exists in filesystem
+    resume_filename = f"resume_{user_id}.pdf"
+    resume_path = os.path.join(settings.MEDIA_ROOT, 'resumes', resume_filename)
+    has_resume = os.path.exists(resume_path)
+    
+    # If using MongoDB GridFS, you could check like this:
+    # has_resume = fs.exists({"filename": resume_filename})
+    
+    user_details = {
+        "user_id": user_data["id"],
+        "username": user_data.get("username", "N/A"),
+        "email": user_data.get("email", "N/A"),
+        "father_name": user_data.get("father_name", "N/A"),
+        "mobile": user_data.get("mobile", "N/A"),
+        "location": user_data.get("location", "N/A"),
+        "branch": user_data.get("branch", "N/A"),
+        "ug_college": user_data.get("ug_college", "N/A"),
+        "Passout_Year": user_data.get("Passout_Year", "N/A"),
+        "Graduation_Percentage": user_data.get("Graduation_Percentage", "N/A"),
+        "10th_Percentage": user_data.get("10th_Percentage", "N/A"),
+        "12th_Percentage": user_data.get("12th_Percentage", "N/A"),
+        "skills": user_data.get("skills", []),
+        "profile_picture": user_data.get("profile_picture", None),
+        "has_resume": has_resume,  # Add this flag
+        "resume_filename": resume_filename if has_resume else None
+    }
+    
+    return JsonResponse({"success": True, "data": user_details})
+
+  
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+
+def contact_applicant(request):
+    if not request.session.get('hr_id'):
+        return redirect('loginhr')
+    
+    if request.method == 'POST':
+        applicant_email = request.POST.get('applicant_email')
+        subject = request.POST.get('email_subject')
+        message = request.POST.get('email_message')
+        
+        if not all([applicant_email, subject, message]):
+            messages.error(request, 'All fields are required.')
+            return redirect('hr_panel')
+        
+        # Get HR details for the 'from' email
+        hr_id = request.session.get('hr_id')
+        hr_data = hr_collection.find_one({"_id": ObjectId(hr_id)})
+        hr_email = hr_data.get('email', settings.DEFAULT_FROM_EMAIL)
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                hr_email,  # From email
+                [applicant_email],  # To email
+                fail_silently=False,
+            )
+            messages.success(request, f'Message sent successfully to {applicant_email}')
+        except Exception as e:
+            messages.error(request, f'Failed to send message: {str(e)}')
+        
+        return redirect('hr_panel')
+   
+   
+   
+   
+   
+   
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from datetime import datetime, timedelta
+from bson import json_util
+
+# In-memory collection to store jobs
+apijob_collection = db1["apijob"]
+
+# Track last cleanup time
+last_cleanup_time = None
+
+@csrf_exempt
+def store_jobs(request):
+    global last_cleanup_time
+    
+    if request.method == 'POST':
+        try:
+            # Check if 14390 minutes (~10 days) have passed since last cleanup
+            current_time = datetime.now()
+            if last_cleanup_time is None or (current_time - last_cleanup_time) >= timedelta(minutes=14390):
+                apijob_collection.delete_many({})
+                last_cleanup_time = current_time
+                print(f"Performed cleanup at {current_time}")
+
+            data = json.loads(request.body)
+            jobs = data.get('jobs', [])
+
+            if not jobs:
+                return JsonResponse({'status': 'error', 'message': 'No jobs provided'}, status=400)
+
+            # Insert jobs into MongoDB collection
+            result = apijob_collection.insert_many(jobs)
+
+            return JsonResponse({
+                'status': 'success', 
+                'message': f'{len(result.inserted_ids)} jobs stored successfully'
+            })
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def get_jobs(request):
+    if request.method == 'GET':
+        try:
+            # Get all jobs from collection (no pagination for now)
+            jobs = list(apijob_collection.find())
+            
+            # Convert ObjectId to string for JSON serialization
+            for job in jobs:
+                job['_id'] = str(job['_id'])
+            
+            return JsonResponse({
+                'status': 'success',
+                'data': jobs,
+                'count': len(jobs)
+            }, json_dumps_params={'default': json_util.default})
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+from django.http import FileResponse, Http404
+import os
+from django.conf import settings
+
+def download_resume(request, user_id):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'error': 'Not authorized'}, status=401)
+    
+    try:
+        user_id = int(user_id)
+    except ValueError:
+        return JsonResponse({"error": "Invalid user ID format"}, status=400)
+    
+    resume_filename = f"resume_{user_id}.pdf"
+    resume_path = os.path.join(settings.MEDIA_ROOT, 'resumes', resume_filename)
+    
+    if not os.path.exists(resume_path):
+        return JsonResponse({"error": "Resume not found"}, status=404)
+    
+    try:
+        file = open(resume_path, 'rb')
+        response = FileResponse(file)
+        response['Content-Disposition'] = f'attachment; filename="{resume_filename}"'
+        response['Content-Type'] = 'application/pdf'
+        return response
+    except Exception as e:
+        return JsonResponse({"error": f"Error accessing resume: {str(e)}"}, status=500)
+    
+from django.http import JsonResponse
+from django.conf import settings
+
+def get_api_keys(request):
+    print(f"RAPIDAPI_KEY: {settings.RAPIDAPI_KEY}")
+    print(f"RAPIDAPI_HOST: {settings.RAPIDAPI_HOST}")
+    return JsonResponse({
+        "RAPIDAPI_KEY": settings.RAPIDAPI_KEY,
+        "RAPIDAPI_HOST": settings.RAPIDAPI_HOST
+    })
+    
+from django.http import JsonResponse
+
+def get_api_keys_message(request):
+    print(f"RAPIDAPI_KEY: {settings.RAPIDAPI_KEY}")
+    print(f"RAPIDAPI_HOST: {settings.RAPIDAPI_HOST}")
+    return JsonResponse({
+        "serviceID": settings.SERVICE_ID,  # Use correctly loaded variables
+        "templateID": settings.TEMPLATE_ID,
+    })
+
+
+import re
+from django.http import JsonResponse
+
+def get_locations(request):
+    search_term = request.GET.get('search', '').strip().lower()
+    
+    # Create query for array field
+    query = {}
+    if search_term:
+        query["locations"] = {
+            "$elemMatch": {
+                "$regex": f".*{re.escape(search_term)}.*",
+                "$options": "i"
+            }
+        }
+    
+    # Alternative query if above doesn't work
+    # query["locations"] = {
+    #     "$regex": f".*{re.escape(search_term)}.*",
+    #     "$options": "i"
+    # }
+    
+    # print("MongoDB Query:", query)  # Debug
+    
+    # Fetch matching documents
+    docs = list(location_collection.find(query, {"_id": 0, "locations": 1}))
+    
+    # Extract all matching locations from arrays
+    location_names = []
+    for doc in docs:
+        if "locations" in doc:
+            for loc in doc["locations"]:
+                if search_term in loc.lower():
+                    location_names.append(loc)
+    
+    # Remove duplicates
+    unique_locations = list(set(location_names))
+    
+    # print("Locations found:", unique_locations)  # Debug
+    
+    return JsonResponse({
+        "success": True,
+        "locations": unique_locations
+    })
+
+
+def search_locations(request):
+    search_term = request.GET.get('search', '').strip().lower()
+    country_filter = request.GET.get('country', '').strip()
+    state_filter = request.GET.get('state', '').strip()
+    
+    # Build the query based on filters
+    query = {}
+    if country_filter:
+        query['location.country'] = country_filter
+    if state_filter:
+        query['location.state'] = state_filter
+    
+    # Search across all location fields
+    if search_term:
+        query['$or'] = [
+            {'location.country': {'$regex': search_term, '$options': 'i'}},
+            {'location.state': {'$regex': search_term, '$options': 'i'}},
+            {'location.city': {'$regex': search_term, '$options': 'i'}}
+        ]
+    
+    # Get matching locations
+    locations = list(auth_user_collection.find(query, {
+        'location.country': 1,
+        'location.state': 1,
+        'location.city': 1,
+        '_id': 0
+    }).limit(20))
+    
+    # Remove duplicates and empty values
+    unique_locations = []
+    seen = set()
+    
+    for loc in locations:
+        if 'location' in loc:
+            loc_data = loc['location']
+            loc_key = (loc_data.get('country'), loc_data.get('state'), loc_data.get('city'))
+            if loc_key not in seen:
+                seen.add(loc_key)
+                unique_locations.append({
+                    'country': loc_data.get('country'),
+                    'state': loc_data.get('state'),
+                    'city': loc_data.get('city')
+                })
+    
+    return JsonResponse({
+        'success': True,
+        'locations': unique_locations
+    })
