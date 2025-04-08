@@ -156,8 +156,8 @@
         /* Status Badges */
         .status-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 80px;
             font-size: 0.7rem;
             padding: 5px 8px;
         }
@@ -311,7 +311,11 @@
                         <div class="col job-item">
                             <div class="card job-card shadow-sm h-100 color-{{ forloop.counter0|add:1 }}">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">{{ job.Job }}</h5>
+                                    {% if job.disabled %}
+                                    <span class="badge bg-danger status-badge ">Disabled</span>
+                                    {% endif %}
+                                    <div><h5 class="card-title mb-0">{{ job.Job }} </h5></div>
+                                   
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
                                             <i class="bi bi-three-dots-vertical"></i>
@@ -320,16 +324,29 @@
                                             <li><a class="dropdown-item edit-job" href="#" data-job-id="{{ job.id }}">
                                                 <i class="bi bi-pencil-square me-2"></i>Edit
                                             </a></li>
-                                            <li><a class="dropdown-item text-danger delete-job" href="#" data-job-id="{{ job.job_id}}">
-                                                <i class="bi bi-trash me-2"></i>Delete
+                                            {% comment %} <li><a class="dropdown-item text-danger delete-job" href="#" data-job-id="{{ job.job_id}}">
+                                                <i class="bi bi-slash-circle me-2"></i>Disable
+                                            </a></li> {% endcomment %}
+                                            {% if job.disabled %}
+                                            <li><a class="dropdown-item text-success enable-job" href="#" data-job-id="{{ job.job_id}}">
+                                                <i class="bi bi-check-circle me-2"></i>Enable
                                             </a></li>
+                                            {% else %}
+                                            <li><a class="dropdown-item text-warning disable-job" href="#" data-job-id="{{ job.job_id}}">
+                                                <i class="bi bi-slash-circle me-2"></i>Disable
+                                            </a></li>
+                                            {% endif %}
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-3">
                                         <div class="company-logo">
+                                            
                                             <i class="bi bi-building"></i>
+                                           
+                                            <!-- Add this inside the job card header -->
+                                                 
                                         </div>
                                         <div>
                                             <h6 class="mb-0">{{ job.Org }}</h6>
@@ -785,7 +802,7 @@
         (function(){
             emailjs.init("GyvTODto1wNKmd3Nh"); // Replace with your actual Public Key
         })();
-
+             
         // Handle Edit Job
         document.querySelectorAll('.edit-job').forEach(button => {
             button.addEventListener('click', function() {
@@ -1111,6 +1128,56 @@
                 item.style.display = 'block';
             });
         });
+
+        // Handle Disable Job
+document.querySelectorAll('.disable-job').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const jobId = this.getAttribute('data-job-id');
+        if (confirm('Are you sure you want to disable this job? It will no longer be visible to candidates.')) {
+            disableJob(jobId, true);
+        }
+    });
+});
+
+// Handle Enable Job
+document.querySelectorAll('.enable-job').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const jobId = this.getAttribute('data-job-id');
+        if (confirm('Are you sure you want to enable this job? It will become visible to candidates.')) {
+            disableJob(jobId, false);
+        }
+    });
+});
+
+// Function to disable/enable job
+function disableJob(jobId, disable) {
+    fetch('/toggle_job_status/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            job_id: jobId,
+            disable: disable
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Job has been ${disable ? 'disabled' : 'enabled'} successfully!`);
+            location.reload(); // Refresh to update the UI
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the job status.');
+    });
+}
     </script>
 </body>
 </html>

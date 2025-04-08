@@ -8,8 +8,10 @@ from .views import check_auth, dashbord, index, job_list_view, login_view, logou
 from .views import hr_signup, hr_login, create_job, update_job, delete_job, get_job_details, hr_panel_view, delete_job, get_api_keys, get_api_keys_message
 from .views import get_job_data, get_applicant_details, contact_applicant,hr_userlist,get_user_details,store_jobs,upload_resume,get_resume,download_resume,search_locations
 # from .views import save_experience
-from .views import get_experiences, add_experience, update_experience, delete_experience,get_jobs
-urlpatterns = [  
+from .views import get_experiences, add_experience, update_experience, delete_experience,get_jobs,toggle_job_status,generate_resume
+urlpatterns = [ 
+     path('generate_resume/<str:template_id>/', generate_resume, name='generate_resume'), 
+    path('toggle_job_status/', toggle_job_status, name='toggle_job_status'),
     # path('check_user/', check_user, name='check_user'),  # Add the new URL pattern 
     path('get-jobs/',get_jobs, name='get_jobs'),
     path('hr/create-job/', create_job, name='create_job'),

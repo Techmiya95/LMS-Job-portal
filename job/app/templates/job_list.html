@@ -1616,6 +1616,7 @@ $("#filterButton").on("click", function() {
     var selectedLocation = $("#selectedJobLocation").val();
     var selectedType = $("#jobType").val();
     var selectedExperience = $("#jobExperience").val();
+    console.log("Selected Experience:", selectedExperience);
     var jobsFound = false;
 
     $(".job-card").each(function() {
@@ -1623,6 +1624,7 @@ $("#filterButton").on("click", function() {
         var jobLocation = $(this).data("location");
         var jobType = $(this).data("type");
         var jobExperience = $(this).data("experience") || "";
+        console.log("Job Experience:", jobExperience);
 
         var showJob = true;
 
@@ -1635,13 +1637,8 @@ $("#filterButton").on("click", function() {
         if (selectedType && jobType !== selectedType) {
             showJob = false;
         }
-        if (selectedExperience) {
-            let expRange = selectedExperience.split("-").map(Number);
-            let jobExpRange = jobExperience.split("-").map(Number);
-
-            if (!(jobExpRange[0] >= expRange[0] && jobExpRange[1] <= expRange[1])) {
-                showJob = false;
-            }
+        if (selectedExperience && jobExperience !== selectedExperience) {
+            showJob = false
         }
 
         $(this).toggle(showJob);

@@ -77,9 +77,14 @@ def job_list_view(request):
     from datetime import datetime
     current_date = datetime.now().strftime("%Y-%m-%d")
 
-    # Fetch only jobs where deadline is greater than or equal to current date
+    # Fetch only active jobs where deadline is greater than or equal to current date
+    # and disabled is not True (either False or doesn't exist)
     jobs = list(job_collection.find({
-        "deadline": {"$gte": current_date}
+        "deadline": {"$gte": current_date},
+        "$or": [
+            {"disabled": {"$exists": False}},
+            {"disabled": False}
+        ]
     }).sort("posted_date", -1))
     
     for job in jobs:
@@ -110,7 +115,13 @@ def job_list_view(request):
     # Get applied jobs
     applied_jobs = set()
     if user_mongo_id:
-        applications = job_applied_collection.find({"user_id": user_mongo_id})
+        applications = job_applied_collection.find({
+            "user_id": user_mongo_id,
+            "$or": [
+                {"disabled": {"$exists": False}},
+                {"disabled": False}
+            ]
+        })
         applied_jobs = {str(app['job_id']) for app in applications}
 
     # Get job roles and locations from their respective collections
@@ -128,10 +139,6 @@ def job_list_view(request):
         'job_roles': sorted(job_roles, key=lambda x: x.lower()),
         'locations': sorted(locations, key=lambda x: x.lower()),
     })
-
-
-
-
 
 
 
@@ -157,48 +164,120 @@ def check_auth(request):
     return HttpResponse(f"<h1>User is not authenticated</h1>")
 
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.contrib import messages
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 def signup(request):
     if request.method == "POST":
-        email = request.POST['email']
-        username = request.POST['username']
-        password = request.POST['password']
+        email = request.POST.get('email', '').strip()
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+        phone_number = request.POST.get('phone_number', '').strip()
+        print(phone_number)
 
-        # Check if email or username already exists
-        if User.objects.filter(email=email).count() > 0:
-            return render(request, "authunticate.html", {
-                "error_message": "Email already exists"
-            })
-        if User.objects.filter(username=username).count() > 0:
-            return render(request, "authunticate.html", {
-                "error_message": "User already exists"
-            })
-
-        # Create user with hashed password
-        user = User(username=username, email=email, password=make_password(password))
-        user.save()
+        # Validation checks
+        errors = []
         
-        return redirect('/')  # Redirect to login or home page
+        if not all([email, username, password, confirm_password, phone_number]):
+            errors.append("All fields are required")
+        
+        if password != confirm_password:
+            errors.append("Passwords do not match")
+        
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors.append("Invalid email format")
+        
+        if User.objects.filter(email=email).exists():
+            errors.append("Email already exists")
+        
+        if User.objects.filter(username=username).exists():
+            errors.append("Username already exists")
+        
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters")
+        
+        if errors:
+            return render(request, "authunticate.html", {
+                "error_message": ", ".join(errors),
+                "form_data": {
+                    'email': email,
+                    'username': username,
+                    'phone_number': phone_number
+                }
+            })
+
+        # Create user
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            
+        # Assuming you have a phone_number field in your User model
+        )
+        # Add phone number to user profile if you have a profile model
+        # user.profile.phone_number = phone_number
+        # user.profile.save()
+        
+        messages.success(request, "Registration successful! Please login.")
+        return redirect('login')
 
     return redirect('/')
-
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username_or_email = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        next_url = request.POST.get('next', '') or request.GET.get('next', 'job_list')
 
-        user = authenticate(request, username=username, password=password)  # Authenticate user
+        if not username_or_email or not password:
+            messages.error(request, "Please fill in all fields")
+            return render(request, "authunticate.html", {
+                'error_message': "Please fill in all fields",
+                'username_or_email': username_or_email,
+                'next': next_url
+            })
+
+        # Determine if login is via email or username
+        if '@' in username_or_email:
+            kwargs = {'email': username_or_email}
+        else:
+            kwargs = {'username': username_or_email}
+
+        try:
+            user = User.objects.get(**kwargs)
+        except User.DoesNotExist:
+            messages.error(request, "Invalid credentials")
+            return render(request, "authunticate.html", {
+                'error_message': "Invalid credentials",
+                'username_or_email': username_or_email,
+                'next': next_url
+            })
+
+        # Authenticate with username (since authenticate doesn't work with email directly)
+        user = authenticate(request, username=user.username, password=password)
+        
         if user is not None:
-            login(request, user)  # Log in the user
-            return redirect('job_list')  # Redirect to dashboard
+            login(request, user)
+            return redirect(next_url)
+        else:
+            messages.error(request, "Invalid password")
+            return render(request, "authunticate.html", {
+                'error_message': "Invalid password",
+                'username_or_email': username_or_email,
+                'next': next_url
+            })
 
-        return render(request, "authunticate.html", {"error_message": "Invalid credentials"})
-
-    return redirect('/')
-
+    # If GET request, show login page
+    return render(request, "authunticate.html", {
+        'next': request.GET.get('next', 'job_list')
+    })
 
 def loginhr(request):
     return render(request, 'authhr.html')
@@ -286,7 +365,7 @@ def logout_view(request):
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-import datetime
+from datetime import datetime
 
 
 @csrf_exempt
@@ -325,7 +404,7 @@ def toggle_apply_job(request):
                 "user_id": user_id,
                 "job_id": job_id,
                 "hr_id": hr_id,
-                "applied_at": datetime.datetime.now()
+                "applied_at": datetime.now()
             })
             return JsonResponse({"status": "applied"})
             
@@ -386,6 +465,17 @@ def get_user_profile(request):
        
     }]
     return JsonResponse({"success": True, "data": data})
+
+
+@csrf_exempt
+def generate_resume(request, template_id):
+    if request.method == 'GET':
+        # Just return the user data - the PDF generation will happen in JavaScript
+        user_data = get_user_profile(request)
+        return user_data
+    return JsonResponse({"success": False, "error": "Invalid request method"})
+
+# Similar functions for template2, template3, template4 would be implemented
 import json
 import base64
 from django.http import JsonResponse
@@ -1232,6 +1322,54 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from bson import ObjectId
 # delete jobs
+# @login_required
+# def delete_job(request):
+#     if request.method == 'POST':
+#         hr_id = request.session.get('hr_id')
+#         job_id = request.POST.get('job_id')  # Ensure this matches the form field name
+#         print(f"HR ID: {hr_id}")
+#         print(f"Job ID from form: {job_id}")
+        
+#         if not hr_id:
+#             messages.error(request, "You need to be logged in as an HR to delete jobs.")
+#             return redirect('hr_login')
+        
+#         if not job_id:
+#             messages.error(request, "No job ID provided for deletion.")
+#             return redirect('hr_panel')
+            
+#         try:
+#             # Convert job_id to ObjectId for MongoDB query
+#             job_id_obj = ObjectId(job_id)
+#             print(f"Successfully converted to ObjectId: {job_id_obj}")
+            
+#             # Check if the job belongs to this HR
+#             job = job_collection.find_one({"_id": job_id_obj, "hr_id": hr_id})
+#             print(f"Job found: {job is not None}")
+            
+#             if not job:
+#                 messages.error(request, "You can only delete jobs that you've created.")
+#                 return redirect('hr_panel')
+            
+#             # Delete job
+#             result = job_collection.delete_one({"_id": job_id_obj})
+#             print(f"Delete result: {result.deleted_count} document(s) deleted")
+            
+#             # Delete related applications
+#             app_result = job_applied_collection.delete_many({"job_id": str(job_id_obj)})
+#             print(f"Applications deleted: {app_result.deleted_count}")
+            
+#             messages.success(request, "Job posting and related applications deleted successfully!")
+#         except Exception as e:
+#             messages.error(request, f"Error deleting job: {str(e)}")
+#             print(f"Error in delete_job: {str(e)}")
+        
+#         return redirect('hr_panel')
+    
+#     return redirect('hr_panel')
+
+
+
 @login_required
 def delete_job(request):
     if request.method == 'POST':
@@ -1261,22 +1399,59 @@ def delete_job(request):
                 messages.error(request, "You can only delete jobs that you've created.")
                 return redirect('hr_panel')
             
-            # Delete job
-            result = job_collection.delete_one({"_id": job_id_obj})
-            print(f"Delete result: {result.deleted_count} document(s) deleted")
+            # Update job to set disabled=True instead of deleting
+            result = job_collection.update_one(
+                {"_id": job_id_obj},
+                {"$set": {"disabled": True}}
+            )
+            print(f"Update result: {result.modified_count} document(s) updated")
             
-            # Delete related applications
-            app_result = job_applied_collection.delete_many({"job_id": str(job_id_obj)})
-            print(f"Applications deleted: {app_result.deleted_count}")
+            # Optionally, you can also mark related applications as disabled
+            app_result = job_applied_collection.update_many(
+                {"job_id": str(job_id_obj)},
+                {"$set": {"disabled": True}}
+            )
+            print(f"Applications updated: {app_result.modified_count}")
             
-            messages.success(request, "Job posting and related applications deleted successfully!")
+            messages.success(request, "Job posting has been disabled successfully!")
         except Exception as e:
-            messages.error(request, f"Error deleting job: {str(e)}")
+            messages.error(request, f"Error disabling job: {str(e)}")
             print(f"Error in delete_job: {str(e)}")
         
         return redirect('hr_panel')
     
     return redirect('hr_panel')
+
+
+
+@login_required
+def toggle_job_status(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            job_id = data.get('job_id')
+            disable = data.get('disable', True)
+            hr_id = request.session.get('hr_id')
+
+            if not hr_id:
+                return JsonResponse({'success': False, 'error': 'Not authenticated'}, status=401)
+
+            job = job_collection.find_one({"_id": ObjectId(job_id), "hr_id": hr_id})
+            if not job:
+                return JsonResponse({'success': False, 'error': 'Job not found or not authorized'}, status=404)
+
+            # Update the disabled status
+            job_collection.update_one(
+                {"_id": ObjectId(job_id)},
+                {"$set": {"disabled": disable}}
+            )
+
+            return JsonResponse({'success': True})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
 # Get job details for editing
 @login_required
 @login_required

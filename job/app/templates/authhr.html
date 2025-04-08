@@ -53,6 +53,15 @@
     .btn-light-theme .fa-github {
         color: black !important;
     }
+    
+    /* Validation error messages */
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+    }
+    .is-invalid ~ .invalid-feedback {
+        display: block;
+    }
 </style>
 {% endblock %}
 
@@ -99,19 +108,38 @@
             {% csrf_token %}
             <div class="mb-3">
                 <label for="signupUsername" class="form-label">Username</label>
-                <input type="text" class="form-control" id="signupUsername" name="hrname" placeholder="Enter your username" required>
+                <input type="text" class="form-control" id="signupUsername" name="hrname" 
+                       placeholder="Enter your username (4-8 chars, 1 capital, digits)" 
+                       pattern="^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{4,8}$" required>
+                <div class="invalid-feedback">
+                    Username must be 4-8 characters with at least 1 capital letter and 1 digit
+                </div>
             </div>
             <div class="mb-3">
                 <label for="signupEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="signupEmail" name="email" placeholder="Enter email" required>
+                <input type="email" class="form-control" id="signupEmail" name="email" 
+                       placeholder="Enter email" 
+                       pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" required>
+                <div class="invalid-feedback">
+                    Please enter a valid email address
+                </div>
             </div>
             <div class="mb-3">
                 <label for="signupPassword" class="form-label">Password</label>
-                <input type="password" class="form-control" id="signupPassword" name="password" placeholder="Create a password" required>
+                <input type="password" class="form-control" id="signupPassword" name="password" 
+                       placeholder="Create a password (8-12 chars, 1 capital, 1 special char, 1 digit)"
+                       pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$" required>
+                <div class="invalid-feedback">
+                    Password must be 8-12 characters with at least 1 capital letter, 1 special character, and 1 digit
+                </div>
             </div>
             <div class="mb-3">
                 <label for="signupPassword2" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="signupPassword2" name="confirm_password" placeholder="Confirm password" required>      
+                <input type="password" class="form-control" id="signupPassword2" name="confirm_password" 
+                       placeholder="Confirm password" required>
+                <div class="invalid-feedback" id="passwordMatchError">
+                    Passwords do not match
+                </div>      
             </div>
             <button type="submit" class="btn btn-primary w-100">Continue</button>
             <p class="text-center mt-3">Already have an account? <a href="#" id="showLogin">Login</a></p>
@@ -178,7 +206,34 @@
         document.getElementById("loginForm").style.display = "block";
     });
 
-        
+    // Password match validation
+    const password = document.getElementById('signupPassword');
+    const confirmPassword = document.getElementById('signupPassword2');
+    const passwordMatchError = document.getElementById('passwordMatchError');
+
+    function validatePasswordMatch() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords do not match");
+            confirmPassword.classList.add('is-invalid');
+        } else {
+            confirmPassword.setCustomValidity('');
+            confirmPassword.classList.remove('is-invalid');
+        }
+    }
+
+    password.addEventListener('input', validatePasswordMatch);
+    confirmPassword.addEventListener('input', validatePasswordMatch);
+
+    // Real-time validation feedback
+    document.querySelectorAll('#signupForm input').forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+        });
+    });
 </script>
 {% endblock %}
 {% endblock %}
