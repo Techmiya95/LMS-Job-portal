@@ -51,6 +51,8 @@ def user_list(request):
 
 def api_jobs(request):
     return render(request, 'Api_job.html')
+def hrprofile(request):
+    return render(request, 'hrprofile.html')
 
 
 @login_required
@@ -2031,3 +2033,330 @@ def search_locations(request):
         'success': True,
         'locations': unique_locations
     })
+    
+    
+from django.shortcuts import render, get_object_or_404
+from bson import ObjectId
+from django.core.paginator import Paginator
+
+def job_applicants(request, job_id):
+    # Get the job details
+    job = job_collection.find_one({"_id": ObjectId(job_id)})
+    if not job:
+        return render(request, '404.html', status=404)
+    
+    # Convert ObjectId to string for template
+    job['id'] = str(job['_id'])
+
+    # ✅ Fix: Convert comma-separated skill string into list
+    if isinstance(job.get('Skills'), str):
+        job['Skills'] = [skill.strip() for skill in job['Skills'].split(',')]
+
+    # Get all applicants for this job
+    applications = list(job_applied_collection.find({"job_id": job_id}))
+
+    applicants = []
+    for application in applications:
+        user_id = application.get('user_id')
+        if user_id:
+            user_data = auth_user_collection.find_one({"_id": ObjectId(user_id)})
+            if user_data:
+                # Prepare applicant data
+                applicant = {
+                    'applicant_id': str(user_data['_id']),
+                    'username': user_data.get('username', 'N/A'),
+                    'email': user_data.get('email', 'N/A'),
+                    'mobile': user_data.get('mobile', 'N/A'),
+                    'location': user_data.get('location', 'N/A'),
+                    'branch': user_data.get('branch', 'N/A'),
+                    'ug_college': user_data.get('ug_college', 'N/A'),
+                    'skills': user_data.get('skills', []),
+                    'profile_picture': user_data.get('profile_picture'),
+                    'applied_at': application.get('applied_at', 'N/A'),
+                    'Graduation_Percentage': user_data.get('Graduation_Percentage', 'N/A'),
+                    'Passout_Year': user_data.get('Passout_Year', 'N/A'),
+                    '10th_Percentage': user_data.get('10th_Percentage', 'N/A'),
+                    '12th_Percentage': user_data.get('12th_Percentage', 'N/A'),
+                    'father_name': user_data.get('father_name', 'N/A')
+                }
+                applicants.append(applicant)
+
+    # Pagination
+    paginator = Paginator(applicants, 10)  # Show 10 applicants per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'job': job,
+        'applicants': page_obj,
+        'applicants_count': len(applicants)
+    }
+
+    return render(request, 'job_applicants.html', context)
+
+# views.py
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from bson import ObjectId
+import re
+import base64
+import json
+from datetime import datetime
+
+@csrf_exempt
+def hr_profile_view(request):
+    if not request.session.get('hr_id'):
+        return redirect('loginhr')
+    
+    hr_id = request.session['hr_id']
+    
+    if request.method == 'GET':
+        # Fetch HR profile data
+        hr_profile = hr_collection.find_one({"_id": ObjectId(hr_id)})
+        
+        if not hr_profile:
+            return JsonResponse({'success': False, 'message': 'HR profile not found'}, status=404)
+        
+        # Prepare response data
+        response_data = {
+            'success': True,
+            'data': {
+                'user_name': hr_profile.get('name', ''),
+                'email': hr_profile.get('email', ''),
+                'mobile': hr_profile.get('mobile', ''),
+                'linkedin': hr_profile.get('linkedin', ''),
+                'profile_picture': hr_profile.get('profile_picture', ''),
+                'company_name': hr_profile.get('company_name', ''),
+                'company_email': hr_profile.get('company_email', ''),
+                'company_website': hr_profile.get('company_website', ''),
+                'company_industry': hr_profile.get('company_industry', ''),
+                'company_size': hr_profile.get('company_size', ''),
+                'company_description': hr_profile.get('company_description', ''),
+                'hr_position': hr_profile.get('position', ''),
+                'hr_department': hr_profile.get('department', ''),
+                'hr_certification': hr_profile.get('certification', ''),
+                'certification_year': hr_profile.get('certification_year', ''),
+                'hr_specialization': hr_profile.get('specialization', ''),
+                'jobs_posted': job_collection.count_documents({"hr_id": hr_id}),
+                'candidates_reviewed': 0,  # You'll need to implement this
+                'interviews_scheduled': 0  # You'll need to implement this
+            }
+        }
+        
+        return JsonResponse(response_data)
+    
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            update_type = data.get('type')
+            
+            update_data = {}
+            
+            if update_type == 'personal_info':
+                update_data = {
+                    'name': data.get('username'),
+                    'mobile': data.get('mobile'),
+                    'linkedin': data.get('linkedin')
+                }
+            elif update_type == 'company_info':
+                update_data = {
+                    'company_name': data.get('company_name'),
+                    'company_email': data.get('company_email'),
+                    'company_website': data.get('company_website'),
+                    'company_industry': data.get('company_industry'),
+                    'company_size': data.get('company_size'),
+                    'company_description': data.get('company_description')
+                }
+            elif update_type == 'hr_details':
+                update_data = {
+                    'position': data.get('hr_position'),
+                    'department': data.get('hr_department'),
+                    'certification': data.get('hr_certification'),
+                    'certification_year': data.get('certification_year'),
+                    'specialization': data.get('hr_specialization')
+                }
+            
+            # Update the HR profile
+            result = hr_collection.update_one(
+                {"_id": ObjectId(hr_id)},
+                {"$set": update_data}
+            )
+            
+            if result.modified_count > 0:
+                return JsonResponse({'success': True, 'message': 'Profile updated successfully'})
+            else:
+                return JsonResponse({'success': False, 'message': 'No changes made'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+@csrf_exempt
+def upload_profile_picture(request):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    
+    if request.method == 'POST' and request.FILES.get('profile_picture'):
+        hr_id = request.session['hr_id']
+        file = request.FILES['profile_picture']
+        
+        try:
+            # Save the file
+            file_name = f"hr_profile_{hr_id}_{file.name}"
+            file_path = default_storage.save(f"profile_pictures/{file_name}", ContentFile(file.read()))
+            
+            # For MongoDB, you might want to store the file data directly
+            with default_storage.open(file_path) as f:
+                file_data = f.read()
+                encoded_data = base64.b64encode(file_data).decode('utf-8')
+                
+                # Update HR profile with picture
+                hr_collection.update_one(
+                    {"_id": ObjectId(hr_id)},
+                    {"$set": {"profile_picture": encoded_data}}
+                )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Profile picture updated',
+                'image_url': f"/media/{file_path}"  # Adjust based on your media URL config
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def hr_profile_page(request):
+    if not request.session.get('hr_id'):
+        return redirect('loginhr')
+    
+    return render(request, 'hrprofile.html')
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from bson import ObjectId
+import base64
+from datetime import datetime
+
+@csrf_exempt
+def upload_company_logo(request):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    
+    if request.method == 'POST' and request.FILES.get('company_logo'):
+        hr_id = request.session['hr_id']
+        file = request.FILES['company_logo']
+        
+        try:
+            # Read and encode the file
+            file_data = file.read()
+            encoded_data = base64.b64encode(file_data).decode('utf-8')
+            
+            # Get file content type
+            content_type = file.content_type
+            
+            # Update HR profile with logo
+            result = hr_collection.update_one(
+                {"_id": ObjectId(hr_id)},
+                {
+                    "$set": {
+                        "company_logo": encoded_data,
+                        "company_logo_content_type": content_type,
+                        "updated_at": datetime.now()
+                    }
+                }
+            )
+            
+            if result.modified_count > 0:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Company logo updated',
+                    'logo_url': f"data:{content_type};base64,{encoded_data}"
+                })
+            return JsonResponse({'success': False, 'message': 'Failed to update logo'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def upload_verification_documents(request):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    
+    if request.method == 'POST':
+        hr_id = request.session['hr_id']
+        update_data = {
+            "updated_at": datetime.now()
+        }
+        
+        try:
+            # Handle HR ID Proof
+            if 'hr_id_proof' in request.FILES:
+                file = request.FILES['hr_id_proof']
+                file_data = file.read()
+                update_data['hr_id_proof'] = base64.b64encode(file_data).decode('utf-8')
+                update_data['hr_id_proof_content_type'] = file.content_type
+                update_data['verification_status.hr_identity_verified'] = False
+            
+            # Handle Company Authorization
+            if 'company_authorization' in request.FILES:
+                file = request.FILES['company_authorization']
+                file_data = file.read()
+                update_data['company_authorization'] = base64.b64encode(file_data).decode('utf-8')
+                update_data['company_authorization_content_type'] = file.content_type
+                update_data['verification_status.company_verified'] = False
+            
+            if len(update_data) > 1:  # More than just updated_at
+                result = hr_collection.update_one(
+                    {"_id": ObjectId(hr_id)},
+                    {"$set": update_data}
+                )
+                
+                if result.modified_count > 0:
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Documents uploaded successfully. Verification pending.'
+                    })
+                return JsonResponse({'success': False, 'message': 'Failed to update documents'})
+            return JsonResponse({'success': False, 'message': 'No documents provided'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def get_document(request, doc_type):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    
+    hr_id = request.session['hr_id']
+    valid_types = ['company_logo', 'hr_id_proof', 'company_authorization']
+    
+    if doc_type not in valid_types:
+        return JsonResponse({'success': False, 'message': 'Invalid document type'}, status=400)
+    
+    try:
+        hr_profile = hr_collection.find_one(
+            {"_id": ObjectId(hr_id)},
+            {doc_type: 1, f"{doc_type}_content_type": 1}
+        )
+        
+        if not hr_profile or doc_type not in hr_profile:
+            return JsonResponse({'success': False, 'message': 'Document not found'}, status=404)
+        
+        return JsonResponse({
+            'success': True,
+            'content_type': hr_profile.get(f"{doc_type}_content_type", "application/octet-stream"),
+            'data': hr_profile[doc_type]
+        })
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+

@@ -1,235 +1,26 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professional Profile | Job Portal</title>
+    <link rel="stylesheet" href="{% static 'css/styleprofile.css' %}">
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #f6f8fa;
-            --border-color: #e0e0e0;
-            --text-primary: #333;
-            --text-secondary: #666;
-        }
-        
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background-color: #f8f9fa;
-            color: var(--text-primary);
-        }
-        
-        .navbar-custom {
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        }
-        
-        .profile-container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-            padding: 0;
-            margin-bottom: 20px;
-        }
-        
-        .profile-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px 8px 0 0;
-        }
-        
-        .profile-content {
-            padding: 20px;
-        }
-        
-        .profile-picture-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .edit-picture {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: #fff;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            cursor: pointer;
-        }
-        
-        .section-title {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .btn-edit {
-            background-color: transparent;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            font-size: 14px;
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-        
-        .btn-edit:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: #3578c7;
-            border-color: #3578c7;
-        }
-        
-        .form-control {
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-        }
-        
-        .profile-completion {
-            margin-bottom: 20px;
-        }
-        
-        .progress {
-            height: 8px;
-            border-radius: 4px;
-        }
-        
-        .progress-bar {
-            background-color: var(--primary-color);
-        }
-        
-        .card-custom {
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        
-        .card-header-custom {
-            background-color: var(--secondary-color);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 15px;
-            font-weight: 500;
-        }
-        
-        .card-body-custom {
-            padding: 15px;
-        }
-        
-        .skill-badge {
-            background-color: var(--secondary-color);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 5px 12px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            display: inline-block;
-            font-size: 14px;
-        }
-        
-        .resume-actions {
-            background-color: var(--secondary-color);
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .sidebar-box {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .file-input-hidden {
-            display: none;
-        }
-        
-        /* Add animation for alerts */
-        .alert-fade {
-            animation: fadeOut 5s forwards;
-        }
-        
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; display: none; }
-        }
-        
-        /* Sidebar navigation styles */
-        .profile-nav {
-            position: sticky;
-            top: 20px;
-        }
-        
-        .profile-nav .nav-link {
-            color: var(--text-secondary);
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .profile-nav .nav-link i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .profile-nav .nav-link:hover {
-            background-color: var(--secondary-color);
-            color: var(--primary-color);
-        }
-        
-        .profile-nav .nav-link.active {
-            background-color: rgba(74, 144, 226, 0.1);
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-        
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Section anchors with offset for fixed navbar */
-        .section-anchor {
-            display: block;
-            position: relative;
-            top: -80px;
-            visibility: hidden;
-        }
+       
     </style>
 </head>
 <body>
@@ -257,34 +48,56 @@
             </div>
         </div>
     </div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <strong>Job Portal</strong>
+                <i class="bi bi-briefcase-fill logo-icon"></i>
+                JobPortal
             </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+    
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" 
+                    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+    
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Left-aligned nav links -->
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="{% url 'hr_panel' %}" class="nav-link">HR Panel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'profile_page' %}" class="nav-link">My Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'api_jobs' %}" class="nav-link">Browse Jobs</a>
+                        </li>
+                    {% endif %}
+                </ul>
+    
+                <!-- Right-aligned auth buttons - now with ml-auto -->
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-search mr-1"></i> Search Jobs</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#"><i class="fas fa-user mr-1"></i> My Profile</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'job_list' %}"><i class="fas fa-times mr-1"></i> Close</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-bell mr-1"></i> Notifications</a>
-                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <form action="{% url 'logout' %}" method="POST" class="d-flex">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'signup' %}" class="btn btn-light">Sign Up</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+      
 
     <div class="container">
         <!-- Alert for notifications -->
@@ -1643,353 +1456,255 @@ function formatDate(dateString) {
 }
 
 
-// Template 1 - Enhanced ATS-Friendly Professional Resume
+// Template 1 - Exact ATS Bold Accounting Resume Format
 function generateTemplate1(doc, userData) {
     // Document setup - A4 size
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     const contentWidth = pageWidth - (margin * 2);
     
     // Set document properties with keywords for ATS
     doc.setProperties({
-        title: `${userData.user_name} - ${userData.experiences?.[0]?.job_title || 'Professional'} Resume`,
+        title: `${userData.user_name} - Professional Resume`,
         subject: `Resume - ${userData.skills.slice(0, 5).join(', ')}`,
         author: userData.user_name,
         keywords: userData.skills.join(', ') // Keywords help with ATS scanning
     });
 
-    // Header Section - Clean and prominent
+    // ===== HEADER SECTION =====
+    // User name
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
-    doc.setTextColor(20, 40, 80); // Professional dark blue
-    doc.text(userData.user_name.toUpperCase(), 105, 20, { align: 'center' });
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.text(userData.user_name, margin, 25);
     
-    // Contact details - Properly spaced and clearly visible
+    // Main table structure starts
+    let currentY = 32;
+    
+    // =====  CONTACT INFO & SUMMARY BOX =====
+    // Create the contact info + summary table (exact table layout from sample)
+    const tableWidth = contentWidth;
+    const tableTop = currentY;
+    
+    // Draw outer table borders
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.rect(margin, tableTop, tableWidth, 80); // Height based on sample
+    
+    // Divide into two columns - 2/3 and 1/3
+    const leftColWidth = tableWidth * 0.6;
+    const rightColWidth = tableWidth * 0.4;
+    
+    // Draw vertical divider
+    doc.line(margin + leftColWidth, tableTop, margin + leftColWidth, tableTop + 80);
+    
+    // Left column content - contact info
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(10);
+    const contactInfo = [
+        `${userData.location || '4567 Main Street, Detroit, MI 48127'} |`,
+        `${userData.mobile || '(313) 555-0100'} |`,
+        `${userData.email || '<donna@example.com>'} |`,
+        `${userData.linkedin || 'www.greatsiteaddress.com'}`
+    ];
     
-    // Split contact info into logical groups for better layout
-    const contactLine1 = [
-        `Email: ${userData.email}`,
-        `Phone: ${userData.mobile}`
-    ].filter(Boolean).join(' | ');
+    // Add contact info text with exact formatting
+    doc.text(contactInfo, margin + 5, tableTop + 15);
     
-    const contactLine2 = [
-        `Location: ${userData.location}`,
-        userData.linkedin ? `LinkedIn: ${userData.linkedin}` : null,
-        userData.github ? `Github: ${userData.github}` : null
-    ].filter(Boolean).join(' | ');
+    // Add summary text (if available)
+    const summary = userData.summary || 
+        "Analytical, organized and detail-oriented accountant with GAAP expertise and experience in the full spectrum of public accounting. Collaborative team player with ownership mentality and a track record of delivering the highest quality strategic solutions to resolve challenges and propel business growth.";
     
-    doc.text(contactLine1, 105, 28, { align: 'center' });
-    if (contactLine2) {
-        doc.text(contactLine2, 105, 35, { align: 'center' });
-    }
+    const summaryLines = doc.splitTextToSize(summary, leftColWidth - 10);
+    doc.text(summaryLines, margin + 5, tableTop + 30);
     
-    // Professional Summary - Added for ATS optimization
-    let currentY = contactLine2 ? 45 : 38;
-    if (userData.summary) {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.setTextColor(20, 40, 80);
-        doc.text("PROFESSIONAL SUMMARY", margin, currentY);
-        
-        currentY += 6;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor(40, 40, 40);
-        const summaryLines = doc.splitTextToSize(userData.summary, contentWidth);
-        doc.text(summaryLines, margin, currentY);
-        currentY += summaryLines.length * 5 + 6;
-    }
+    // ===== HORIZONTAL DIVIDER =====
+    // Add space after the first table
+    currentY = tableTop + 80 + 15;
     
-    // Horizontal divider
-    doc.setDrawColor(60, 100, 140);
-    doc.setLineWidth(0.75);
-    doc.line(margin, currentY, pageWidth - margin, currentY);
-    currentY += 8;
-
-    // Work Experience Section - ATS prioritizes this section
+    // ===== EXPERIENCE SECTION =====
+    // Create experience header table
+    doc.setDrawColor(0);
+    doc.rect(margin, currentY, tableWidth, 20);
+    doc.line(margin + leftColWidth, currentY, margin + leftColWidth, currentY + 20);
+    
+    // Add experience heading
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(20, 40, 80);
-    doc.text("PROFESSIONAL EXPERIENCE", margin, currentY);
-    currentY += 6;
+    doc.setFontSize(12);
+    doc.text("ExperiEnce", margin + 5, currentY + 13);
     
+    currentY += 20 + 15; // Move to after the header
+    
+    // Create space for experiences
     if (userData.experiences && userData.experiences.length > 0) {
         userData.experiences.forEach((exp, index) => {
             // Check if we need a new page
-            if (currentY > doc.internal.pageSize.getHeight() - 40) {
+            if (currentY > pageHeight - 50) {
                 doc.addPage();
-                currentY = margin + 10;
+                currentY = margin + 20;
             }
             
-            // Company and position - clear hierarchy
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(40, 40, 40);
-            doc.text(exp.job_title.toUpperCase(), margin, currentY);
-            
-            // Company name with dates aligned right
-            doc.setFont("helvetica", "italic");
-            doc.setFontSize(11);
-            const dateText = `${formatDate(exp.start_date)} - ${exp.currently_working ? 'Present' : formatDate(exp.end_date)}`;
-            doc.text(dateText, pageWidth - margin, currentY, { align: 'right' });
-            currentY += 5;
-            
+            // Date range 
             doc.setFont("helvetica", "normal");
-            doc.text(exp.company_name, margin, currentY);
-            if (exp.location) {
-                doc.text(exp.location, pageWidth - margin, currentY, { align: 'right' });
-            }
-            currentY += 6;
-            
-            // Description with bullet points for better readability
-            if (exp.description) {
-                doc.setFontSize(10);
-                const bulletPoints = exp.description
-                    .split('\n')
-                    .filter(point => point.trim().length > 0);
+            doc.setFontSize(10);
+            const dateText = exp.currently_working ? 
+                `${formatDate(exp.start_date)} -- Present` : 
+                `${formatDate(exp.start_date)} -- ${formatDate(exp.end_date)}`;
                 
-                // If no explicit bullet points, create from paragraph
-                const formattedPoints = bulletPoints.length > 1 ? 
-                    bulletPoints : 
-                    exp.description.split('. ')
-                        .filter(s => s.trim().length > 0)
-                        .map(s => s.trim() + (s.endsWith('.') ? '' : '.'));
-                
-                formattedPoints.forEach(point => {
-                    // Check for page overflow before each bullet point
-                    if (currentY > doc.internal.pageSize.getHeight() - 20) {
-                        doc.addPage();
-                        currentY = margin + 10;
-                    }
-                    
-                    // Add bullet symbol
-                    doc.text("•", margin + 2, currentY);
-                    
-                    // Format each bullet point with action verbs for ATS
-                    const bulletText = doc.splitTextToSize(point.trim(), contentWidth - 10);
-                    doc.text(bulletText, margin + 8, currentY);
-                    currentY += bulletText.length * 4 + 2;
-                });
-            }
+            // Use the sample formatting with 20XX
+            const formattedDateText = dateText.replace(/\d{4}/g, '20XX');
+            doc.text(formattedDateText, margin, currentY);
+            currentY += 8;
             
-            // Add space between experiences
-            currentY += 6;
+            // Job title and company
+            doc.setFont("helvetica", "bold");
+            const jobLine = `${exp.job_title || 'Accountant'} | ${exp.company_name || 'Company Name'} | ${exp.location || 'Location'}`;
+            doc.text(jobLine, margin, currentY);
+            currentY += 8;
+            
+            // Description paragraph
+            doc.setFont("helvetica", "normal");
+            const description = exp.description || "Description of job responsibilities and achievements.";
+            const descLines = doc.splitTextToSize(description, contentWidth - 10);
+            doc.text(descLines, margin, currentY);
+            currentY += descLines.length * 5 + 15; // Space after description
         });
     } else {
-        doc.setFont("helvetica", "italic");
+        // Sample experience data if none provided
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text("No work experience provided", margin, currentY);
-        currentY += 10;
-    }
-    
-    // Skills Section - Important for ATS keyword matching
-    // Check if we need a new page
-    if (currentY > doc.internal.pageSize.getHeight() - 80) {
-        doc.addPage();
-        currentY = margin + 10;
-    } else {
-        currentY += 4;
-    }
-    
-    doc.setDrawColor(60, 100, 140);
-    doc.setLineWidth(0.5);
-    doc.line(margin, currentY, pageWidth - margin, currentY);
-    currentY += 8;
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(20, 40, 80);
-    doc.text("TECHNICAL SKILLS", margin, currentY);
-    currentY += 8;
-    
-    // Simplified skills presentation to avoid overlap
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(40, 40, 40);
-    
-    // Function to check and create a new page if needed
-    function checkPageOverflow(requiredSpace = 20) {
-        if (currentY > doc.internal.pageSize.getHeight() - requiredSpace) {
-            doc.addPage();
-            currentY = margin + 10;
-            return true;
-        }
-        return false;
-    }
-    
-    // Fixed layout for skills to prevent overlap
-    if (userData.skills && userData.skills.length > 0) {
-        // Simply list all skills with bullet points in multiple columns if needed
-        const skillsPerLine = 3;
-        const skillChunks = [];
-        for (let i = 0; i < userData.skills.length; i += skillsPerLine) {
-            skillChunks.push(userData.skills.slice(i, i + skillsPerLine));
-        }
-        
-        skillChunks.forEach(chunk => {
-            checkPageOverflow();
-            
-            let lineText = "";
-            chunk.forEach((skill, idx) => {
-                lineText += (idx === 0 ? "• " : "   • ") + skill;
-            });
-            
-            doc.text(lineText, margin, currentY);
-            currentY += 5;
-        });
-        
-        currentY += 5; // Extra space after skills
-    } else {
-        doc.setFont("helvetica", "italic");
-        doc.text("No skills provided", margin, currentY);
-        currentY += 10;
-    }
-    
-    // Education Section - Formatted as a clean table
-    checkPageOverflow(40);
-    doc.setDrawColor(60, 100, 140);
-    doc.setLineWidth(0.5);
-    doc.line(margin, currentY, pageWidth - margin, currentY);
-    currentY += 8;
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(20, 40, 80);
-    doc.text("EDUCATION", margin, currentY);
-    currentY += 6;
-    
-    // Filter out education entries with empty institution names
-    const validEducationEntries = [
-        ["Graduation", userData.ug_college, userData.Passout_Year, userData.Graduation_Percentage],
-        ["12th", userData.twelfth_school, userData.twelfth_year, userData.twelfth_percentage],
-        ["10th", userData.tenth_school, userData.tenth_year, userData.Percentage_10]
-    ].filter(row => row[1] && row[1].trim() !== "");
-    
-    
-    const educationData = [
-        ["Degree", "Institution", "Year", "Score"],
-        ...validEducationEntries
-    ];
-    
-    if (validEducationEntries.length > 0) {
-        doc.autoTable({
-            startY: currentY,
-            head: [educationData[0]],
-            body: educationData.slice(1),
-            margin: { left: margin, right: margin },
-            styles: { fontSize: 10, cellPadding: 4, overflow: 'linebreak' },
-            headStyles: { 
-                fillColor: [60, 100, 140],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold'
-            },
-            alternateRowStyles: { fillColor: [240, 245, 250] },
-            columnStyles: {
-                0: { cellWidth: 50 },
-                1: { cellWidth: 'auto' },
-                2: { cellWidth: 30 },
-                3: { cellWidth: 30 }
-            }
-        });
-        currentY = doc.lastAutoTable.finalY + 10;
-    } else {
-        doc.setFont("helvetica", "italic");
-        doc.setFontSize(10);
-        doc.text("No education details provided", margin, currentY);
-        currentY += 10;
-    }
-
-    // Projects Section - Important for showcasing technical skills
-    if (userData.projects && userData.projects.length > 0) {
-        checkPageOverflow();
-        doc.setDrawColor(60, 100, 140);
-        doc.setLineWidth(0.5);
-        doc.line(margin, currentY, pageWidth - margin, currentY);
+        doc.text("20XX -- Present", margin, currentY);
         currentY += 8;
         
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.setTextColor(20, 40, 80);
-        doc.text("PROJECTS", margin, currentY);
-        currentY += 6;
+        doc.text("Accountant | Trey Research | San Francisco, CA", margin, currentY);
+        currentY += 8;
         
-        userData.projects.forEach((project, i) => {
-            checkPageOverflow(30);
-            
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(40, 40, 40);
-            doc.text(project.title, margin, currentY);
-            
-            // Project duration aligned right
-            doc.setFont("helvetica", "italic");
-            doc.setFontSize(10);
-            const projDateText = `${formatDate(project.start_date)} - ${project.currently_ongoing ? 'Present' : formatDate(project.end_date)}`;
-            doc.text(projDateText, pageWidth - margin, currentY, { align: 'right' });
-            currentY += 5;
-            
-            
-            // Project description with bullet points
-            if (project.description) {
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(10);
-                doc.setTextColor(40, 40, 40);
-                
-                // Convert description to bullet points
-                const projectPoints = project.description
-                    .split('\n')
-                    .filter(point => point.trim().length > 0);
-                
-                const formattedProjectPoints = projectPoints.length > 1 ? 
-                    projectPoints : 
-                    project.description.split('. ')
-                        .filter(s => s.trim().length > 0)
-                        .map(s => s.trim() + (s.endsWith('.') ? '' : '.'));
-                
-                formattedProjectPoints.forEach(point => {
-                    checkPageOverflow();
-                    
-                    // Add bullet symbol
-                    doc.text("•", margin + 2, currentY);
-                    
-                    const bulletText = doc.splitTextToSize(point.trim(), contentWidth - 10);
-                    doc.text(bulletText, margin + 8, currentY);
-                    currentY += bulletText.length * 4 + 2;
-                });
-            }
-
-            // Project link if available
-            if (project.link) {
-                doc.setFont("helvetica", "normal");
-                doc.setTextColor(0, 102, 204); // Link color
-                doc.text(`Vist: ${project.link}`, margin, currentY);
-                currentY += 5;
-            }
-            
-            
-            // Add technologies used in the project (if available)
-            if (project.technologies) {
-                checkPageOverflow();
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(10);
-                doc.text("Technologies:", margin, currentY);
-                
-                doc.setFont("helvetica", "normal");
-                const techText = Array.isArray(project.technologies) ? 
-                    project.technologies.join(", ") : project.technologies;
-                
-                const techLines = doc.splitTextToSize(techText, contentWidth - 40);
-                doc.text(techLines, margin + 32, currentY);
-                currentY += techLines.length * 4 + 2;
-            }
-            
-            currentY += 6; // Space between projects
-        });
+        doc.setFont("helvetica", "normal");
+        const sampleDesc = "Working in a mid-sized public accounting firm to provide professional accounting services for individuals and business clients. Provide full range of services, include income tax preparation, audit support, preparation of financial statements, pro forma budgeting, general ledger accounting, and bank reconciliation.";
+        const sampleLines = doc.splitTextToSize(sampleDesc, contentWidth - 10);
+        doc.text(sampleLines, margin, currentY);
+        currentY += sampleLines.length * 5 + 15;
+        
+        // Second sample experience
+        doc.text("20XX -- 20XX", margin, currentY);
+        currentY += 8;
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Bookkeeper | Bandter Real Estate | Berkeley, CA", margin, currentY);
+        currentY += 8;
+        
+        doc.setFont("helvetica", "normal");
+        const sampleDesc2 = "Inhouse bookkeeper for a real estate development company. Maintained financial books, tracked expenses, prepared, and submitted invoices, and oversaw payroll.";
+        const sampleLines2 = doc.splitTextToSize(sampleDesc2, contentWidth - 10);
+        doc.text(sampleLines2, margin, currentY);
+        currentY += sampleLines2.length * 5 + 15;
+        
+        // Third sample experience with bold date
+        doc.setFont("helvetica", "bold");
+        doc.text("December 20XX -- April 20XX", margin, currentY);
+        currentY += 8;
+        
+        doc.text("Accounting Intern | Olson Harris Ltd. | Vallejo, CA", margin, currentY);
+        currentY += 8;
+        
+        doc.setFont("helvetica", "normal");
+        const sampleDesc3 = "Assisted with payroll and Pensions service management for 150+ employees. Prepared invoices for more than 200 clients. Assisted with bill payments, records organization and preparation, and other office duties to support financial and accounting operations.";
+        const sampleLines3 = doc.splitTextToSize(sampleDesc3, contentWidth - 10);
+        doc.text(sampleLines3, margin, currentY);
+        currentY += sampleLines3.length * 5 + 15;
     }
-
+    
+    // ===== EDUCATION SECTION =====
+    // Check if we need a new page
+    if (currentY > pageHeight - 100) {
+        doc.addPage();
+        currentY = margin + 20;
+    }
+    
+    // Education header table
+    doc.setDrawColor(0);
+    doc.rect(margin, currentY, tableWidth, 20);
+    doc.line(margin + leftColWidth, currentY, margin + leftColWidth, currentY + 20);
+    
+    // Add education heading
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Education", margin + 5, currentY + 13);
+    
+    currentY += 20 + 15; // Move to after header
+    
+    // Education content
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    
+    // Add graduation date
+    doc.text("June 20XX", margin, currentY);
+    currentY += 8;
+    
+    // Add degree info
+    doc.setFont("helvetica", "bold");
+    const degreeText = "Bachelor of Science in Accounting, Minor in Business Administration | Bellows College";
+    doc.text(degreeText, margin, currentY);
+    currentY += 8;
+    
+    // Add education details
+    doc.setFont("helvetica", "normal");
+    doc.text("Distinguished member of university's Accounting Society", margin, currentY);
+    currentY += 6;
+    
+    doc.text("Relevant coursework: Advanced Financial Accounting and Reporting", margin, currentY);
+    currentY += 6;
+    
+    doc.text("GPA: 3.8", margin, currentY);
+    currentY += 15;
+    
+    // ===== SKILLS SECTION =====
+    // Check if we need a new page
+    if (currentY > pageHeight - 100) {
+        doc.addPage();
+        currentY = margin + 20;
+    }
+    
+    // Skills header table
+    doc.setDrawColor(0);
+    doc.rect(margin, currentY, tableWidth, 20);
+    doc.line(margin + leftColWidth, currentY, margin + leftColWidth, currentY + 20);
+    
+    // Add skills heading
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Skills", margin + 5, currentY + 13);
+    
+    currentY += 20; // Move to skills grid
+    
+    // Skills grid - create a 2x3 table
+    const rowHeight = 20;
+    const colWidth = tableWidth / 2;
+    
+    // Define skills (use provided or sample skills)
+    const skillsList = userData.skills && userData.skills.length >= 6 ? 
+        userData.skills.slice(0, 6) : 
+        ["Microsoft NAV Dynamics", "Bookkeeping", "Cashflow planning & management", 
+         "Exceptional communication", "State & federal tax codes", "Fluent in German"];
+    
+    // Create skills grid
+    for (let row = 0; row < 3; row++) {
+        // Draw row borders
+        doc.rect(margin, currentY, colWidth, rowHeight);
+        doc.rect(margin + colWidth, currentY, colWidth, rowHeight);
+        
+        // Add skills text for this row
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(skillsList[row*2], margin + 5, currentY + 13);
+        doc.text(skillsList[row*2 + 1], margin + colWidth + 5, currentY + 13);
+        
+        // Move to next row
+        currentY += rowHeight;
+    }
+    
     // Footer with page numbers
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
@@ -1997,26 +1712,24 @@ function generateTemplate1(doc, userData) {
         doc.setFont("helvetica", "italic");
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     }
     
     // Helper function for date formatting
     function formatDate(dateString) {
-        if (!dateString) return 'N/A';
+        if (!dateString) return '20XX';
         
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString; // Return original if invalid
+            if (isNaN(date.getTime())) return dateString || '20XX';
             
-            const month = date.toLocaleString('default', { month: 'short' });
-            const year = date.getFullYear();
-            return `${month} ${year}`;
+            // Format to match sample with 20XX pattern
+            return '20XX';
         } catch (e) {
-            return dateString; // Fallback to original string
+            return '20XX';
         }
     }
 }
-
 // Template 2 - Minimal Modern ATS-Friendly Resume
 function generateTemplate2(doc, userData) {
     // Document setup - A4 size
@@ -3613,8 +3326,28 @@ $(document).on('click', '.generate-resume-btn', function() {
             btn.prop('disabled', false);
         }
     });
+});// Add smooth scrolling to all links
+$(document).ready(function(){
+    $("a").on('click', function(event) {
+        if (this.hash !== "") {
+            event.preventDefault();
+            var hash = this.hash;
+            
+            $('html, body').animate({
+                scrollTop: $(hash).offset().top - 70
+            }, 800, function(){
+                window.location.hash = hash;
+            });
+        }
+    });
+    
+    // Close mobile menu when clicking on a nav link
+    $('.navbar-nav>li>a').on('click', function(){
+        $('.navbar-collapse').collapse('hide');
+    });
 });
     </script>
+    <script src="{% static 'js/scripthome.js' %}"></script>
     <!-- jsPDF for PDF generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>

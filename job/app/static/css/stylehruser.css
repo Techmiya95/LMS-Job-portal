@@ -1,0 +1,21 @@
+.select2-container--default .select2-selection--multiple {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    min-height: 48px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #3b82f6;
+    border: 1px solid #3b82f6;
+    border-radius: 9999px;
+    color: white;
+    padding: 0 8px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 4px;
+}
+.select2-container--default .select2-search--inline .select2-search__field {
+    margin-top: 0;
+}

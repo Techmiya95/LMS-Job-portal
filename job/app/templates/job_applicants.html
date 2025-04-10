@@ -1,24 +1,224 @@
-<!-- hr_panel.html -->
- {% load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Panel</title>
-    <link rel="stylesheet" href="{% static 'css/stylehr.css' %}">
+    <title>Applicants for {{ job.Job }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        
+        /* Modern Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Job Cards with Different Top Borders */
+.job-card {
+    transition: all 0.3s ease;
+    height: 100%;
+    border-top: 4px solid;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Color rotation for job cards */
+/* Color rotation for job cards */
+.job-card.color-1 { border-top-color: #4e73df; }
+.job-card.color-2 { border-top-color: #1cc88a; }
+.job-card.color-3 { border-top-color: #36b9cc; }
+.job-card.color-4 { border-top-color: #f6c23e; }
+.job-card.color-5 { border-top-color: #e74a3b; }
+.job-card.color-6 { border-top-color: #858796; }
+.job-card.color-7 { border-top-color: #6f42c1; }
+.job-card.color-8 { border-top-color: #fd7e14; }
+.job-card.color-9 { border-top-color: #20c997; }
+.job-card.color-10 { border-top-color: #d63384; }
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.job-card .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 1rem 1.25rem;
+}
+
+.job-card .card-body {
+    padding: 1.25rem;
+}
+
+.job-card .card-footer {
+    background-color: rgba(0,0,0,0.03);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding: 1rem 1.25rem;
+}
+
+
+.skills-badge {
+    --bs-badge-color: #212529; /* Override text color variable */
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.75rem;
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+}
+
+.applicant-card {
+    transition: all 0.3s;
+    border-left: 4px solid #4e73df;
+}
+
+.applicant-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.banner-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://cdnjs.cloudflare.com/ajax/libs/twilight/2.0.0/bg.png') repeat;
+    opacity: 0.1;
+}
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: url('https://cdnjs.cloudflare.com/ajax/libs/twilight/2.0.0/img/wave.svg') repeat-x;
+    animation: wave 15s linear infinite;
+}
+
+@keyframes wave {
+    0% {
+        background-position-x: 0;
+    }
+    100% {
+        background-position-x: 1000px;
+    }
+}
+
+.feature-icon {
+    height: 70px;
+    width: 70px;
+    padding: 15px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: translateY(-10px);
+}
+
+.applicant-item {
+    display: none;
+}
+
+/* Pagination Styles */
+.pagination .page-item.active .page-link {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.pagination .page-link {
+    color: #4e73df;
+}
+
+/* Scroll to Applicants Animation */
+@keyframes highlight {
+    0% { background-color: rgba(78, 115, 223, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.highlight-section {
+    animation: highlight 2s ease;
+}
+
+/* Status Badges */
+.status-badge {
+    position: absolute;
+    top: 20px;
+    right: 80px;
+    font-size: 0.7rem;
+    padding: 5px 8px;
+}
+
+/* Improved job type badge */
+.job-type-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    margin-left: 8px;
+}
+
+/* Salary highlight */
+.salary-highlight {
+    font-weight: 600;
+    color: #2e59d9;
+}
+
+/* Deadline styling */
+.deadline-text {
+    font-weight: 500;
+}
+
+/* Company logo placeholder */
+.company-logo {
+    width: 50px;
+    height: 50px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #6c757d;
+    font-size: 1.5rem;
+}
+        /* Copy all your existing CSS styles here */
+        .applicant-card {
+            transition: all 0.3s;
+            border-left: 4px solid #4e73df;
+        }
+        .applicant-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .skills-badge {
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+            background-color: #f8f9fa;
+            color: #212529;
+            border: 1px solid #dee2e6;
+        }
+        /* Add other styles as needed */
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="#">
+            <a class="navbar-brand fw-bold text-primary" href="{% url 'hr_panel' %}">
                 <i class="bi bi-people-fill me-2"></i>HR Management Portal
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -27,37 +227,20 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="#jobs-section">
+                        <a class="nav-link text-dark" href="{% url 'hr_panel' %}#jobs-section">
                             <i class="bi bi-briefcase me-1"></i>Jobs
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="#applicants-section">
+                        <a class="nav-link text-dark" href="{% url 'hr_panel' %}#applicants-section">
                             <i class="bi bi-people me-1"></i>Applicants
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'job_list' %}">
-                            <i class="bi bi-list-ul me-1"></i>Job List
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        {% if is_active %}
-                            <a class="nav-link text-dark" href="{% url 'hr_userlist' %}">
-                                <i class="bi bi-person-lines-fill me-1"></i>User List
-                            </a>
-                        {% else %}
-                            <a class="nav-link text-muted" href="#" data-bs-toggle="modal" data-bs-target="#premiumModal" style="cursor: pointer;">
-                                <i class="bi bi-person-lines-fill me-1"></i>User List
-                            </a>
-                        {% endif %}
-                    </li>
-                    
                 </ul>
                 <div class="d-flex align-items-center">
                     <div class="me-3 text-dark">
                         <i class="bi bi-person-circle me-1"></i>
-                        <a href="{% url 'hrprofile'%}" style="text-decoration:none"><span>{{ request.session.hr_username }}</span></a>
+                        <span>{{ request.session.hr_username }}</span>
                     </div>
                     <a href="{% url 'loginhr' %}" class="btn btn-outline-primary btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i>Logout
@@ -67,302 +250,127 @@
         </div>
     </nav>
 
-    <!-- Full-width HR Banner -->
-    <section class="banner-section text-white py-5">
-        <div class="container-fluid px-4 px-md-5 py-5 position-relative">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <h1 class="display-4 fw-bold">Human Resources Portal</h1>
-                    <p class="lead my-4">Streamline workforce management, boost employee engagement, and optimize your recruitment process</p>
-                    
-                    <div class="d-flex flex-wrap gap-3 mt-4">
-                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
-                            <h4 class="mb-0"><i class="bi bi-people-fill me-2"></i> 245</h4>
-                            <small>Employees</small>
-                        </div>
-                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
-                            <h4 class="mb-0"><i class="bi bi-briefcase-fill me-2"></i> {{ hr_jobs|length }}</h4>
-                            <small>Open Positions</small>
-                        </div>
-                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
-                            <h4 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i> 86%</h4>
-                            <small>Retention Rate</small>
+    <div class="container" style="margin-top: 80px;">
+        <!-- Job Details Header -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">{{ job.Job }}</h2>
+                        <h5 class="text-muted">{{ job.Org }} • {{ job.Location }}</h5>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary">{{ job.job_type }}</span>
+                        <h4 class="mt-2 text-primary">{{ job.Salary }} LPA</h4>
+
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Skills Required:</h5>
+                        <div class="mb-3">
+                            {% for skill in job.Skills %}
+                                <span class="badge bg-light text-dark skills-badge">{{ skill }}</span>
+                            {% endfor %}
                         </div>
                     </div>
-                    
-                    <button class="btn btn-light btn-lg mt-5 fw-bold">
-                        <i class="bi bi-speedometer2 me-2"></i>Enter Dashboard
-                    </button>
+                    <div class="col-md-6">
+                        <h5>Application Deadline:</h5>
+                        <p class="text-danger">{{ job.deadline }}</p>
+                    </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/1570/1570887.png" alt="HR Management" class="img-fluid" style="max-height: 300px;">
+                <div class="mt-3">
+                    <h5>Job Description:</h5>
+                    <p>{{ job.FullDescription }}</p>
                 </div>
             </div>
         </div>
-        <div class="wave"></div>
-    </section>
-
-    <div class="container py-4">
-        <!-- Alert Messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <!-- Jobs Section -->
-        <section id="jobs-section" class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">
-                    <i class="bi bi-briefcase me-2"></i>Job Listings
-                </h2>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal">
-                    <i class="bi bi-plus-circle me-2"></i>Create New Job
-                </button>
-            </div>
-
-            {% if hr_jobs %}
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="jobs-container">
-                    {% for job in hr_jobs %}
-                        <div class="col job-item">
-                            <div class="card job-card shadow-sm h-100 color-{{ forloop.counter0|add:1 }}">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    {% if job.disabled %}
-                                    <span class="badge bg-danger status-badge ">Disabled</span>
-                                    {% endif %}
-                                    <div><h5 class="card-title mb-0">{{ job.Job }} </h5></div>
-                                   
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item edit-job" href="#" data-job-id="{{ job.id }}">
-                                                <i class="bi bi-pencil-square me-2"></i>Edit
-                                            </a></li>
-                                            {% comment %} <li><a class="dropdown-item text-danger delete-job" href="#" data-job-id="{{ job.job_id}}">
-                                                <i class="bi bi-slash-circle me-2"></i>Disable
-                                            </a></li> {% endcomment %}
-                                            {% if job.disabled %}
-                                            <li><a class="dropdown-item text-success enable-job" href="#" data-job-id="{{ job.job_id}}">
-                                                <i class="bi bi-check-circle me-2"></i>Enable
-                                            </a></li>
-                                            {% else %}
-                                            <li><a class="dropdown-item text-warning disable-job" href="#" data-job-id="{{ job.job_id}}">
-                                                <i class="bi bi-slash-circle me-2"></i>Disable
-                                            </a></li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="company-logo">
-                                            
-                                            <i class="bi bi-building"></i>
-                                           
-                                            <!-- Add this inside the job card header -->
-                                                 
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0">{{ job.Org }}</h6>
-                                            <small class="text-muted">{{ job.Location }}</small>
-                                            <span class="badge bg-primary job-type-badge">{{ job.job_type }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="d-flex justify-content-between mb-3">
-                                        <div>
-                                            <i class="bi bi-currency-dollar me-1"></i>
-                                            <span class="salary-highlight">{{ job.Salary }} LPA</span>
-                                        </div>
-                                        <div>
-                                            <i class="bi bi-clock me-1"></i>
-                                            <span>{{ job.posted_date|date:"M d, Y" }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <i class="bi bi-calendar-x me-1"></i>
-                                        <span class="text-danger deadline-text">Deadline: {{ job.deadline }}</span>
-                                    </div>
-                                    
-                                    <h6 class="mt-3">Skills Required:</h6>
-                                    <div class="mb-3">
-                                        {% for skill in job.Skills %}
-                                            <span class=" skills-badge">{{ skill }}</span>
-                                        {% endfor %}
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <h6>Description:</h6>
-                                        <p class="card-text text-muted">{{ job.FullDescription|truncatechars:150 }}</p>
-                                    </div>
-                                </div>
-                                <!-- In your job card footer, change the button to an anchor tag -->
-<div class="card-footer bg-transparent">
-    <a href="{% url 'job_applicants' job.id %}" class="btn btn-outline-primary w-100">
-        <i class="bi bi-people me-2"></i>View Applicants
-    </a>
-</div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- Pagination -->
-                <nav aria-label="Job pagination" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    You haven't created any jobs yet. Use the "Create New Job" button to add your first job listing.
-                </div>
-            {% endif %}
-        </section>
 
         <!-- Applicants Section -->
-        <section id="applicants-section" class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">
-                    <i class="bi bi-people me-2"></i>Job Applicants
-                </h2>
-                <div class="dropdown">
-                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-funnel me-1"></i>Filter by Job
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                        <li><a class="dropdown-item" href="#" data-job-id="all">
-                            <i class="bi bi-grid me-2"></i>All Jobs
-                        </a></li>
-                        {% for job in hr_jobs %}
-                        <li><a class="dropdown-item" href="#" data-job-id="{{ job.id }}">
-                            <i class="bi bi-briefcase me-2"></i>{{ job.Job }}
-                        </a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+        <h3 class="mb-4">Applicants ({{ applicants|length }})</h3>
         
-            {% if applicants %}
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="applicants-container">
-                {% for applicant in applicants %}
-                <div class="col applicant-item" data-job-id="{{ applicant.applied_job_id }}">
-                    <div class="card applicant-card shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                {% if applicant.profile_picture %}
-                                <img src="data:image/jpeg;base64,{{ applicant.profile_picture }}" 
+        {% if applicants %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for applicant in applicants %}
+            <div class="col">
+                <div class="card applicant-card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            {% if applicant.profile_picture %}
+                            <img src="data:image/jpeg;base64,{{ applicant.profile_picture }}" 
                                 alt="Profile" 
                                 class="rounded-circle me-3" 
                                 style="width: 60px; height: 60px; object-fit: cover;">
-                                {% else %}
-                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
-                                    <i class="bi bi-person text-white" style="font-size: 1.5rem;"></i>
-                                </div>
-                                {% endif %}
-                                <div>
-                                    <h5 class="card-title mb-0">{{ applicant.username }}</h5>
-                                    <p class="text-muted mb-0">Applied for: {{ applicant.applied_job_title }}</p>
-                                </div>
-                            </div>
-            
-                            <div class="mb-3">
-                                <i class="bi bi-envelope me-2"></i>
-                                <span>{{ applicant.email }}</span>
-                            </div>
-                            
-                            {% if applicant.mobile %}
-                            <div class="mb-3">
-                                <i class="bi bi-telephone me-2"></i>
-                                <span>{{ applicant.mobile }}</span>
+                            {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                <i class="bi bi-person text-white" style="font-size: 1.5rem;"></i>
                             </div>
                             {% endif %}
-                            
-                            <div class="mb-3">
-                                <i class="bi bi-mortarboard me-2"></i>
-                                <span>{{ applicant.branch }} - {{ applicant.ug_college }}</span>
+                            <div>
+                                <h5 class="card-title mb-0">{{ applicant.username }}</h5>
+                                <p class="text-muted mb-0">{{ applicant.email }}</p>
                             </div>
-                            
-                            {% if applicant.skills %}
-                            <div class="mt-2">
-                                <h6 class="small fw-bold mb-2">Skills:</h6>
-                                {% for skill in applicant.skills %}
-                                <span class="badge bg-light text-dark skills-badge">{{ skill }}</span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
                         </div>
-                        <div class="card-footer bg-transparent">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <button class="btn btn-sm btn-outline-primary view-applicant" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#viewApplicantModal" 
-                                        data-user-id="{{ applicant.applicant_id }}">
-                                    <i class="bi bi-eye me-1"></i>View
-                                </button>
-                                <button class="btn btn-sm btn-outline-success contact-applicant" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#contactApplicantModal" 
-                                        data-email="{{ applicant.email }}" 
-                                        data-name="{{ applicant.username }}">
-                                    <i class="bi bi-envelope me-1"></i>Contact
-                                </button>
-                            </div>
-                            <small class="text-muted mt-2 d-block">
-                                <i class="bi bi-clock me-1"></i>
-                                {% if applicant.applied_at != 'N/A' %}
-                                    Applied: {{ applicant.applied_at|date:"M d, Y" }}
-                                {% else %}
-                                    Date not available
-                                {% endif %}
-                            </small>
+
+                        {% if applicant.mobile %}
+                        <div class="mb-3">
+                            <i class="bi bi-telephone me-2"></i>
+                            <span>{{ applicant.mobile }}</span>
                         </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <i class="bi bi-mortarboard me-2"></i>
+                            <span>{{ applicant.branch }} - {{ applicant.ug_college }}</span>
+                        </div>
+                        
+                        {% if applicant.skills %}
+                        <div class="mt-2">
+                            <h6 class="small fw-bold mb-2">Skills:</h6>
+                            {% for skill in applicant.skills %}
+                            <span class="badge bg-light text-dark skills-badge">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-sm btn-outline-primary view-applicant" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#viewApplicantModal" 
+                                    data-user-id="{{ applicant.applicant_id }}">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                            <button class="btn btn-sm btn-outline-success contact-applicant" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#contactApplicantModal" 
+                                    data-email="{{ applicant.email }}" 
+                                    data-name="{{ applicant.username }}">
+                                <i class="bi bi-envelope me-1"></i>Contact
+                            </button>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-clock me-1"></i>
+                            Applied: {{ applicant.applied_at|date:"M d, Y" }}
+                        </small>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            
-            <!-- Pagination for Applicants -->
-            <nav aria-label="Applicant pagination" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
-            
-            {% else %}
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                No applications received yet for your job postings.
-            </div>
-            {% endif %}
-        </section>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No applicants have applied for this job yet.
+        </div>
+        {% endif %}
     </div>
 
+    <!-- Include the same modals from your hr_panel.html -->
     <!-- View Applicant Modal -->
     <div class="modal fade" id="viewApplicantModal" tabindex="-1" aria-hidden="true">
+        <!-- Copy the same modal structure from hr_panel.html -->
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -476,6 +484,7 @@
 
     <!-- Contact Applicant Modal -->
     <div class="modal fade" id="contactApplicantModal" tabindex="-1" aria-hidden="true">
+        <!-- Copy the same modal structure from hr_panel.html -->
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -511,137 +520,16 @@
         </div>
     </div>
 
-    <!-- Create Job Modal -->
-    <div class="modal fade" id="createJobModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="jobModalTitle">Create New Job</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="jobForm" method="post" action="{% url 'create_job' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="hr_id" value="{{ request.session.hr_id }}">
-                    <input type="hidden" name="job_id" id="job_id" value="">
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="title" class="form-label">Job Title</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="company" class="form-label">Company</label>
-                                <input type="text" class="form-control" id="company" name="company" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="location" class="form-label">Location</label>
-                                <input type="text" class="form-control" id="location" name="location" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="salary" class="form-label">Salary</label>
-                                <input type="text" class="form-control" id="salary" name="salary" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="job_type" class="form-label">Job Type</label>
-                                <select class="form-select" id="job_type" name="job_type" required>
-                                    <option value="">Select...</option>
-                                    <option value="Full-time">Full-time</option>
-                                    <option value="Part-time">Part-time</option>
-                                    <option value="Contract">Contract</option>
-                                    <option value="Internship">Internship</option>
-                                    <option value="Remote">Remote</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="experience" class="form-label">Experience Required (years)</label>
-                                <input type="text" class="form-control" id="experience" name="experience" min="0" max="20" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="skills" class="form-label">Skills Required (comma separated)</label>
-                                <input type="text" class="form-control" id="skills" name="Skills" placeholder="Python, JavaScript, HTML, CSS" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="description" class="form-label">Job Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="education" class="form-label">Education Requirements</label>
-                                <input type="text" class="form-control" id="education" name="education" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="deadline" class="form-label">Application Deadline</label>
-                                <input type="date" class="form-control" id="deadline" name="deadline" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save me-1"></i>Save Job
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Confirm Deletion</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this job posting? This action cannot be undone.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-1"></i>Cancel
-                    </button>
-                    <form id="deleteJobForm" method="post" action="{% url 'delete_job' %}">
-                        {% csrf_token %}
-                        <input type="hidden" id="delete_job_id" name="job_id">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash me-1"></i>Delete Job
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="modal fade" id="premiumModal" tabindex="-1" aria-labelledby="premiumModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content rounded-4 shadow">
-            <div class="modal-header bg-warning bg-gradient text-dark">
-              <h5 class="modal-title" id="premiumModalLabel">Premium Access Required</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p>To view the user list, please upgrade to a <strong>Premium Membership</strong>.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-              <a href="#" class="btn btn-primary">Upgrade Now</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
         // Initialize EmailJS
         (function(){
             emailjs.init("GyvTODto1wNKmd3Nh"); // Replace with your actual Public Key
         })();
-             
+
+        // Copy all your existing JavaScript for handling modals and email sending
+        // from hr_panel.html to here
         // Handle Edit Job
         document.querySelectorAll('.edit-job').forEach(button => {
             button.addEventListener('click', function() {
