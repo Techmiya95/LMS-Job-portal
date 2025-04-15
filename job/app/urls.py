@@ -8,15 +8,15 @@ from .views import check_auth, dashbord, index, job_list_view, login_view, logou
 from .views import hr_signup, hr_login, create_job, update_job, delete_job, get_job_details, hr_panel_view, delete_job, get_api_keys, get_api_keys_message, get_document, upload_company_logo, upload_verification_documents
 from .views import get_job_data, get_applicant_details, contact_applicant,hr_userlist,get_user_details,store_jobs,upload_resume,get_resume,download_resume,search_locations
 # from .views import save_experience
-from .views import get_experiences, add_experience, update_experience, delete_experience,get_jobs,toggle_job_status,generate_resume,job_applicants,hrprofile,hr_profile_view,hr_profile_page,upload_profile_picture
+from .views import get_experiences, add_experience, update_experience, delete_experience,get_jobs,toggle_job_status,generate_resume,job_applicants,hrprofile,hr_profile_view,upload_profile_picture,update_subscription
 urlpatterns = [ 
                    path('upload_company_logo/', upload_company_logo, name='upload_company_logo'),
     path('upload_verification_docs/', upload_verification_documents, name='upload_verification_docs'),
     path('get_document/<str:doc_type>/', get_document, name='get_document'),
-
+    path('update_subscription/', update_subscription, name='update_subscription'),
       path('hr_profile/', hr_profile_view, name='hr_profile'),
 path('upload_profile_picture/', upload_profile_picture, name='upload_profile_picture'),
-path('hr_profile_page/', hr_profile_page, name='hr_profile_page'),
+# path('hr_profile_page/', hr_profile_page, name='hr_profile_page'),
       path('job/<str:job_id>/applicants/', job_applicants, name='job_applicants'),
 
      path('generate_resume/<str:template_id>/', generate_resume, name='generate_resume'), 
@@ -77,4 +77,5 @@ path('get_job_data/<str:job_id>/', get_job_data, name='get_job_data'),
     path('add_experience/', add_experience, name='add_experience'),
     path('update_experience/', update_experience, name='update_experience'),
     path('delete_experience/', delete_experience, name='delete_experience'),
+   
 ]

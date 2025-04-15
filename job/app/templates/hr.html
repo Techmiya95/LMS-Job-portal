@@ -10,6 +10,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        .card-header {
+            color: white;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            font-weight: bold;
+        }
+        .custom-bordered-card {
+            border-top: 5px solid currentColor;      /* Top border uses dynamic color */
+            border-left: 1px solid #e0e0e0;          /* Light gray */
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
         
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -26,21 +39,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="#jobs-section">
-                            <i class="bi bi-briefcase me-1"></i>Jobs
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="#applicants-section">
-                            <i class="bi bi-people me-1"></i>Applicants
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="{% url 'job_list' %}">
-                            <i class="bi bi-list-ul me-1"></i>Job List
-                        </a>
-                    </li>
+                  
+                    
+                   
                     <li class="nav-item">
                         {% if is_active %}
                             <a class="nav-link text-dark" href="{% url 'hr_userlist' %}">
@@ -128,7 +129,8 @@
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="jobs-container">
                     {% for job in hr_jobs %}
                         <div class="col job-item">
-                            <div class="card job-card shadow-sm h-100 color-{{ forloop.counter0|add:1 }}">
+                            <div class="card job-card shadow-sm h-100 custom-bordered-card color-{{ forloop.counter0|add:1 }}">
+
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     {% if job.disabled %}
                                     <span class="badge bg-danger status-badge ">Disabled</span>
@@ -235,7 +237,7 @@
             {% endif %}
         </section>
 
-        <!-- Applicants Section -->
+        {% comment %} <!-- Applicants Section -->
         <section id="applicants-section" class="mb-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold">
@@ -358,7 +360,7 @@
                 No applications received yet for your job postings.
             </div>
             {% endif %}
-        </section>
+        </section> {% endcomment %}
     </div>
 
     <!-- View Applicant Modal -->
@@ -632,10 +634,88 @@
           </div>
         </div>
       </div>
-      
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+      <!-- HR Panel Footer -->
+<footer class="bg-dark text-white pt-4 pb-3 mt-5">
+    <div class="container">
+      <div class="row">
+        <!-- Company Information -->
+        <div class="col-md-3 mb-3">
+          <h5>HR Portal</h5>
+          <p class="small">Your comprehensive human resources management system.</p>
+          <p class="small">© 2025 Company Name</p>
+        </div>
+  
+        <!-- Quick Links -->
+        <div class="col-md-3 mb-3">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled small">
+            <li><a href="#" class="text-light">Employee Directory</a></li>
+            <li><a href="#" class="text-light">Payroll Dashboard</a></li>
+            <li><a href="#" class="text-light">Time & Attendance</a></li>
+            <li><a href="#" class="text-light">Benefits Management</a></li>
+          </ul>
+        </div>
+  
+        <!-- Resources -->
+        <div class="col-md-3 mb-3">
+          <h5>Resources</h5>
+          <ul class="list-unstyled small">
+            <li><a href="#" class="text-light">Employee Handbook</a></li>
+            <li><a href="#" class="text-light">Training Materials</a></li>
+            <li><a href="#" class="text-light">Company Policies</a></li>
+            <li><a href="#" class="text-light">Forms & Documents</a></li>
+          </ul>
+        </div>
+  
+        <!-- Contact Information -->
+        <div class="col-md-3 mb-3">
+          <h5>Contact HR</h5>
+          <ul class="list-unstyled small">
+            <li><i class="bi bi-envelope"></i> hr@company.com</li>
+            <li><i class="bi bi-telephone"></i> (555) 123-4567</li>
+            <li><i class="bi bi-geo-alt"></i> HR Office: Floor 3, Room 302</li>
+          </ul>
+        </div>
+      </div>
+  
+      <hr class="mt-2 mb-3 border-secondary">
+      
+      <!-- Bottom Footer -->
+      <div class="row">
+        <div class="col-md-6 small">
+          <p class="mb-0">HR Portal v2.5.1 | Last updated: April 2025</p>
+        </div>
+        <div class="col-md-6 text-md-end small">
+          <a href="#" class="text-light mx-1">Privacy Policy</a> | 
+          <a href="#" class="text-light mx-1">Terms of Use</a> | 
+          <a href="#" class="text-light mx-1">Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+      
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+      <script>
+        // Initialize all dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips and popovers
+            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+            
+            // For dynamically loaded content, use event delegation
+            document.body.addEventListener('click', function(e) {
+                if (e.target.classList.contains('dropdown-toggle') {
+                    e.preventDefault();
+                    var dropdown = new bootstrap.Dropdown(e.target);
+                    dropdown.toggle();
+                }
+            });
+        });
+        </script>
     <script>
         // Initialize EmailJS
         (function(){

@@ -51,8 +51,7 @@ def user_list(request):
 
 def api_jobs(request):
     return render(request, 'Api_job.html')
-def hrprofile(request):
-    return render(request, 'hrprofile.html')
+
 
 
 @login_required
@@ -220,6 +219,7 @@ def signup(request):
             username=username,
             email=email,
             password=password,
+            # Assuming you have a phone_number field in your User model
             
         # Assuming you have a phone_number field in your User model
         )
@@ -1236,7 +1236,7 @@ def create_job(request):
             'education': request.POST.get('education'),
             'deadline': request.POST.get('deadline'),
             'hr_id': hr_id,
-            'posted_date': datetime.datetime.now()
+            'posted_date': datetime.now()
         }
         
         # Insert into MongoDB
@@ -1285,14 +1285,14 @@ def update_job(request):
 
         # Update job data
         update_data = {
-            'title': request.POST.get('title'),
-            'company': request.POST.get('company'),
-            'location': request.POST.get('location'),
-            'salary': request.POST.get('salary'),
+            'Job': request.POST.get('title'),
+            'Org': request.POST.get('company'),
+            'Location': request.POST.get('location'),
+            'Salary': request.POST.get('salary'),
             'job_type': request.POST.get('job_type'),
             'experience': request.POST.get('experience'),
             'Skills': request.POST.get('Skills'),
-            'description': request.POST.get('description'),
+            'FullDescription': request.POST.get('description'),
             'education': request.POST.get('education'),
             'deadline': request.POST.get('deadline'),
             'updated_at': datetime.now()
@@ -1540,8 +1540,9 @@ def hr_panel_view(request):
     hr_id = request.session.get('hr_id')
     hr_user = hr_collection.find_one({"_id": ObjectId(hr_id)})
     # print(f"HR ID: {hr_id}")
-    is_active = hr_user.get('is_active', False) if hr_user else False
+    is_active = hr_user.get('is_active') if hr_user else False
     print(is_active)
+    
     
     # Fetch jobs created by this HR
     hr_jobs = list(job_collection.find({"hr_id": hr_id}))
@@ -1829,6 +1830,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime, timedelta
 from bson import json_util
+import os
+from django.conf import settings
 
 # In-memory collection to store jobs
 apijob_collection = db1["apijob"]
@@ -1836,14 +1839,18 @@ apijob_collection = db1["apijob"]
 # Track last cleanup time
 last_cleanup_time = None
 
+import os
+from django.conf import settings
+
 @csrf_exempt
 def store_jobs(request):
     global last_cleanup_time
     
     if request.method == 'POST':
         try:
-            # Check if 14390 minutes (~10 days) have passed since last cleanup
             current_time = datetime.now()
+            
+            # Cleanup old data if needed
             if last_cleanup_time is None or (current_time - last_cleanup_time) >= timedelta(minutes=14390):
                 apijob_collection.delete_many({})
                 last_cleanup_time = current_time
@@ -1855,18 +1862,54 @@ def store_jobs(request):
             if not jobs:
                 return JsonResponse({'status': 'error', 'message': 'No jobs provided'}, status=400)
 
-            # Insert jobs into MongoDB collection
+            # Insert jobs into MongoDB
             result = apijob_collection.insert_many(jobs)
-
+            inserted_ids = result.inserted_ids
+            inserted_jobs = list(apijob_collection.find({'_id': {'$in': inserted_ids}}))
+            
+            # Prepare data for JSON file
+            output_data = {
+                'timestamp': current_time.isoformat(),
+                'inserted_count': len(inserted_ids),
+                'jobs': inserted_jobs
+            }
+            
+            # Convert ObjectId to string for JSON serialization
+            for job in output_data['jobs']:
+                job['_id'] = str(job['_id'])
+            
+            # Create storage directory if it doesn't exist
+            storage_dir = os.path.join(settings.BASE_DIR, 'job_storage')
+            os.makedirs(storage_dir, exist_ok=True)
+            
+            # Generate filename with timestamp
+            filename = f"jobs_{current_time.strftime('%Y%m%d_%H%M%S')}.json"
+            filepath = os.path.join(storage_dir, filename)
+            
+            # Write to JSON file
+            with open(filepath, 'w') as f:
+                json.dump(output_data, f, indent=2, default=json_util.default)
+            
             return JsonResponse({
                 'status': 'success', 
-                'message': f'{len(result.inserted_ids)} jobs stored successfully'
+                'message': f'{len(inserted_ids)} jobs stored successfully',
+                'file_path': filepath,
+                'inserted_count': len(inserted_ids),
+                'timestamp': current_time.isoformat()
             })
 
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+            return JsonResponse({
+                'status': 'error', 
+                'message': str(e),
+                'timestamp': datetime.now().isoformat()
+            }, status=400)
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    return JsonResponse({
+        'status': 'error', 
+        'message': 'Invalid request method',
+        'timestamp': datetime.now().isoformat()
+    }, status=405)
 
 @csrf_exempt
 def get_jobs(request):
@@ -2140,12 +2183,15 @@ def hr_profile_view(request):
                 'hr_certification': hr_profile.get('certification', ''),
                 'certification_year': hr_profile.get('certification_year', ''),
                 'hr_specialization': hr_profile.get('specialization', ''),
+                'is_active': hr_profile.get('is_active'),  # ✅ Added this line
                 'jobs_posted': job_collection.count_documents({"hr_id": hr_id}),
+                
+
                 'candidates_reviewed': 0,  # You'll need to implement this
                 'interviews_scheduled': 0  # You'll need to implement this
             }
         }
-        
+        print(f"is_active: {response_data['data']['is_active']}")  # Debugging line
         return JsonResponse(response_data)
     
     elif request.method == 'POST':
@@ -2193,6 +2239,7 @@ def hr_profile_view(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
+
 @csrf_exempt
 def upload_profile_picture(request):
     if not request.session.get('hr_id'):
@@ -2229,11 +2276,9 @@ def upload_profile_picture(request):
     
     return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
 
-def hr_profile_page(request):
-    if not request.session.get('hr_id'):
-        return redirect('loginhr')
-    
-    return render(request, 'hrprofile.html')
+
+
+
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -2357,6 +2402,88 @@ def get_document(request, doc_type):
     
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    
+@csrf_exempt
+def update_subscription(request):
+    if not request.session.get('hr_id'):
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            hr_id = request.session['hr_id']
+            hr_data = hr_collection.find_one({"_id": ObjectId(hr_id)})
+            if not hr_data:
+                return JsonResponse({'success': False, 'message': 'HR not found'}, status=404)
 
+            current_status = hr_data.get('is_active', False)
+            new_status = not current_status
+            print(f"New status: {new_status}")
 
+            result = hr_collection.update_one(
+                {"_id": ObjectId(hr_id)},
+                {"$set": {"is_active": new_status}}
+            )
+        
 
+            if result.matched_count == 1:
+                request.session['is_active'] = new_status
+                return JsonResponse({
+                    'success': True,
+                    'message': "Premium activated!" if new_status else "Premium deactivated",
+                    'is_active': new_status
+                })
+
+            return JsonResponse({'success': False, 'message': 'Update failed'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error: {str(e)}'}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Only POST requests allowed'}, status=400)
+
+def hrprofile(request):
+    if not request.session.get('hr_id'):
+        return redirect('loginhr')
+    
+    hr_id = request.session['hr_id']
+    
+    if request.method == 'GET':
+        # Fetch HR profile data
+        hr_profile = hr_collection.find_one({"_id": ObjectId(hr_id)})
+        
+        if not hr_profile:
+            return JsonResponse({'success': False, 'message': 'HR profile not found'}, status=404)
+        
+        # Handle is_active properly - convert to Python boolean
+        is_active = hr_profile.get('is_active', False)
+        if isinstance(is_active, str):
+            is_active = is_active.lower() == 'true'
+        
+        # Prepare context data with proper boolean handling
+        context = {
+            'hr_profile': {
+                'user_name': hr_profile.get('name', ''),
+                'email': hr_profile.get('email', ''),
+                'mobile': hr_profile.get('mobile', ''),
+                'linkedin': hr_profile.get('linkedin', ''),
+                'profile_picture': hr_profile.get('profile_picture', ''),
+                'company_name': hr_profile.get('company_name', ''),
+                'company_email': hr_profile.get('company_email', ''),
+                'company_website': hr_profile.get('company_website', ''),
+                'company_industry': hr_profile.get('company_industry', ''),
+                'company_size': hr_profile.get('company_size', ''),
+                'company_description': hr_profile.get('company_description', ''),
+                'hr_position': hr_profile.get('position', ''),
+                'hr_department': hr_profile.get('department', ''),
+                'hr_certification': hr_profile.get('certification', ''),
+                'certification_year': hr_profile.get('certification_year', ''),
+                'hr_specialization': hr_profile.get('specialization', ''),
+                'is_active': bool(is_active),  # Ensure boolean type
+                'jobs_posted': job_collection.count_documents({"hr_id": hr_id}),
+                'candidates_reviewed': 0,
+                'interviews_scheduled': 0
+            }
+        }
+        
+        return render(request, 'hrprofile.html', context)
+    
+    return render(request, 'hrprofile.html')

@@ -10,12 +10,13 @@
 .job-card {
     transition: all 0.3s ease;
     height: 100%;
-    border-top: 4px solid;
+    border-top: 5px solid;  /* <-- Make it bolder */
     border-radius: 8px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Color rotation for job cards */
 /* Color rotation for job cards */
