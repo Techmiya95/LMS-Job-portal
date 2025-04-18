@@ -42,6 +42,7 @@ job_applied_collection = db1["JobApplied"]  # Renamed to avoid conflict
 skills_collection = db["skills"]  # Renamed to avoid conflict
 location_collection=db["location"]
 jobrole_collection=db["jobrole"]
+education_collection=db["educations"]
 
 def user_list(request):
     users = list(auth_user_collection.find({}))  # Fetch users
@@ -289,33 +290,67 @@ def loginhr(request):
 # hr authentication
 def hr_signup(request):
     if request.method == "POST":
+        # Get all form data
         first_name = request.POST.get('firstname', '').strip()
         last_name = request.POST.get('lastname', '').strip()
-        email = request.POST['email']
-        hrname = request.POST['hrname']
-        password = request.POST['password']
-        confirm_password = request.POST['confirm_password']
-        
+        mobile = request.POST.get('mobile', '').strip()
+        email = request.POST.get('email', '').strip()
+        hrname = request.POST.get('hrname', '').strip()
+        password = request.POST.get('password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+
+        # Validate required fields
+        if not all([first_name, last_name, mobile, email, hrname, password, confirm_password]):
+            return render(request, "authhr.html", {"error_message": "All fields are required"})
+
+        # Validate mobile number format
+        if not mobile.isdigit() or len(mobile) != 10:
+            return render(request, "authhr.html", {"error_message": "Mobile number must be 10 digits"})
+
+        # Validate email format
+        try:
+            validate_email(email)
+        except ValidationError:
+            return render(request, "authhr.html", {"error_message": "Please enter a valid email address"})
+
+        # Validate password match
         if password != confirm_password:
             return render(request, "authhr.html", {"error_message": "Passwords do not match"})
-        
-        if hr_collection.find_one({"email": email}) or hr_collection.find_one({"hrname": hrname}):
-            return render(request, "authhr.html", {"error_message": "HR already exists"})
-        
+
+        # Validate password complexity
+        if (len(password) < 8 or len(password) > 12 or 
+            not any(char.isupper() for char in password) or 
+            not any(char.isdigit() for char in password) or 
+            not any(char in '!@#$%^&*' for char in password)):
+            return render(request, "authhr.html", {"error_message": "Password must be 8-12 characters with at least 1 uppercase letter, 1 digit, and 1 special character"})
+
+        # Check if HR already exists
+        if hr_collection.find_one({"$or": [{"email": email}, {"hrname": hrname}]}):
+            return render(request, "authhr.html", {"error_message": "HR with this email or username already exists"})
+
+        # Create HR record
         hashed_password = make_password(password)
         hr_data = {
             "hrname": hrname,
             "email": email,
             "password": hashed_password,
+            "mobile": mobile,
             "first_name": first_name,
             "last_name": last_name,
             "is_active": True,
             "is_staff": False,
             "is_superuser": False,
         }
-        hr_collection.insert_one(hr_data)
-        return redirect('loginhr')
+        
+        try:
+            hr_collection.insert_one(hr_data)
+            return redirect('hrlogin')
+        except Exception as e:
+            return render(request, "authhr.html", {"error_message": f"An error occurred: {str(e)}"})
+
     return redirect('/')
+
+
 
 
 def hr_login(request):
@@ -349,7 +384,18 @@ def hr_login(request):
 
     return redirect('loginhr')  # Show login page if GET request
 
-
+def hr_logout(request):
+    # Remove HR-specific session data
+    if 'hr_username' in request.session:
+        del request.session['hr_username']
+    if 'hr_id' in request.session:
+        del request.session['hr_id']
+    
+    # Alternatively, you could clear the entire session
+    # request.session.flush()
+    
+    # Redirect to HR login page
+    return redirect('loginhr')
 
 @login_required(login_url='/')
 def dashbord(request):
@@ -363,6 +409,8 @@ def logout_view(request):
         request.session.flush()  # Clears all session data
     return redirect('login')  # Redirects to login page
 
+def payment(request):
+    return render(request, 'payment.html')
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -950,7 +998,11 @@ def profile_page(request):
     View to render the profile page HTML
     """
     return render(request, 'profile.html')
-
+def base_page(request):
+    """
+    View to render the base page HTML
+    """
+    return render(request, 'base.html')
 
 
 import os
@@ -1214,7 +1266,6 @@ from datetime import datetime
     
     
 
-# Create a new job
 @login_required
 def create_job(request):
     if request.method == 'POST':
@@ -1223,30 +1274,59 @@ def create_job(request):
             messages.error(request, "You need to be logged in as an HR to create jobs.")
             return redirect('hr_login')
         
+        # Process education data - convert list to comma-separated string
+        education_input = request.POST.get('education', '')
+        if isinstance(education_input, list):
+            education_data = ', '.join(education_input)
+        else:
+            education_data = education_input
+        
+        # Process location data - get the first item if it's a single-item list
+        locations = request.POST.getlist('locations')
+        if len(locations) == 1:
+            location_data = locations[0]  # Get the single location string
+        else:
+            location_data = ', '.join(locations)  # Join multiple locations with comma
+        
         # Get form data
         job_data = {
             'Job': request.POST.get('title'),
             'Org': request.POST.get('company'),
-            'Location': request.POST.get('location'),
+            'Location': location_data,  # Now storing as string or comma-separated string
             'Salary': request.POST.get('salary'),
             'job_type': request.POST.get('job_type'),
             'experience': request.POST.get('experience'),
-            'Skills': request.POST.get('Skills'),
+            'Skills': [skill.strip() for skill in request.POST.get('Skills', '').split(',') if skill.strip()],
             'FullDescription': request.POST.get('description'),
-            'education': request.POST.get('education'),
+            'education': education_data,
             'deadline': request.POST.get('deadline'),
             'hr_id': hr_id,
-            'posted_date': datetime.now()
+            'posted_date': datetime.now(),
+            'disabled': False
         }
         
-        # Insert into MongoDB
-        job_collection.insert_one(job_data)
+        # Rest of your validation and insertion code remains the same...
+        required_fields = ['Job', 'Org', 'Location', 'Salary', 'job_type', 'experience', 'FullDescription']
+        for field in required_fields:
+            if not job_data[field]:
+                messages.error(request, f"Please fill in the {field} field.")
+                return redirect('hr_panel')
         
-        messages.success(request, "Job posting created successfully!")
+        try:
+            job_data['Salary'] = float(job_data['Salary'])
+        except ValueError:
+            messages.error(request, "Please enter a valid salary number.")
+            return redirect('hr_panel')
+        
+        try:
+            job_collection.insert_one(job_data)
+            messages.success(request, "Job posting created successfully!")
+        except Exception as e:
+            messages.error(request, f"Error creating job: {str(e)}")
+        
         return redirect('hr_panel')
     
     return redirect('hr_panel')
-
 from bson import ObjectId
 import datetime
 from django.contrib import messages
@@ -1255,7 +1335,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
 # update the job
-@login_required
+
 def update_job(request):
     if request.method == 'POST':
         hr_id = request.session.get('hr_id')
@@ -1426,7 +1506,7 @@ def delete_job(request):
 
 
 
-@login_required
+
 def toggle_job_status(request):
     if request.method == 'POST':
         try:
@@ -1455,8 +1535,15 @@ def toggle_job_status(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
 # Get job details for editing
-@login_required
-@login_required
+from django.http import JsonResponse
+from bson import ObjectId
+import re
+
+def clean_education_list(education_list):
+    # Remove extra spaces between letters using regex
+    return [re.sub(r'\s+', ' ', edu.strip()) for edu in education_list]
+
+
 def get_job_details(request, job_id):
     hr_id = request.session.get('hr_id')
     
@@ -1464,21 +1551,24 @@ def get_job_details(request, job_id):
         return JsonResponse({"error": "Not authorized"}, status=401)
     
     try:
-        # Fetch job details
         job = job_collection.find_one({"_id": ObjectId(job_id), "hr_id": hr_id})
         
         if not job:
             return JsonResponse({"error": "Job not found or not authorized"}, status=404)
         
-        # Convert ObjectId to string for JSON serialization
         job['_id'] = str(job['_id'])
-        
+
+        # ✅ Fix the education field if it exists and is a list
+        if 'education' in job and isinstance(job['education'], list):
+            job['education'] = clean_education_list(job['education'])
+
         print(f"Job data: {job}")  # Debugging line
         
         return JsonResponse(job)
     except Exception as e:
-        print(f"Error fetching job details: {e}")  # Debugging line
+        print(f"Error fetching job details: {e}")
         return JsonResponse({"error": "Invalid Job ID format or server error"}, status=500)
+
 # Update application status
 @login_required
 def update_application_status(request):
@@ -1515,13 +1605,13 @@ def update_application_status(request):
 
 
 # HR logout
-def hr_logout(request):
-    logout(request)
-    if 'hr_username' in request.session:
-        del request.session['hr_username']
-    if 'hr_id' in request.session:
-        del request.session['hr_id']
-    return redirect('hr_login')
+# def hr_logout(request):
+#     logout(request)
+#     if 'hr_username' in request.session:
+#         del request.session['hr_username']
+#     if 'hr_id' in request.session:
+#         del request.session['hr_id']
+#     return redirect('hr_login')
 
 
 
@@ -1531,128 +1621,133 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 import re
 
-import re
-
 def hr_panel_view(request):
     if not request.session.get('hr_id'):
         return redirect('loginhr')
 
     hr_id = request.session.get('hr_id')
     hr_user = hr_collection.find_one({"_id": ObjectId(hr_id)})
-    # print(f"HR ID: {hr_id}")
     is_active = hr_user.get('is_active') if hr_user else False
-    print(is_active)
     
+    # Fetch jobs created by this HR, sorted by posted_date in descending order (newest first)
+    hr_jobs = list(job_collection.find({"hr_id": hr_id}).sort("posted_date", -1))
     
-    # Fetch jobs created by this HR
-    hr_jobs = list(job_collection.find({"hr_id": hr_id}))
-    # print(f"HR Jobs: {hr_jobs}")
-    
-    # Calculate applicants_count for each job dynamically
+    # Calculate applicants_count for each job
     for job in hr_jobs:
-        job_id = job['_id']
-        # print(f"Job ID: {job_id}")
-        
-        # Convert job_id to string (if it's an ObjectId)
-        job_id_str = str(job_id)
+        job_id_str = str(job['_id'])
         job['job_id'] = job_id_str
         job['id'] = job_id_str 
-        # print(f"Job ID (String): {job_id_str}")
-        
-        # Debugging: Print the query
-        # print(f"Querying for job_id: {ObjectId(job_id_str)}")
-        
-        # Count applications for this job dynamically
         applicants_count = job_applied_collection.count_documents({"job_id": ObjectId(job_id_str)})
-        # print(f"Applicants Count for Job {job_id_str}: {applicants_count}")
-        
-        # Debugging: Print the applications found
-        applications = list(job_applied_collection.find({"job_id": ObjectId(job_id_str)}))
-        # print(f"Applications for Job {job_id_str}: {applications}")
-        
-        # Add applicants_count to the job
         job['applicants_count'] = applicants_count
-
-    # print(f"HR Jobs with Applicants Count: {hr_jobs}")
+        
+    for job in hr_jobs:
+       if 'education' in job:
+            # If education is stored as a list, convert to comma-separated string
+            if isinstance(job['education'], list):
+                job['education'] = ', '.join(job['education'])
+            # If it's already a string but contains brackets/quotes, clean it
+            elif isinstance(job['education'], str):
+                # Remove brackets and quotes if present
+                job['education'] = job['education'].replace('[','').replace(']','').replace('"','')
     
-    # Preprocess skills to split and clean
+    # Process location - updated version
+    for job in hr_jobs:
+      if 'Location' in job:
+        loc = job['Location']
+        if isinstance(loc, str):
+            # Handle string that looks like a list (e.g., '["Bengaluru","Bihar"]')
+            if loc.startswith('[') and loc.endswith(']'):
+                loc = loc[1:-1].split(',')
+            else:
+                loc = [loc]
+        elif isinstance(loc, list):
+            pass  # already a list
+        else:
+            loc = [str(loc)]
+
+        # Clean each location by removing any quotes or extra spaces
+        clean_locations = [str(l).strip().strip('"').strip("'") for l in loc]
+        job['Location'] = ', '.join(clean_locations)
+
+    # Preprocess skills
     for job in hr_jobs:
         if 'Skills' in job:
-            # Split the skills string into a list
             if isinstance(job['Skills'], str):
-                skills_list = job['Skills'].split(',')  # Split by comma
-                skills_list = [skill.strip() for skill in skills_list]  # Remove extra spaces
+                skills_list = job['Skills'].split(',')
+                skills_list = [skill.strip() for skill in skills_list]
                 job['Skills'] = skills_list
-            
-            # Remove ALL whitespace from each skill
             job['Skills'] = [re.sub(r'\s+', '', skill) for skill in job['Skills']]
-            # print(f"Processed Skills: {job['Skills']}")
     
-    # Extract job titles (or another unique field) from hr_jobs
-    # job_titles = [job['Job'] for job in hr_jobs]
-    # # print(f"Job Titles: {job_titles}")
+    # Get all job IDs
+    job_ids = [str(job['_id']) for job in hr_jobs]
     
+    # Get applications for these jobs
+    applications = list(job_applied_collection.find({"job_id": {"$in": [ObjectId(id) for id in job_ids]}}))
     
-    # # Fetch applications for these job titles
-    # applications = list(job_applied_collection.find({"job_id": {"$in": job_titles }}))
-    # print(f"Applications: {applications}")
-    job_ids = [str(job['_id']) for job in hr_jobs]  # Convert each _id to ObjectId
-    print(f"Job IDs: {job_ids}")
-
-# Fetch applications where job_id matches any job ObjectId
-    applications = list(job_applied_collection.find({"job_id": {"$in": job_ids}}))
     # Process applicants
     applicants = []
     for application in applications:
         user_id = application.get('user_id')
-        # print(f"Fetching user data for user_id: {user_id}")
-        
         if user_id:
             user_data = auth_user_collection.find_one({"_id": ObjectId(user_id)})
-            # print(f"User data: {user_data}")
-            
             if user_data:
                 user_data['application_id'] = str(application['_id'])
-                user_data['applied_job_id'] = application['job_id']
+                user_data['applied_job_id'] = str(application['job_id'])
                 user_data['applied_at'] = application.get('applied_at', 'N/A')
-                
-                # Find the job details for the applied job
-                job = next((j for j in hr_jobs if j['_id'] == ObjectId(application['job_id'])), None)
-
-# Assign job title or default to 'Unknown Job'
+                job = next((j for j in hr_jobs if str(j['_id']) == str(application['job_id'])), None)
                 user_data['applied_job_title'] = job['Job'] if job else 'Unknown Job'
-                
-                # Rename _id to applicant_id
                 user_data['applicant_id'] = str(user_data['_id'])
-                
-                # Remove the _id field to avoid confusion
                 if '_id' in user_data:
                     del user_data['_id']
-                
                 applicants.append(user_data)
-        else:
-            print(f"No user found for user_id: {user_id}")
     
-    # print(f"Applicants: {applicants}")
+    # Count total employees (users in auth_user collection)
+    total_employees = auth_user_collection.count_documents({})
     
     context = {
         'hr_jobs': hr_jobs,
         'applicants': applicants,
-         'is_active': is_active 
+        'is_active': is_active,
+        'total_employees': total_employees
     }
 
     return render(request, 'hr.html', context)
+
 # Add a view to get user details
 def get_applicant_details(request, user_id):
     if not request.session.get('hr_id'):
         return JsonResponse({"error": "Not authorized"}, status=403)
-    print(f"Fetching details for user_id  for view details: {user_id}")
-    
+    print(f"Fetching details for user_id for view details: {user_id}")
+
     user_data = auth_user_collection.find_one({"_id": ObjectId(user_id)})
     
     if not user_data:
         return JsonResponse({"error": "User not found"}, status=404)
     
+    # ✅ Process location like in hr_panel_view()
+    loc = user_data.get('location', 'N/A')
+    if isinstance(loc, str):
+        # Handle string that looks like a list (e.g., '["Bengaluru","Bihar"]')
+        if loc.startswith('[') and loc.endswith(']'):
+            loc = loc[1:-1].split(',')
+        else:
+            loc = [loc]
+    elif isinstance(loc, list):
+        pass  # already a list
+    else:
+        loc = [str(loc)]
+    
+    # Clean each location by removing any quotes or extra spaces
+    clean_locations = [str(l).strip().strip('"').strip("'") for l in loc]
+    formatted_location = ', '.join(clean_locations)
+
+    # ✅ Process skills (similar to hr_panel_view)
+    skills = user_data.get('skills', [])
+    if isinstance(skills, str):
+        skills = [skill.strip() for skill in skills.split(',')]
+    elif not isinstance(skills, list):
+        skills = []
+
     # Process user data for response
     user_details = {
         "user_id": user_id,
@@ -1660,20 +1755,18 @@ def get_applicant_details(request, user_id):
         "email": user_data.get("email", "N/A"),
         "father_name": user_data.get("father_name", "N/A"),
         "mobile": user_data.get("mobile", "N/A"),
-        "location": user_data.get("location", "N/A"),
+        "location": formatted_location,  # Cleaned location
         "branch": user_data.get("branch", "N/A"),
         "ug_college": user_data.get("ug_college", "N/A"),
         "Passout_Year": user_data.get("Passout_Year", "N/A"),
         "Graduation_Percentage": user_data.get("Graduation_Percentage", "N/A"),
         "10th_Percentage": user_data.get("10th_Percentage", "N/A"),
         "12th_Percentage": user_data.get("12th_Percentage", "N/A"),
-        ""
-        "skills": user_data.get("skills", []),
+        "skills" :user_data.get('skills', []), # Comma-separated skills
         "profile_picture": user_data.get("profile_picture", None)
     }
-    # print(f"User details: {user_details}")
+    
     return JsonResponse({"success": True, "data": user_details})
-
 # hr user list
 def hr_userlist(request):
     if not request.session.get('hr_id'):
@@ -1714,8 +1807,34 @@ def hr_userlist(request):
     
     users = list(auth_user_collection.find(query))
     hr_id = request.session.get('hr_id')
+    hr_user = hr_collection.find_one({"_id": ObjectId(hr_id)})
+    is_active = hr_user.get('is_active') if hr_user else False
     
-    return render(request, 'hr_userlist.html', {'users': users, 'hr_id': hr_id})
+    return render(request, 'hr_userlist.html', {'users': users, 'hr_id': hr_id, 'is_active': is_active})
+def get_suggestions(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        type_ = request.GET.get('type', '')
+        print(f"Received request for {type_} suggestions with query: {query}")  # Debugging
+        
+        if type_ == 'location':
+            suggestions = list(location_collection.find(
+                {"name": {"$regex": f"^{query}", "$options": "i"}},
+                {"_id": 0, "name": 1}
+            ).limit(10))
+            suggestions = [item['name'] for item in suggestions]
+        elif type_ == 'skill':
+            suggestions = list(skills_collection.find(
+                {"name": {"$regex": f"^{query}", "$options": "i"}},
+                {"_id": 0, "name": 1}
+            ).limit(10))
+            suggestions = [item['name'] for item in suggestions]
+        else:
+            suggestions = []
+            
+        print(f"Returning suggestions: {suggestions}")  # Debugging
+        return JsonResponse({'suggestions': suggestions})
+    return JsonResponse({'suggestions': []})
 
 def get_skills(request):
     search_term = request.GET.get('search', '').strip()
@@ -1723,10 +1842,15 @@ def get_skills(request):
     # Create a case-insensitive regex pattern if search term exists
     query = {}
     if search_term:
-        query['name'] = {'$regex': f'^{re.escape(search_term)}', '$options': 'i'}
+        query['name'] = {
+            '$regex': f'.*{re.escape(search_term)}.*',  # Changed to search anywhere in the string
+            '$options': 'i'
+        }
     
-    # Fetch skills with projection
-    skills = list(skills_collection.find(query, {'name': 1, '_id': 0}).limit(20))
+    # Fetch skills with projection and sort alphabetically
+    skills = list(skills_collection.find(query, {'name': 1, '_id': 0})
+                         .sort('name', 1)  # Sort alphabetically
+                         .limit(20))
     
     return JsonResponse({
         'success': True,
@@ -1988,43 +2112,49 @@ from django.http import JsonResponse
 def get_locations(request):
     search_term = request.GET.get('search', '').strip().lower()
     
-    # Create query for array field
     query = {}
     if search_term:
         query["locations"] = {
-            "$elemMatch": {
-                "$regex": f".*{re.escape(search_term)}.*",
-                "$options": "i"
-            }
+            "$regex": f".*{re.escape(search_term)}.*",
+            "$options": "i"
         }
     
-    # Alternative query if above doesn't work
-    # query["locations"] = {
-    #     "$regex": f".*{re.escape(search_term)}.*",
-    #     "$options": "i"
-    # }
-    
-    # print("MongoDB Query:", query)  # Debug
-    
-    # Fetch matching documents
     docs = list(location_collection.find(query, {"_id": 0, "locations": 1}))
     
-    # Extract all matching locations from arrays
     location_names = []
     for doc in docs:
         if "locations" in doc:
-            for loc in doc["locations"]:
-                if search_term in loc.lower():
-                    location_names.append(loc)
+            location_names.extend([loc for loc in doc["locations"] if search_term in loc.lower()])
     
-    # Remove duplicates
-    unique_locations = list(set(location_names))
-    
-    # print("Locations found:", unique_locations)  # Debug
+    unique_locations = sorted(list(set(location_names)))
     
     return JsonResponse({
         "success": True,
         "locations": unique_locations
+    })
+import re
+from django.http import JsonResponse
+
+def get_education(request):
+    search_term = request.GET.get('search', '').strip().lower()
+    print(f"Search term for education: {search_term}")
+
+    doc = education_collection.find_one({}, {"_id": 0, "education": 1})
+    print(f"Doc fetched: {doc}")
+
+    education_names = []
+    if doc and "education" in doc:
+        education_names = [
+            edu for edu in doc["education"]
+            if search_term in edu.lower()
+        ]
+
+    unique_education = sorted(list(set(education_names)), key=lambda x: x.lower())
+    print(f"Unique education names: {unique_education}")
+
+    return JsonResponse({
+        "success": True,
+        "education": unique_education
     })
 
 
@@ -2084,10 +2214,14 @@ from django.core.paginator import Paginator
 
 def job_applicants(request, job_id):
     # Get the job details
+    hr_id = request.session.get('hr_id')
+    hr_user = hr_collection.find_one({"_id": ObjectId(hr_id)})
+    is_active = hr_user.get('is_active') if hr_user else False
+    
     job = job_collection.find_one({"_id": ObjectId(job_id)})
     if not job:
         return render(request, '404.html', status=404)
-    
+ 
     # Convert ObjectId to string for template
     job['id'] = str(job['_id'])
 
@@ -2095,6 +2229,48 @@ def job_applicants(request, job_id):
     if isinstance(job.get('Skills'), str):
         job['Skills'] = [skill.strip() for skill in job['Skills'].split(',')]
 
+    # ✅ Process job location to clean format
+    if 'Location' in job:
+        loc = job['Location']
+        if isinstance(loc, str):
+            # Handle string that looks like a list (e.g., '["Bengaluru","West Bengal"]')
+            if loc.startswith('[') and loc.endswith(']'):
+                loc = loc[1:-1].split(',')
+                loc = [l.strip().strip('"').strip("'") for l in loc]
+                job['Location'] = ', '.join(loc)
+            else:
+                job['Location'] = loc
+        elif isinstance(loc, list):
+            job['Location'] = ', '.join([str(l).strip().strip('"').strip("'") for l in loc])
+
+    # ✅ Process education to clean format
+    if 'education' in job:
+        edu = job['education']
+        if isinstance(edu, str):
+            # Handle string that looks like a list (e.g., '["10th Grade","Bachelor of Engineering (B.E.)"]')
+            if edu.startswith('[') and edu.endswith(']'):
+                edu = edu[1:-1].split(',')
+                edu = [e.strip().strip('"').strip("'") for e in edu]
+                job['education'] = ', '.join(edu)
+            else:
+                job['education'] = edu
+        elif isinstance(edu, list):
+            job['education'] = ', '.join([str(e).strip().strip('"').strip("'") for e in edu])
+    if 'education' in job:
+        edu = job['education']
+        if isinstance(edu, str):
+            if edu.startswith('[') and edu.endswith(']'):
+                # Handle JSON-like array string
+                edu = edu[1:-1].split(',')
+                edu = [e.strip().strip('"').strip("'") for e in edu]
+                job['education_list'] = edu
+            else:
+                # Handle comma-separated string
+                job['education_list'] = [e.strip() for e in edu.split(',')]
+        elif isinstance(edu, list):
+            job['education_list'] = edu
+        else:
+            job['education_list'] = [str(edu)]
     # Get all applicants for this job
     applications = list(job_applied_collection.find({"job_id": job_id}))
 
@@ -2104,13 +2280,35 @@ def job_applicants(request, job_id):
         if user_id:
             user_data = auth_user_collection.find_one({"_id": ObjectId(user_id)})
             if user_data:
+                # Process location
+                loc = user_data.get('location', 'N/A')
+                if isinstance(loc, str):
+                    if loc.startswith('[') and loc.endswith(']'):
+                        loc = loc[1:-1].split(',')
+                    else:
+                        loc = [loc]
+                elif isinstance(loc, list):
+                    pass  # already a list
+                else:
+                    loc = [str(loc)]
+                
+                clean_locations = [str(l).strip().strip('"').strip("'") for l in loc]
+                formatted_location = ', '.join(clean_locations)
+               
+                # Process skills
+                skills = user_data.get('skills', [])
+                if isinstance(skills, str):
+                    skills = [skill.strip() for skill in skills.split(',')]
+                elif not isinstance(skills, list):
+                    skills = []
+
                 # Prepare applicant data
                 applicant = {
                     'applicant_id': str(user_data['_id']),
                     'username': user_data.get('username', 'N/A'),
                     'email': user_data.get('email', 'N/A'),
                     'mobile': user_data.get('mobile', 'N/A'),
-                    'location': user_data.get('location', 'N/A'),
+                    'location': formatted_location,
                     'branch': user_data.get('branch', 'N/A'),
                     'ug_college': user_data.get('ug_college', 'N/A'),
                     'skills': user_data.get('skills', []),
@@ -2123,20 +2321,21 @@ def job_applicants(request, job_id):
                     'father_name': user_data.get('father_name', 'N/A')
                 }
                 applicants.append(applicant)
-
+   
     # Pagination
     paginator = Paginator(applicants, 10)  # Show 10 applicants per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    
     context = {
         'job': job,
         'applicants': page_obj,
-        'applicants_count': len(applicants)
-    }
+        'applicants_count': len(applicants),
+        'is_active': is_active,
+    } 
+    print(f"Job ID: {job_id}, Applicants Count: {len(applicants)}")
 
     return render(request, 'job_applicants.html', context)
-
 # views.py
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -2167,7 +2366,7 @@ def hr_profile_view(request):
         response_data = {
             'success': True,
             'data': {
-                'user_name': hr_profile.get('name', ''),
+                'user_name': hr_profile.get('hrname', ''),
                 'email': hr_profile.get('email', ''),
                 'mobile': hr_profile.get('mobile', ''),
                 'linkedin': hr_profile.get('linkedin', ''),
@@ -2446,6 +2645,8 @@ def hrprofile(request):
     
     hr_id = request.session['hr_id']
     
+    hr_user = hr_collection.find_one({"_id": ObjectId(hr_id)})
+    is_active = hr_user.get('is_active') if hr_user else False
     if request.method == 'GET':
         # Fetch HR profile data
         hr_profile = hr_collection.find_one({"_id": ObjectId(hr_id)})
@@ -2461,7 +2662,7 @@ def hrprofile(request):
         # Prepare context data with proper boolean handling
         context = {
             'hr_profile': {
-                'user_name': hr_profile.get('name', ''),
+                'username': hr_profile.get('hrname', ''),
                 'email': hr_profile.get('email', ''),
                 'mobile': hr_profile.get('mobile', ''),
                 'linkedin': hr_profile.get('linkedin', ''),
@@ -2480,9 +2681,12 @@ def hrprofile(request):
                 'is_active': bool(is_active),  # Ensure boolean type
                 'jobs_posted': job_collection.count_documents({"hr_id": hr_id}),
                 'candidates_reviewed': 0,
-                'interviews_scheduled': 0
-            }
-        }
+                'interviews_scheduled': 0,
+                  # Ensure boolean type
+            },
+            'is_active': is_active
+        } 
+        
         
         return render(request, 'hrprofile.html', context)
     

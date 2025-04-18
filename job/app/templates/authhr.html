@@ -1,143 +1,276 @@
-{% extends "index.html" %}
-
-{% block title %}Login/Signup{% endblock %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block extra_head %}
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- FontAwesome Official CDN (for social media icons) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-<!-- Bootstrap JavaScript Bundle (Includes Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+{% block head %}
 <style>
-    /* Light theme button styling */
-    .btn-light-theme {
-        background-color: #f8f9fa; /* Light gray background */
-        color: #212529; /* Dark text */
-        border: 1px solid #ced4da; /* Soft border */
-        font-weight: 500;
-        transition: background 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px; /* Space between icon and text */
-        padding: 10px;
+    /* Modern, Clean Design Style */
+    :root {
+        --primary-color: #4361ee;
+        --primary-hover: #3a56d4;
+        --text-primary: #2d3748;
+        --text-secondary: #718096;
+        --bg-light: #f8fafc;
+        --bg-white: #ffffff;
+        --error-color: #e53e3e;
+        --success-color: #38a169;
+        --warning-color: #f59e0b;
+        --border-radius: 12px;
+        --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --transition: all 0.3s ease;
     }
 
-    .btn-light-theme:hover {
-        background-color: #e9ecef;
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--text-primary);
     }
 
-    /* Ensure original logos retain their colors */
-    .btn-light-theme i {
-        font-size: 18px;
-        color: inherit !important; /* Keeps default icon colors */
-    }
-
-    /* Google logo original colors */
-    .btn-light-theme .fa-google {
-        background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    /* Facebook logo original color */
-    .btn-light-theme .fa-facebook {
-        color: #1877F2 !important;
-    }
-
-    /* GitHub logo original color */
-    .btn-light-theme .fa-github {
-        color: black !important;
-    }
-    
-    /* Validation error styling */
-    .is-invalid {
-        border-color: #dc3545 !important;
-    }
-    
-    .invalid-feedback {
-        color: #dc3545;
-        font-size: 0.875em;
-        display: none;
-        width: 100%;
-        margin-top: 0.25rem;
-    }
-    
-    .was-validated .form-control:invalid ~ .invalid-feedback,
-    .form-control.is-invalid ~ .invalid-feedback {
-        display: block;
-    }
-    
-    /* Password strength indicator */
-    .password-strength {
-        height: 5px;
-        margin-top: 5px;
-        background: #e9ecef;
-        border-radius: 3px;
-        overflow: hidden;
-    }
-    
-    .password-strength-bar {
-        height: 100%;
-        width: 0%;
-        transition: width 0.3s ease, background 0.3s ease;
-    }
-    
-    /* Improved header styling */
-    .auth-header {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        position: relative;
-    }
-    
-    .auth-header h3 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Main container styling */
     .main-container {
         display: flex;
         min-height: 100vh;
         width: 100%;
     }
-    
-    /* Form container styling */
+
     .form-container {
         flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 2rem;
-        overflow-y: auto;
+        background-color: var(--bg-light);
     }
-    
-    /* Image container styling */
+
+    .auth-container {
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        background: var(--bg-white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+
     .image-container {
         flex: 1;
         background-image: url("{% static 'images/ui.avif' %}");
         background-size: cover;
         background-position: center;
+        position: relative;
     }
     
-    /* Card styling */
-    .auth-card {
+    .image-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        {% comment %} background: linear-gradient(135deg, rgba(67, 97, 238, 0.6), rgba(30, 64, 175, 0.8)); {% endcomment %}
+        z-index: 1;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .auth-header h2 {
+        color: var(--text-primary);
+        font-weight: 700;
+        margin-bottom: 10px;
+        font-size: 1.75rem;
+    }
+
+    .auth-header p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        height: 50px;
+        border-radius: var(--border-radius);
+        border: 1.5px solid #e2e8f0;
+        padding: 10px 16px;
+        font-size: 1rem;
         width: 100%;
-        max-width: 450px;
+        transition: var(--transition);
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
         border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        padding: 2rem;
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: 600;
+        width: 100%;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+        color: white;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 24px;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .auth-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .social-login {
+        margin-top: 32px;
+        text-align: center;
+    }
+
+    .social-login p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .social-login p:before,
+    .social-login p:after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 0 10px;
+    }
+
+    .social-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--bg-white);
+        border: 1.5px solid #e2e8f0;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        transition: var(--transition);
+    }
+
+    .social-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .google-btn {
+        color: #4285F4;
+    }
+
+    .facebook-btn {
+        color: #3b5998;
+    }
+
+    .github-btn {
+        color: #333;
+    }
+
+    /* Form Validation */
+    .is-invalid {
+        border-color: var(--error-color) !important;
+    }
+
+    .invalid-feedback {
+        color: var(--error-color);
+        font-size: 0.8rem;
+        margin-top: 6px;
+        display: none;
+    }
+
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .form-control.is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+
+    /* Password Strength */
+    .password-strength {
+        height: 6px;
+        margin-top: 12px;
+        background: #edf2f7;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    /* Back link */
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 24px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .back-link:hover {
+        color: var(--primary-color);
     }
     
-    /* Responsive adjustments */
+    /* Form fade transitions */
+    #loginForm, #signupForm {
+        transition: opacity 0.3s ease;
+    }
+    
+    .fade-out {
+        opacity: 0;
+    }
+    
+    .fade-in {
+        opacity: 1;
+    }
+
+    /* Responsive */
     @media (max-width: 992px) {
         .main-container {
             flex-direction: column;
@@ -148,159 +281,235 @@
         }
         
         .form-container {
-            padding: 1rem;
+            padding: 1.5rem;
         }
         
-        .auth-card {
-            box-shadow: none;
-            padding: 1rem;
+        .auth-container {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px 25px;
         }
     }
-    
-    /* Smooth scrolling for the form */
-    html {
-        scroll-behavior: smooth;
+
+    /* Floating labels for input fields */
+    .form-floating {
+        position: relative;
     }
-    
-    /* Success validation */
-    .is-valid {
-        border-color: #28a745;
+
+    .form-floating label {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        transition: var(--transition);
+        color: var(--text-secondary);
     }
-    
-    /* Tooltip styling */
-    .tooltip-inner {
-        max-width: 300px;
-        padding: 8px 12px;
+
+    .form-floating input:focus + label,
+    .form-floating input:not(:placeholder-shown) + label {
+        top: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .form-floating input {
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+        height: 60px;
+    }
+
+    /* Error modal styling */
+    .modal-content {
+        border-radius: var(--border-radius);
+        border: none;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e2e8f0;
+        padding: 1rem 1.5rem;
+    }
+
+    .btn-secondary {
+        background-color: #e2e8f0;
+        color: var(--text-primary);
+        border: none;
+        padding: 10px 16px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+        background-color: #cbd5e0;
     }
 </style>
 {% endblock %}
 
+
 {% block content %}
 <div class="main-container">
     <div class="form-container">
-        <div class="auth-card card">
+        <div class="auth-container">
             <!-- Login Form -->
-            <form id="loginForm" method="POST" action="{% url 'hrlogin' %}" class="needs-validation" novalidate>
+            <form id="loginForm" method="POST" action="{% url 'hrlogin' %}" class="needs-validation fade-in" novalidate>
                 <div class="auth-header">
-                    <h3>Sign In HR</h3>
+                    <h2>Welcome</h2>
+                    <p>Sign in to access your HR dashboard</p>
                 </div>
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="loginIdentifier" class="form-label">Name or Email</label>
+                <div class="form-group form-floating">
                     <input type="text" class="form-control" id="loginIdentifier" name="identifier" 
-                           placeholder="Enter Name or Email" required
+                           placeholder=" " required
                            pattern="^(?=[^A-Z]*[A-Z]?[^A-Z]*$)(?=.*\d)[A-Za-z\d]{4,12}$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                    <label for="loginIdentifier">Username or Email</label>
                     <div class="invalid-feedback">
-                        Please enter a valid username (4-12 chars with 1 digit) or email address
+                        Please enter a valid username or email address
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label for="loginPassword" class="form-label">Password</label>
+                <div class="form-group form-floating">
                     <input type="password" class="form-control" id="loginPassword" name="password" 
-                           placeholder="Password" required
+                           placeholder=" " required
                            pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$">
+                    <label for="loginPassword">Password</label>
                     <div class="invalid-feedback">
-                        Password must be 8-12 characters with at least 1 capital letter, 1 special character, and 1 digit
+                        Password must contain capital letter, number, and special character
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Continue</button>
-                <p class="text-center mt-3">Don't have an account? <a href="#signupForm" id="showSignup">Sign up</a></p>
-
-                <!-- Light-Themed Social Login Buttons -->
-                <div class="text-center mt-2">
-                    <p class="mb-1">or</p>
-                    <a href="" class="btn btn-light-theme w-100 mb-2">
-                        <svg fill="none" height="15" viewBox="0 0 16 16" width="15" xmlns="http://www.w3.org/2000/svg"><g><path d="M15.83 8.18C15.83 7.65333 15.7833 7.15333 15.7033 6.66667H8.17V9.67333H12.4833C12.29 10.66 11.7233 11.4933 10.8833 12.06V14.06H13.4567C14.9633 12.6667 15.83 10.6133 15.83 8.18Z" fill="#4285F4"></path><path d="M8.17 16C10.33 16 12.1367 15.28 13.4567 14.06L10.8833 12.06C10.1633 12.54 9.25 12.8333 8.17 12.8333C6.08334 12.8333 4.31667 11.4267 3.68334 9.52667H1.03V11.5867C2.34334 14.2 5.04334 16 8.17 16Z" fill="#34A853"></path><path d="M3.68334 9.52667C3.51667 9.04667 3.43 8.53333 3.43 8C3.43 7.46667 3.52334 6.95334 3.68334 6.47334V4.41334H1.03C0.483335 5.49334 0.170002 6.70667 0.170002 8C0.170002 9.29333 0.483335 10.5067 1.03 11.5867L3.68334 9.52667Z" fill="#FBBC05"></path><path d="M8.17 3.16667C9.35 3.16667 10.4033 3.57334 11.2367 4.36667L13.5167 2.08667C12.1367 0.793334 10.33 0 8.17 0C5.04334 0 2.34334 1.8 1.03 4.41334L3.68334 6.47334C4.31667 4.57334 6.08334 3.16667 8.17 3.16667Z" fill="#EA4335"></path></g></svg> Continue with Google
-                    </a>
-                    <a href="" class="btn btn-light-theme w-100 mb-2">
-                        <i class="fa-brands fa-facebook"></i> Continue with Facebook
-                    </a>
-                    <a href="" class="btn btn-light-theme w-100 mb-2">
-                        <i class="fa-brands fa-github"></i> Continue with GitHub
-                    </a>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+                <div class="auth-footer">
+                    Don't have an account? <a href="#signupForm" id="showSignup">Create Account</a>
                 </div>
-                <a href="{% url 'hr_panel' %}" class="d-flex justify-content-center">Back to HR Panel</a>
+
+                {% comment %} <div class="social-login">
+                    <p>or continue with</p>
+                    <div class="social-buttons">
+                        <a href="#" class="social-btn google-btn">
+                            <i class="fab fa-google"></i>
+                        </a>
+                        <a href="#" class="social-btn facebook-btn">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-btn github-btn">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+                <a href="{% url 'hr_panel' %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to HR Panel
+                </a> {% endcomment %}
             </form>
 
             <!-- Signup Form (Initially Hidden) -->
             <form id="signupForm" method="POST" action="{% url 'hrsignup' %}" style="display: none;" class="needs-validation" novalidate>
                 <div class="auth-header">
-                    <h3>Sign Up HR</h3>
+                    <h2>Create Account</h2>
+                    <p>Join our HR management system</p>
                 </div>
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="signupUsername" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="signupUsername" name="hrname" 
-                           placeholder="Enter username (4-12 chars with 1 digit)" 
-                           pattern="^(?=[^A-Z]*[A-Z]?[^A-Z]*$)(?=.*\d)[A-Za-z\d]{4,12}$" required>
-                    <div class="invalid-feedback">
-                        Username must be 4-12 characters with at least 1 digit (letters and digits only)
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group form-floating">
+                            <input type="text" class="form-control" id="signupFirstName" name="firstname" 
+                                   placeholder=" " required>
+                            <label for="signupFirstName">First Name</label>
+                            <div class="invalid-feedback">
+                                First name is required
+                            </div>
+                        </div>
                     </div>
-                    <div class="valid-feedback">
-                        Username looks good!
+                    <div class="col-md-6">
+                        <div class="form-group form-floating">
+                            <input type="text" class="form-control" id="signupLastName" name="lastname" 
+                                   placeholder=" " required>
+                            <label for="signupLastName">Last Name</label>
+                            <div class="invalid-feedback">
+                                Last name is required
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label for="signupEmail" class="form-label">Email</label>
+                <div class="form-group form-floating">
+                    <input type="tel" class="form-control" id="signupMobile" name="mobile" 
+                           placeholder=" " 
+                           pattern="[0-9]{10}" required>
+                    <label for="signupMobile">Mobile Number</label>
+                    <div class="invalid-feedback">
+                        Please enter a valid 10-digit mobile number
+                    </div>
+                </div>
+                <div class="form-group form-floating">
+                    <input type="text" class="form-control" id="signupUsername" name="hrname" 
+                           placeholder=" " 
+                           pattern="^(?=[^A-Z]*[A-Z]?[^A-Z]*$)(?=.*\d)[A-Za-z\d]{4,12}$" required>
+                    <label for="signupUsername">Username</label>
+                    <div class="invalid-feedback">
+                        Username: 4-12 chars with at least 1 digit
+                    </div>
+                </div>
+                <div class="form-group form-floating">
                     <input type="email" class="form-control" id="signupEmail" name="email" 
-                           placeholder="Enter email" 
+                           placeholder=" " 
                            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" required>
+                    <label for="signupEmail">Email</label>
                     <div class="invalid-feedback">
                         Please enter a valid email address
                     </div>
-                    <div class="valid-feedback">
-                        Email looks good!
-                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="signupPassword" class="form-label">Password</label>
+                <div class="form-group form-floating">
                     <input type="password" class="form-control" id="signupPassword" name="password" 
-                           placeholder="Create password (8-12 chars, 1 capital, 1 special, 1 digit)"
+                           placeholder=" "
                            pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$" required>
-                    <div class="password-strength mt-2">
+                    <label for="signupPassword">Create Password</label>
+                    <div class="password-strength">
                         <div class="password-strength-bar" id="passwordStrengthBar"></div>
                     </div>
-                    
                     <div class="invalid-feedback">
-                        Password must be 8-12 characters with at least 1 uppercase letter, 1 digit, and 1 special character
-                    </div>
-                    <div class="valid-feedback">
-                        Strong password!
+                        8-12 chars with uppercase, digit, and special character
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label for="signupPassword2" class="form-label">Confirm Password</label>
+                <div class="form-group form-floating">
                     <input type="password" class="form-control" id="signupPassword2" name="confirm_password" 
-                           placeholder="Confirm password" required>
+                           placeholder=" " required>
+                    <label for="signupPassword2">Confirm Password</label>
                     <div class="invalid-feedback" id="passwordMatchError">
                         Passwords do not match
-                    </div>      
-                    <div class="valid-feedback">
-                        Passwords match!
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Continue</button>
-                <p class="text-center mt-3">Already have an account? <a href="#loginForm" id="showLogin">Login</a></p>
-
-                <!-- Light-Themed Social Signup Buttons -->
-                <div class="text-center mt-2">
-                    <p class="mb-1">or</p>
-                    <a href="" class="btn btn-light-theme w-100 mb-2 ">
-                        <svg fill="none" height="15" viewBox="0 0 16 16" width="15" xmlns="http://www.w3.org/2000/svg"><g><path d="M15.83 8.18C15.83 7.65333 15.7833 7.15333 15.7033 6.66667H8.17V9.67333H12.4833C12.29 10.66 11.7233 11.4933 10.8833 12.06V14.06H13.4567C14.9633 12.6667 15.83 10.6133 15.83 8.18Z" fill="#4285F4"></path><path d="M8.17 16C10.33 16 12.1367 15.28 13.4567 14.06L10.8833 12.06C10.1633 12.54 9.25 12.8333 8.17 12.8333C6.08334 12.8333 4.31667 11.4267 3.68334 9.52667H1.03V11.5867C2.34334 14.2 5.04334 16 8.17 16Z" fill="#34A853"></path><path d="M3.68334 9.52667C3.51667 9.04667 3.43 8.53333 3.43 8C3.43 7.46667 3.52334 6.95334 3.68334 6.47334V4.41334H1.03C0.483335 5.49334 0.170002 6.70667 0.170002 8C0.170002 9.29333 0.483335 10.5067 1.03 11.5867L3.68334 9.52667Z" fill="#FBBC05"></path><path d="M8.17 3.16667C9.35 3.16667 10.4033 3.57334 11.2367 4.36667L13.5167 2.08667C12.1367 0.793334 10.33 0 8.17 0C5.04334 0 2.34334 1.8 1.03 4.41334L3.68334 6.47334C4.31667 4.57334 6.08334 3.16667 8.17 3.16667Z" fill="#EA4335"></path></g></svg>
-                         Sign up with Google
-                    </a>
-                    <a href="" class="btn btn-light-theme w-100 mb-2">
-                        <i class="fa-brands fa-facebook"></i> Sign up with Facebook
-                    </a>
-                    <a href="" class="btn btn-light-theme w-100 mb-2">
-                        <i class="fa-brands fa-github"></i> Sign up with GitHub
-                    </a>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+                <div class="auth-footer">
+                    Already have an account? <a href="#loginForm" id="showLogin">Sign In</a>
                 </div>
+
+                {% comment %} <div class="social-login">
+                    <p>or sign up with</p>
+                    <div class="social-buttons">
+                        <a href="#" class="social-btn google-btn">
+                            <i class="fab fa-google"></i>
+                        </a>
+                        <a href="#" class="social-btn facebook-btn">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-btn github-btn">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div> {% endcomment %}
             </form>
         </div>
     </div>
     
-    <!-- Image Section -->
+    <!-- Image Section with overlay -->
     <div class="image-container"></div>
 </div>
 
@@ -309,7 +518,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">Signup Error</h5>
+                <h5 class="modal-title" id="errorModalLabel">Attention Required</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -321,8 +530,8 @@
         </div>
     </div>
 </div>
-
-<!-- Show Modal if Error Exists -->
+{% endblock %}
+  {% block scripts %}
 {% if error_message %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -335,21 +544,124 @@
 </script>
 {% endif %}
 
-{% block extra_scripts %}
 <script>
-    // Toggle between login and signup forms
+     // Check for hash on page load
+     document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.hash === '#signupForm') {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+            signupForm.classList.add('fade-in');
+        }
+        
+        // Rest of your existing DOMContentLoaded code...
+    });
+
+    // Handle register link in navbar
+    document.getElementById("navRegister")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        showSignupForm();
+    });
+
+    // Handle show signup link in auth footer
+    document.getElementById("showSignup")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        showSignupForm();
+    });
+
+    // Handle show login link in auth footer
+    document.getElementById("showLogin")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        showLoginForm();
+    });
+
+    // Shared functions for form switching
+    function showSignupForm() {
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+        
+        // If signup form is already visible, do nothing
+        if (signupForm.style.display === "block") return;
+        
+        loginForm.classList.add('fade-out');
+        
+        setTimeout(() => {
+            loginForm.style.display = "none";
+            signupForm.style.display = "block";
+            
+            // Force reflow
+            void signupForm.offsetWidth;
+            
+            signupForm.classList.add('fade-in');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            
+            // Update URL without reload
+            history.pushState(null, null, '#signupForm');
+        }, 300);
+    }
+
+    function showLoginForm() {
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+        
+        // If login form is already visible, do nothing
+        if (loginForm.style.display === "block") return;
+        
+        signupForm.classList.remove('fade-in');
+        
+        setTimeout(() => {
+            signupForm.style.display = "none";
+            loginForm.style.display = "block";
+            
+            // Force reflow
+            void loginForm.offsetWidth;
+            
+            loginForm.classList.remove('fade-out');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            
+            // Update URL without reload
+            history.pushState(null, null, '#loginForm');
+        }, 300);
+    }
+    // Toggle between login and signup forms with fade effect
     document.getElementById("showSignup").addEventListener("click", function(e) {
         e.preventDefault();
-        document.getElementById("loginForm").style.display = "none";
-        document.getElementById("signupForm").style.display = "block";
-        window.scrollTo(0, 0);
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+        
+        loginForm.classList.add('fade-out');
+        
+        setTimeout(() => {
+            loginForm.style.display = "none";
+            signupForm.style.display = "block";
+            
+            // Force reflow
+            void signupForm.offsetWidth;
+            
+            signupForm.classList.add('fade-in');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }, 300);
     });
 
     document.getElementById("showLogin").addEventListener("click", function(e) {
         e.preventDefault();
-        document.getElementById("signupForm").style.display = "none";
-        document.getElementById("loginForm").style.display = "block";
-        window.scrollTo(0, 0);
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+        
+        signupForm.classList.remove('fade-in');
+        
+        setTimeout(() => {
+            signupForm.style.display = "none";
+            loginForm.style.display = "block";
+            
+            // Force reflow
+            void loginForm.offsetWidth;
+            
+            loginForm.classList.remove('fade-out');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }, 300);
     });
 
     // Password match validation
@@ -362,74 +674,69 @@
         if (password.value !== confirmPassword.value) {
             confirmPassword.setCustomValidity("Passwords do not match");
             confirmPassword.classList.add('is-invalid');
-            confirmPassword.classList.remove('is-valid');
         } else {
             confirmPassword.setCustomValidity('');
             confirmPassword.classList.remove('is-invalid');
-            if (confirmPassword.value) {
-                confirmPassword.classList.add('is-valid');
-            } else {
-                confirmPassword.classList.remove('is-valid');
-            }
         }
     }
 
-    // Password strength calculation
+    // Password strength calculation with enhanced algorithm
     function calculatePasswordStrength(pwd) {
+        if (!pwd) return 0;
+        
         let strength = 0;
         
-        // Length contributes up to 40%
-        strength += Math.min(pwd.length / 12 * 40, 40);
+        // Length contributes up to 30%
+        strength += Math.min(pwd.length / 12 * 30, 30);
         
-        // Presence of different character types
-        if (pwd.match(/[a-z]/)) strength += 10;
-        if (pwd.match(/[A-Z]/)) strength += 15;
-        if (pwd.match(/[0-9]/)) strength += 15;
-        if (pwd.match(/[^a-zA-Z0-9]/)) strength += 20;
+        // Character type variety
+        let varietyPoints = 0;
+        if (pwd.match(/[a-z]/)) varietyPoints += 15;
+        if (pwd.match(/[A-Z]/)) varietyPoints += 15;
+        if (pwd.match(/[0-9]/)) varietyPoints += 15;
+        if (pwd.match(/[^a-zA-Z0-9]/)) varietyPoints += 15;
+        
+        strength += varietyPoints;
+        
+        // Bonus for good mixing
+        if (pwd.length >= 8 && 
+            pwd.match(/[a-z]/) && 
+            pwd.match(/[A-Z]/) && 
+            pwd.match(/[0-9]/) && 
+            pwd.match(/[^a-zA-Z0-9]/)) {
+            strength += 10;
+        }
         
         return Math.min(strength, 100);
     }
 
-    // Update password strength bar
+    // Update password strength bar with improved visual feedback
     function updatePasswordStrength() {
         const strength = calculatePasswordStrength(password.value);
         strengthBar.style.width = strength + '%';
         
-        if (strength < 40) {
-            strengthBar.style.backgroundColor = '#dc3545';
-        } else if (strength < 70) {
-            strengthBar.style.backgroundColor = '#fd7e14';
+        // Enhanced color scale
+        if (strength < 30) {
+            strengthBar.style.backgroundColor = '#e53e3e'; // Red
+        } else if (strength < 60) {
+            strengthBar.style.backgroundColor = '#f59e0b'; // Orange/Yellow
+        } else if (strength < 80) {
+            strengthBar.style.backgroundColor = '#3498db'; // Blue
         } else {
-            strengthBar.style.backgroundColor = '#28a745';
+            strengthBar.style.backgroundColor = '#38a169'; // Green
         }
     }
 
-    // Real-time validation feedback
-    function setupValidation(input, validationFn) {
-        input.addEventListener('input', function() {
-            if (validationFn(this)) {
-                this.classList.remove('is-invalid');
-                this.classList.add('is-valid');
-            } else {
-                this.classList.remove('is-valid');
-                if (this.value) {
-                    this.classList.add('is-invalid');
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            }
-            
-            // Special handling for password fields
-            if (this === password) {
-                updatePasswordStrength();
-            }
-            if (this === password || this === confirmPassword) {
-                validatePasswordMatch();
-            }
-        });
+    // Improved validation functions
+    function validateName(input) {
+        return input.value.trim().length > 0;
     }
 
-    // Validation functions
+    function validateMobile(input) {
+        const regex = /^[0-9]{10}$/;
+        return regex.test(input.value);
+    }
+
     function validateUsername(input) {
         const regex = /^(?=[^A-Z]*[A-Z]?[^A-Z]*$)(?=.*\d)[A-Za-z\d]{4,12}$/;
         return regex.test(input.value);
@@ -451,56 +758,113 @@
         return usernameRegex.test(input.value) || emailRegex.test(input.value);
     }
 
+    // Real-time validation feedback with floating label support
+    function setupValidation(input, validationFn) {
+        input.addEventListener('input', function() {
+            if (validationFn(this)) {
+                this.classList.remove('is-invalid');
+            } else {
+                if (this.value) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            }
+            
+            // Special handling for password fields
+            if (this === password) {
+                updatePasswordStrength();
+            }
+            if (this === password || this === confirmPassword) {
+                validatePasswordMatch();
+            }
+        });
+        
+        // Handle floating label behavior
+        input.addEventListener('focus', function() {
+            const label = this.nextElementSibling;
+            if (label && label.tagName === 'LABEL') {
+                label.style.top = '10px';
+                label.style.fontSize = '0.75rem';
+                label.style.color = 'var(--primary-color)';
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            const label = this.nextElementSibling;
+            if (label && label.tagName === 'LABEL' && !this.value) {
+                label.style.top = '50%';
+                label.style.fontSize = '';
+                label.style.color = 'var(--text-secondary)';
+            }
+        });
+    }
+
     // Set up validation for all fields
-    setupValidation(document.getElementById('signupUsername'), validateUsername);
-    setupValidation(document.getElementById('signupEmail'), validateEmail);
-    setupValidation(document.getElementById('signupPassword'), validatePassword);
-    setupValidation(document.getElementById('loginIdentifier'), validateLoginIdentifier);
-    setupValidation(document.getElementById('loginPassword'), validatePassword);
-
-    // Initial validation for confirm password
-    setupValidation(confirmPassword, function(input) {
-        return input.value === password.value;
-    });
-
-    // Form submission validation
-    document.getElementById('signupForm').addEventListener('submit', function(e) {
-        if (!this.checkValidity()) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Manually trigger validation for all fields
-            const inputs = this.querySelectorAll('input');
-            inputs.forEach(input => {
-                if (input.checkValidity()) {
-                    input.classList.remove('is-invalid');
-                    input.classList.add('is-valid');
-                } else {
-                    input.classList.add('is-invalid');
-                }
-            });
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        setupValidation(document.getElementById('signupFirstName'), validateName);
+        setupValidation(document.getElementById('signupLastName'), validateName);
+        setupValidation(document.getElementById('signupMobile'), validateMobile);
+        setupValidation(document.getElementById('signupUsername'), validateUsername);
+        setupValidation(document.getElementById('signupEmail'), validateEmail);
+        setupValidation(document.getElementById('signupPassword'), validatePassword);
         
-        this.classList.add('was-validated');
-    });
+        setupValidation(document.getElementById('loginIdentifier'), validateLoginIdentifier);
+        setupValidation(document.getElementById('loginPassword'), validatePassword);
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        if (!this.checkValidity()) {
-            e.preventDefault();
-            e.stopPropagation();
+        // Initial validation for confirm password
+        setupValidation(document.getElementById('signupPassword2'), function(input) {
+            return input.value === password.value;
+        });
+
+        // Form submission validation with improved feedback
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Manually trigger validation for all fields with visual feedback
+                const inputs = this.querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        input.classList.add('is-invalid');
+                        input.focus();
+                        input.blur();
+                    }
+                });
+            }
             
-            const inputs = this.querySelectorAll('input');
-            inputs.forEach(input => {
-                if (input.checkValidity()) {
-                    input.classList.remove('is-invalid');
-                } else {
-                    input.classList.add('is-invalid');
-                }
-            });
-        }
+            this.classList.add('was-validated');
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const inputs = this.querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        input.classList.add('is-invalid');
+                        input.focus();
+                        input.blur();
+                    }
+                });
+            }
+            
+            this.classList.add('was-validated');
+        });
         
-        this.classList.add('was-validated');
+        // Initialize floating labels for any pre-filled fields
+        document.querySelectorAll('.form-floating input').forEach(input => {
+            if (input.value) {
+                const label = input.nextElementSibling;
+                if (label && label.tagName === 'LABEL') {
+                    label.style.top = '10px';
+                    label.style.fontSize = '0.75rem';
+                }
+            }
+        });
     });
 </script>
-{% endblock %}
 {% endblock %}

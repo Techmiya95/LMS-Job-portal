@@ -3,14 +3,16 @@ from django.urls import path
 
 
 
-from .views import toggle_apply_job,update_profile,profile_page,add_skill,remove_skill,add_project,update_project,delete_project,get_projects,get_locations
-from .views import check_auth, dashbord, index, job_list_view, login_view, logout_view, signup, user_list, hr_list, api_jobs,get_user_profile,loginhr,get_skills
+from .views import toggle_apply_job,update_profile,profile_page,add_skill,remove_skill,add_project,update_project,delete_project,get_projects,get_locations,get_education,payment
+from .views import check_auth, dashbord, index, job_list_view, login_view, logout_view, signup, user_list, hr_list, api_jobs,get_user_profile,loginhr,get_skills,hr_logout
 from .views import hr_signup, hr_login, create_job, update_job, delete_job, get_job_details, hr_panel_view, delete_job, get_api_keys, get_api_keys_message, get_document, upload_company_logo, upload_verification_documents
-from .views import get_job_data, get_applicant_details, contact_applicant,hr_userlist,get_user_details,store_jobs,upload_resume,get_resume,download_resume,search_locations
+from .views import get_job_data, get_applicant_details, contact_applicant,hr_userlist,get_user_details,store_jobs,upload_resume,get_resume,download_resume,search_locations,get_suggestions
 # from .views import save_experience
 from .views import get_experiences, add_experience, update_experience, delete_experience,get_jobs,toggle_job_status,generate_resume,job_applicants,hrprofile,hr_profile_view,upload_profile_picture,update_subscription
 urlpatterns = [ 
-                   path('upload_company_logo/', upload_company_logo, name='upload_company_logo'),
+               
+    path('payment/', payment, name='payment'),
+    path('upload_company_logo/', upload_company_logo, name='upload_company_logo'),
     path('upload_verification_docs/', upload_verification_documents, name='upload_verification_docs'),
     path('get_document/<str:doc_type>/', get_document, name='get_document'),
     path('update_subscription/', update_subscription, name='update_subscription'),
@@ -18,15 +20,15 @@ urlpatterns = [
 path('upload_profile_picture/', upload_profile_picture, name='upload_profile_picture'),
 # path('hr_profile_page/', hr_profile_page, name='hr_profile_page'),
       path('job/<str:job_id>/applicants/', job_applicants, name='job_applicants'),
-
+path('get_suggestions/', get_suggestions, name='get_suggestions'),
      path('generate_resume/<str:template_id>/', generate_resume, name='generate_resume'), 
     path('toggle_job_status/', toggle_job_status, name='toggle_job_status'),
     path('hrprofile/', hrprofile, name='hrprofile'),
     # path('check_user/', check_user, name='check_user'),  # Add the new URL pattern 
     path('get-jobs/',get_jobs, name='get_jobs'),
     path('hr/create-job/', create_job, name='create_job'),
-    path('hr/update-job/', update_job, name='update_job'),
-    path('hr/delete-job/', delete_job, name='delete_job'),
+    path('update-job/', update_job, name='update_job'),
+    path('delete-job/', delete_job, name='delete_job'),
     path('get_job_details/<str:job_id>/', get_job_details, name='get_job_details'),
     path('delete_job/', delete_job, name='delete_job'),
 path('get_job_data/<str:job_id>/', get_job_data, name='get_job_data'),
@@ -50,9 +52,12 @@ path('get_job_data/<str:job_id>/', get_job_data, name='get_job_data'),
     path('hrsignup/', hr_signup, name='hrsignup'),
     path('hrlogin/', hr_login, name='hrlogin'),
     path('loginhr/', loginhr, name='loginhr'),
+    path('hr_logout/', hr_logout, name='hr_logout'),
  path('create-job/', create_job, name='create-job'),
  path('get_locations/', get_locations, name='get_locations'),
  path('search_locations/', search_locations, name='search_locations'),
+ path('get_education/', get_education, name='get_education'),
+
     # path('save_experience/', save_experience, name='save_experience'),
     # path('get_experiences/', get_experiences, name='get_experiences'),
     path('apply/', toggle_apply_job, name='toggle_apply_job'),  

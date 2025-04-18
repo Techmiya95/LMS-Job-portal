@@ -1,11 +1,10 @@
 <!-- hr_panel.html -->
- {% load static%}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
     <title>HR Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css">
     <link rel="stylesheet" href="{% static 'css/stylehr.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -17,7 +16,7 @@
             font-weight: bold;
         }
         .custom-bordered-card {
-            border-top: 5px solid currentColor;      /* Top border uses dynamic color */
+            border-top: 9px solid currentColor;      /* Top border uses dynamic color */
             border-left: 1px solid #e0e0e0;          /* Light gray */
             border-right: 1px solid #e0e0e0;
             border-bottom: 1px solid #e0e0e0;
@@ -25,48 +24,13 @@
         
         
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="#">
-                <i class="bi bi-people-fill me-2"></i>HR Management Portal
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                  
-                    
-                   
-                    <li class="nav-item">
-                        {% if is_active %}
-                            <a class="nav-link text-dark" href="{% url 'hr_userlist' %}">
-                                <i class="bi bi-person-lines-fill me-1"></i>User List
-                            </a>
-                        {% else %}
-                            <a class="nav-link text-muted" href="#" data-bs-toggle="modal" data-bs-target="#premiumModal" style="cursor: pointer;">
-                                <i class="bi bi-person-lines-fill me-1"></i>User List
-                            </a>
-                        {% endif %}
-                    </li>
-                    
-                </ul>
-                <div class="d-flex align-items-center">
-                    <div class="me-3 text-dark">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <a href="{% url 'hrprofile'%}" style="text-decoration:none"><span>{{ request.session.hr_username }}</span></a>
-                    </div>
-                    <a href="{% url 'loginhr' %}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-box-arrow-right me-1"></i>Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    {% endblock %}
+    {% block content %}
+    
 
     <!-- Full-width HR Banner -->
     <section class="banner-section text-white py-5">
@@ -77,10 +41,12 @@
                     <p class="lead my-4">Streamline workforce management, boost employee engagement, and optimize your recruitment process</p>
                     
                     <div class="d-flex flex-wrap gap-3 mt-4">
-                        <div class="bg-white bg-opacity-25 p-3 rounded-3">
-                            <h4 class="mb-0"><i class="bi bi-people-fill me-2"></i> 245</h4>
-                            <small>Employees</small>
-                        </div>
+                        
+                            <div class="bg-white bg-opacity-25 p-3 rounded-3">
+                                <h4 class="mb-0"><i class="bi bi-people-fill me-2"></i> {{ total_employees }}</h4>
+                                <small>Employees</small>
+                            </div>
+                        
                         <div class="bg-white bg-opacity-25 p-3 rounded-3">
                             <h4 class="mb-0"><i class="bi bi-briefcase-fill me-2"></i> {{ hr_jobs|length }}</h4>
                             <small>Open Positions</small>
@@ -203,7 +169,18 @@
                                         <h6>Description:</h6>
                                         <p class="card-text text-muted">{{ job.FullDescription|truncatechars:150 }}</p>
                                     </div>
-                                </div>
+                                    <div class="mb-3">
+                                        <h6>Education Requirement:</h6>
+                                        <p class="card-text text-muted">
+                                            {% if job.education %}
+                                                {{ job.education }}
+                                            {% else %}
+                                                <span class="text-muted">Not specified</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    
+                    </div>
                                 <!-- In your job card footer, change the button to an anchor tag -->
 <div class="card-footer bg-transparent">
     <a href="{% url 'job_applicants' job.id %}" class="btn btn-outline-primary w-100">
@@ -215,20 +192,12 @@
                     {% endfor %}
                 </div>
                 
-                <!-- Pagination -->
-                <nav aria-label="Job pagination" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                    </ul>
-                </nav>
+               <!-- Pagination -->
+<nav aria-label="Job pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <!-- Pagination will be dynamically inserted here by JavaScript -->
+    </ul>
+</nav>
             {% else %}
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
@@ -535,10 +504,18 @@
                                 <label for="company" class="form-label">Company</label>
                                 <input type="text" class="form-control" id="company" name="company" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="location" class="form-label">Location</label>
-                                <input type="text" class="form-control" id="location" name="location" required>
-                            </div>
+                           <!-- In your createJobModal form -->
+<!-- In your createJobModal form -->
+<div class="col-md-6">
+    <label for="jobLocations" class="form-label">Job Locations (Select multiple)</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="locationSearch" placeholder="Search locations..." autocomplete="off">
+        <button class="btn btn-outline-secondary" type="button" id="addLocationBtn">Add</button>
+    </div>
+    <div id="locationSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></div>
+    <div id="selectedLocations" class="mt-2 d-flex flex-wrap gap-2"></div>
+    <input type="hidden" name="locations" id="locationsInput">
+</div>
                             <div class="col-md-6">
                                 <label for="salary" class="form-label">Salary</label>
                                 <input type="text" class="form-control" id="salary" name="salary" required>
@@ -559,16 +536,28 @@
                                 <input type="text" class="form-control" id="experience" name="experience" min="0" max="20" required>
                             </div>
                             <div class="col-12">
-                                <label for="skills" class="form-label">Skills Required (comma separated)</label>
-                                <input type="text" class="form-control" id="skills" name="Skills" placeholder="Python, JavaScript, HTML, CSS" required>
+                                <label for="skillsSearch" class="form-label">Skills Required</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="skillsSearch" placeholder="Search skills..." autocomplete="off">
+                                    <button class="btn btn-outline-secondary" type="button" id="addSkillBtn">Add</button>
+                                </div>
+                                <div id="skillsSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></div>
+                                <div id="selectedSkills" class="mt-2 d-flex flex-wrap gap-2"></div>
+                                <input type="hidden" name="Skills" id="skillsInput">
                             </div>
                             <div class="col-12">
                                 <label for="description" class="form-label">Job Description</label>
                                 <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
                             </div>
                             <div class="col-md-6">
-                                <label for="education" class="form-label">Education Requirements</label>
-                                <input type="text" class="form-control" id="education" name="education" required>
+                                <label for="educationSearch" class="form-label">Education Requirements</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="educationSearch" placeholder="Search education..." autocomplete="off">
+                                    <button class="btn btn-outline-secondary" type="button" id="addEducationBtn">Add</button>
+                                </div>
+                                <div id="educationSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></div>
+                                <div id="selectedEducation" class="mt-2 d-flex flex-wrap gap-2"></div>
+                                <input type="hidden" name="education" id="educationInput">
                             </div>
                             <div class="col-md-6">
                                 <label for="deadline" class="form-label">Application Deadline</label>
@@ -629,72 +618,15 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-              <a href="#" class="btn btn-primary">Upgrade Now</a>
+              <a href="{% url 'payment'%}" class="btn btn-primary">Active Now</a>
             </div>
           </div>
         </div>
       </div>
 
       <!-- HR Panel Footer -->
-<footer class="bg-dark text-white pt-4 pb-3 mt-5">
-    <div class="container">
-      <div class="row">
-        <!-- Company Information -->
-        <div class="col-md-3 mb-3">
-          <h5>HR Portal</h5>
-          <p class="small">Your comprehensive human resources management system.</p>
-          <p class="small">© 2025 Company Name</p>
-        </div>
-  
-        <!-- Quick Links -->
-        <div class="col-md-3 mb-3">
-          <h5>Quick Links</h5>
-          <ul class="list-unstyled small">
-            <li><a href="#" class="text-light">Employee Directory</a></li>
-            <li><a href="#" class="text-light">Payroll Dashboard</a></li>
-            <li><a href="#" class="text-light">Time & Attendance</a></li>
-            <li><a href="#" class="text-light">Benefits Management</a></li>
-          </ul>
-        </div>
-  
-        <!-- Resources -->
-        <div class="col-md-3 mb-3">
-          <h5>Resources</h5>
-          <ul class="list-unstyled small">
-            <li><a href="#" class="text-light">Employee Handbook</a></li>
-            <li><a href="#" class="text-light">Training Materials</a></li>
-            <li><a href="#" class="text-light">Company Policies</a></li>
-            <li><a href="#" class="text-light">Forms & Documents</a></li>
-          </ul>
-        </div>
-  
-        <!-- Contact Information -->
-        <div class="col-md-3 mb-3">
-          <h5>Contact HR</h5>
-          <ul class="list-unstyled small">
-            <li><i class="bi bi-envelope"></i> hr@company.com</li>
-            <li><i class="bi bi-telephone"></i> (555) 123-4567</li>
-            <li><i class="bi bi-geo-alt"></i> HR Office: Floor 3, Room 302</li>
-          </ul>
-        </div>
-      </div>
-  
-      <hr class="mt-2 mb-3 border-secondary">
-      
-      <!-- Bottom Footer -->
-      <div class="row">
-        <div class="col-md-6 small">
-          <p class="mb-0">HR Portal v2.5.1 | Last updated: April 2025</p>
-        </div>
-        <div class="col-md-6 text-md-end small">
-          <a href="#" class="text-light mx-1">Privacy Policy</a> | 
-          <a href="#" class="text-light mx-1">Terms of Use</a> | 
-          <a href="#" class="text-light mx-1">Support</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-      
+{% endblock %}
+  {% block scripts %}
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
       <script>
@@ -723,55 +655,79 @@
         })();
              
         // Handle Edit Job
+        // Update your edit button event listener
         document.querySelectorAll('.edit-job').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
                 const jobId = this.getAttribute('data-job-id');
-                console.log('Job ID to edit:', jobId);
-
+                console.log('Attempting to edit job:', jobId);
+                
                 if (jobId) {
-                    // Fetch job details
-                    fetch(`/get_job_details/${jobId}/`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(job => {
-                            console.log('Job details:', job);
-                            console.log('Job ID to edit2:', job._id);
-
-                            // Populate form fields
-                            document.getElementById('job_id').value = job._id;
-                            document.getElementById('title').value = job.Job;
-                            document.getElementById('company').value = job.Org;
-                            document.getElementById('location').value = job.Location;
-                            document.getElementById('salary').value = job.Salary;
-                            document.getElementById('job_type').value = job.job_type;
-                            document.getElementById('experience').value = job.experience;
-                            document.getElementById('skills').value = Array.isArray(job.Skills) ? job.Skills.join(', ') : job.Skills;
-                            document.getElementById('description').value = job.Fulldescription;
-                            document.getElementById('education').value = job.education;
-                            document.getElementById('deadline').value = job.deadline;
-
-                            // Change modal title
-                            document.getElementById('jobModalTitle').textContent = 'Edit Job';
-
-                            // Update form action
-                            document.getElementById('jobForm').action = "{% url 'update_job' %}";
-
-                            // Show modal
-                            new bootstrap.Modal(document.getElementById('createJobModal')).show();
-                        })
-                        .catch(error => {
-                            console.error('Error fetching job details:', error);
-                        });
-                } else {
-                    console.error('Job ID is empty or undefined.');
+                    fetch(`/get_job_details/${jobId}/`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(job => {
+                        console.log('Received job details:', job);
+                        
+                        // Populate form fields
+                        document.getElementById('job_id').value = job._id;
+                        document.getElementById('title').value = job.Job;
+                        document.getElementById('company').value = job.Org;
+                        
+                        // Handle locations (assuming it's an array)
+                        const locationsContainer = document.getElementById('selectedLocations');
+                        locationsContainer.innerHTML = '';
+                        if (Array.isArray(job.Location)) {
+                            job.Location.forEach(loc => {
+                                const badge = document.createElement('span');
+                                badge.className = 'badge bg-primary d-flex align-items-center';
+                                badge.innerHTML = `${loc}<button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>`;
+                                locationsContainer.appendChild(badge);
+                            });
+                            document.getElementById('locationsInput').value = JSON.stringify(job.Location);
+                        }
+                        
+                        // Populate other fields similarly...
+                        
+                        // Change modal title and action
+                        document.getElementById('jobModalTitle').textContent = 'Edit Job';
+                        document.getElementById('jobForm').action = "/update_job/";
+                        
+                        // Show modal
+                        new bootstrap.Modal(document.getElementById('createJobModal')).show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to load job details. Please try again.');
+                    });
                 }
             });
         });
-
+        
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
         // Handle Delete Job
         document.querySelectorAll('.delete-job').forEach(button => {
             button.addEventListener('click', function() {
@@ -1009,44 +965,9 @@
                 });
         }
 
-        // Initialize pagination for jobs (client-side)
-        function paginateItems(containerSelector, itemsPerPage) {
-            const container = document.querySelector(containerSelector);
-            if (!container) return;
-            
-            const items = container.children;
-            const totalItems = items.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            
-            // Show first page by default
-            showPage(1);
-            
-            function showPage(page) {
-                const start = (page - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                
-                for (let i = 0; i < totalItems; i++) {
-                    if (i >= start && i < end) {
-                        items[i].style.display = 'block';
-                    } else {
-                        items[i].style.display = 'none';
-                    }
-                }
-            }
-            
-            // Update pagination controls (you would implement this based on your UI)
-        }
         
-        // Initialize pagination when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            paginateItems('#jobs-container', 6); // 6 jobs per page
-            paginateItems('#applicants-container', 6); // 6 applicants per page
-            
-            // Show all applicants by default
-            document.querySelectorAll('.applicant-item').forEach(item => {
-                item.style.display = 'block';
-            });
-        });
+        
+        
 
         // Handle Disable Job
 document.querySelectorAll('.disable-job').forEach(button => {
@@ -1070,26 +991,33 @@ document.querySelectorAll('.enable-job').forEach(button => {
     });
 });
 
-// Function to disable/enable job
-function disableJob(jobId, disable) {
+// Update your disable/enable functions
+function toggleJobStatus(jobId, disable) {
     fetch('/toggle_job_status/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             job_id: jobId,
             disable: disable
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+        return response.json();
+    })
     .then(data => {
-        if (data.success) {
+        if (data && data.success) {
             alert(`Job has been ${disable ? 'disabled' : 'enabled'} successfully!`);
-            location.reload(); // Refresh to update the UI
-        } else {
-            alert('Error: ' + data.error);
+            location.reload();
+        } else if (data) {
+            alert('Error: ' + (data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
@@ -1097,6 +1025,483 @@ function disableJob(jobId, disable) {
         alert('An error occurred while updating the job status.');
     });
 }
+
+// Update event listeners
+document.querySelectorAll('.disable-job, .enable-job').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const jobId = this.getAttribute('data-job-id');
+        const action = this.classList.contains('disable-job') ? 'disable' : 'enable';
+        
+        if (confirm(`Are you sure you want to ${action} this job?`)) {
+            toggleJobStatus(jobId, action === 'disable');
+        }
+    });
+});
+
+
+// Location autocomplete functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const locationSearch = document.getElementById('locationSearch');
+    const suggestionsContainer = document.getElementById('locationSuggestions');
+    const selectedLocationsContainer = document.getElementById('selectedLocations');
+    const locationsInput = document.getElementById('locationsInput');
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    let selectedLocations = [];
+    let debounceTimer;
+
+    // Function to update the hidden input with selected locations
+    function updateHiddenInput() {
+        locationsInput.value = JSON.stringify(selectedLocations);
+    }
+
+    // Function to add a location to selected list
+    function addLocation(location) {
+        if (!selectedLocations.includes(location)) {
+            selectedLocations.push(location);
+            
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-primary d-flex align-items-center';
+            badge.innerHTML = `
+                ${location}
+                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
+            `;
+            
+            badge.querySelector('button').addEventListener('click', function() {
+                selectedLocations = selectedLocations.filter(l => l !== location);
+                badge.remove();
+                updateHiddenInput();
+            });
+            
+            selectedLocationsContainer.appendChild(badge);
+            updateHiddenInput();
+            locationSearch.value = '';
+            suggestionsContainer.style.display = 'none';
+        }
+    }
+
+    // Search for locations
+    locationSearch.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        const searchTerm = e.target.value.trim();
+        
+        if (searchTerm.length < 2) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            fetch(`/get_locations/?search=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.locations.length > 0) {
+                        suggestionsContainer.innerHTML = '';
+                        data.locations.forEach(location => {
+                            if (!selectedLocations.includes(location)) {
+                                const suggestionItem = document.createElement('a');
+                                suggestionItem.href = '#';
+                                suggestionItem.className = 'list-group-item list-group-item-action';
+                                suggestionItem.textContent = location;
+                                suggestionItem.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    addLocation(location);
+                                });
+                                suggestionsContainer.appendChild(suggestionItem);
+                            }
+                        });
+                        suggestionsContainer.style.display = suggestionsContainer.children.length ? 'block' : 'none';
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching locations:', error);
+                    suggestionsContainer.style.display = 'none';
+                });
+        }, 300);
+    });
+
+    // Add button click handler
+    addLocationBtn.addEventListener('click', function() {
+        const location = locationSearch.value.trim();
+        if (location && !selectedLocations.includes(location)) {
+            addLocation(location);
+        }
+    });
+
+    // Handle Enter key
+    locationSearch.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#locationSuggestions a.active');
+            if (activeSuggestion) {
+                addLocation(activeSuggestion.textContent);
+            } else if (locationSearch.value.trim()) {
+                addLocation(locationSearch.value.trim());
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#locationSuggestions a.active');
+            const suggestions = document.querySelectorAll('#locationSuggestions a');
+            
+            if (!activeSuggestion) {
+                suggestions[0]?.classList.add('active');
+            } else {
+                activeSuggestion.classList.remove('active');
+                const next = activeSuggestion.nextElementSibling;
+                if (next) next.classList.add('active');
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#locationSuggestions a.active');
+            if (activeSuggestion) {
+                activeSuggestion.classList.remove('active');
+                const prev = activeSuggestion.previousElementSibling;
+                if (prev) prev.classList.add('active');
+            }
+        }
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#locationSearch') && !e.target.closest('#locationSuggestions')) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const skillsSearch = document.getElementById('skillsSearch');
+    const suggestionsContainer = document.getElementById('skillsSuggestions');
+    const selectedSkillsContainer = document.getElementById('selectedSkills');
+    const skillsInput = document.getElementById('skillsInput');
+    const addSkillBtn = document.getElementById('addSkillBtn');
+    let selectedSkills = [];
+    let debounceTimer;
+
+    // Function to update the hidden input with selected skills
+    function updateSkillsInput() {
+        skillsInput.value = selectedSkills.join(', ');
+    }
+
+    // Function to add a skill to selected list
+    function addSkill(skill) {
+        skill = skill.trim();
+        if (skill && !selectedSkills.includes(skill)) {
+            selectedSkills.push(skill);
+            
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-primary d-flex align-items-center';
+            badge.innerHTML = `
+                ${skill}
+                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
+            `;
+            
+            badge.querySelector('button').addEventListener('click', function() {
+                selectedSkills = selectedSkills.filter(s => s !== skill);
+                badge.remove();
+                updateSkillsInput();
+            });
+            
+            selectedSkillsContainer.appendChild(badge);
+            updateSkillsInput();
+            skillsSearch.value = '';
+            suggestionsContainer.style.display = 'none';
+        }
+    }
+
+    // Search for skills
+    skillsSearch.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        const searchTerm = e.target.value.trim();
+        
+        if (searchTerm.length < 1) {  // Show suggestions even after 1 character
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            fetch(`/get_skills/?search=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.skills.length > 0) {
+                        suggestionsContainer.innerHTML = '';
+                        data.skills.forEach(skill => {
+                            if (!selectedSkills.includes(skill)) {
+                                const suggestionItem = document.createElement('a');
+                                suggestionItem.href = '#';
+                                suggestionItem.className = 'list-group-item list-group-item-action';
+                                suggestionItem.textContent = skill;
+                                suggestionItem.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    addSkill(skill);
+                                });
+                                suggestionsContainer.appendChild(suggestionItem);
+                            }
+                        });
+                        suggestionsContainer.style.display = suggestionsContainer.children.length ? 'block' : 'none';
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching skills:', error);
+                    suggestionsContainer.style.display = 'none';
+                });
+        }, 300);
+    });
+
+    // Add button click handler
+    addSkillBtn.addEventListener('click', function() {
+        const skill = skillsSearch.value.trim();
+        if (skill) {
+            addSkill(skill);
+        }
+    });
+
+    // Handle Enter key
+    skillsSearch.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#skillsSuggestions a.active');
+            if (activeSuggestion) {
+                addSkill(activeSuggestion.textContent);
+            } else if (skillsSearch.value.trim()) {
+                addSkill(skillsSearch.value.trim());
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#skillsSuggestions a.active');
+            const suggestions = document.querySelectorAll('#skillsSuggestions a');
+            
+            if (!activeSuggestion) {
+                suggestions[0]?.classList.add('active');
+            } else {
+                activeSuggestion.classList.remove('active');
+                const next = activeSuggestion.nextElementSibling;
+                if (next) next.classList.add('active');
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#skillsSuggestions a.active');
+            if (activeSuggestion) {
+                activeSuggestion.classList.remove('active');
+                const prev = activeSuggestion.previousElementSibling;
+                if (prev) prev.classList.add('active');
+            }
+        }
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#skillsSearch') && !e.target.closest('#skillsSuggestions')) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+});
+// Initialize pagination for jobs
+document.addEventListener('DOMContentLoaded', function() {
+    const itemsPerPage = 6; // Number of jobs per page
+    const jobItems = document.querySelectorAll('.job-item');
+    const totalItems = jobItems.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    let currentPage = 1;
+
+    // Function to show a specific page
+    function showPage(page) {
+        currentPage = page;
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        
+        // Hide all items first
+        jobItems.forEach(item => {
+            item.style.display = 'none';
+        });
+        
+        // Show items for current page
+        for (let i = start; i < end && i < totalItems; i++) {
+            if (jobItems[i]) {
+                jobItems[i].style.display = 'block';
+            }
+        }
+        
+        // Update pagination controls
+        updatePaginationControls();
+    }
+
+    // Function to update pagination controls
+    function updatePaginationControls() {
+        const paginationContainer = document.querySelector('.pagination');
+        if (!paginationContainer) return;
+        
+        paginationContainer.innerHTML = '';
+        
+        // Previous button
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        prevLi.innerHTML = `<a class="page-link" href="#" tabindex="-1">Previous</a>`;
+        prevLi.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage > 1) showPage(currentPage - 1);
+        });
+        paginationContainer.appendChild(prevLi);
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const pageLi = document.createElement('li');
+            pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            pageLi.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage(i);
+            });
+            paginationContainer.appendChild(pageLi);
+        }
+        
+        // Next button
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+        nextLi.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage < totalPages) showPage(currentPage + 1);
+        });
+        paginationContainer.appendChild(nextLi);
+    }
+
+    // Initialize pagination
+    if (totalItems > 0) {
+        showPage(1);
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const educationSearch = document.getElementById('educationSearch');
+    const suggestionsContainer = document.getElementById('educationSuggestions');
+    const selectedEducationContainer = document.getElementById('selectedEducation');
+    const educationInput = document.getElementById('educationInput');
+    const addEducationBtn = document.getElementById('addEducationBtn');
+    let selectedEducation = [];
+    let debounceTimer;
+
+    // Function to update the hidden input
+    function updateEducationInput() {
+        educationInput.value = JSON.stringify(selectedEducation);
+    }
+
+    // Function to add education
+    function addEducation(education) {
+        education = education.trim();
+        if (education && !selectedEducation.includes(education)) {
+            selectedEducation.push(education);
+            
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-info d-flex align-items-center';
+            badge.innerHTML = `
+                ${education}
+                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
+            `;
+            
+            badge.querySelector('button').addEventListener('click', function() {
+                selectedEducation = selectedEducation.filter(e => e !== education);
+                badge.remove();
+                updateEducationInput();
+            });
+            
+            selectedEducationContainer.appendChild(badge);
+            updateEducationInput();
+            educationSearch.value = '';
+            suggestionsContainer.style.display = 'none';
+        }
+    }
+
+    // Search for education
+    educationSearch.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        const searchTerm = e.target.value.trim();
+        
+        if (searchTerm.length < 2) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            fetch(`/get_education/?search=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.education.length > 0) {
+                        suggestionsContainer.innerHTML = '';
+                        data.education.forEach(edu => {
+                            if (!selectedEducation.includes(edu)) {
+                                const suggestionItem = document.createElement('a');
+                                suggestionItem.href = '#';
+                                suggestionItem.className = 'list-group-item list-group-item-action';
+                                suggestionItem.textContent = edu;
+                                suggestionItem.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    addEducation(edu);
+                                });
+                                suggestionsContainer.appendChild(suggestionItem);
+                            }
+                        });
+                        suggestionsContainer.style.display = suggestionsContainer.children.length ? 'block' : 'none';
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching education:', error);
+                    suggestionsContainer.style.display = 'none';
+                });
+        }, 300);
+    });
+
+    // Add button click handler
+    addEducationBtn.addEventListener('click', function() {
+        const education = educationSearch.value.trim();
+        if (education) {
+            addEducation(education);
+        }
+    });
+
+    // Handle Enter key
+    educationSearch.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#educationSuggestions a.active');
+            if (activeSuggestion) {
+                addEducation(activeSuggestion.textContent);
+            } else if (educationSearch.value.trim()) {
+                addEducation(educationSearch.value.trim());
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#educationSuggestions a.active');
+            const suggestions = document.querySelectorAll('#educationSuggestions a');
+            
+            if (!activeSuggestion) {
+                suggestions[0]?.classList.add('active');
+            } else {
+                activeSuggestion.classList.remove('active');
+                const next = activeSuggestion.nextElementSibling;
+                if (next) next.classList.add('active');
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const activeSuggestion = document.querySelector('#educationSuggestions a.active');
+            if (activeSuggestion) {
+                activeSuggestion.classList.remove('active');
+                const prev = activeSuggestion.previousElementSibling;
+                if (prev) prev.classList.add('active');
+            }
+        }
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#educationSearch') && !e.target.closest('#educationSuggestions')) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+});
     </script>
-</body>
-</html>
+    
+    {% endblock %}
